@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:tsty_app/constants/tabList.dart';
+import 'package:tsty_app/pages/ai_chat/index.dart';
+import 'package:tsty_app/pages/learn/index.dart';
+import 'package:tsty_app/pages/mine/index.dart';
 import 'package:tsty_app/style/app_theme.dart';
 
 class BottomNavigationBarCustom extends StatefulWidget {
-  const BottomNavigationBarCustom({super.key});
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+  const BottomNavigationBarCustom({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
 
   @override
   State<BottomNavigationBarCustom> createState() =>
@@ -10,41 +20,8 @@ class BottomNavigationBarCustom extends StatefulWidget {
 }
 
 class _BottomNavigationBarCustomState extends State<BottomNavigationBarCustom> {
-  final List<Map<String, dynamic>> _tabList = [
-    {
-      'label': '学习',
-      'icon': Image.asset("lib/assets/learn.png", width: 30, height: 30),
-      'activeIcon': Image.asset(
-        "lib/assets/learn_active.png",
-        width: 30,
-        height: 30,
-      ),
-      'page': const Center(child: Text('学习')),
-    },
-    {
-      'label': 'AI对话',
-      'icon': Image.asset("lib/assets/ai_chat.png", width: 30, height: 30),
-      'activeIcon': Image.asset(
-        "lib/assets/ai_chat_active.png",
-        width: 30,
-        height: 30,
-      ),
-      'page': const Center(child: Text('AI对话')),
-    },
-    {
-      'label': '我的',
-      'icon': Image.asset("lib/assets/mine.png", width: 30, height: 30),
-      'activeIcon': Image.asset(
-        "lib/assets/mine_active.png",
-        width: 30,
-        height: 30,
-      ),
-      'page': const Center(child: Text('我的')),
-    },
-  ];
-
   List<BottomNavigationBarItem> _buildTabItems() {
-    return _tabList.map((tab) {
+    return TabListConstant.tabList.map((tab) {
       return BottomNavigationBarItem(
         icon: tab['icon'],
         activeIcon: tab['activeIcon'],
@@ -53,7 +30,6 @@ class _BottomNavigationBarCustomState extends State<BottomNavigationBarCustom> {
     }).toList();
   }
 
-  int _currentIndex = 0;
   final AppTheme appTheme = AppTheme();
   @override
   Widget build(BuildContext context) {
@@ -96,12 +72,8 @@ class _BottomNavigationBarCustomState extends State<BottomNavigationBarCustom> {
                 backgroundColor: Colors.transparent,
                 type: BottomNavigationBarType.fixed,
                 items: _buildTabItems(),
-                currentIndex: _currentIndex,
-                onTap: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
+                currentIndex: widget.currentIndex,
+                onTap: widget.onTap,
               ),
             ),
           ),
