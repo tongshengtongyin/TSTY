@@ -57,7 +57,7 @@ class _LearnPageState extends State<LearnPage> {
                             strokeColor: Theme.of(context)
                                 .colorScheme
                                 .primary
-                                .withOpacity(0.9),
+                                .withValues(alpha: 0.9),
                             strokeWidth: 8,
                           ),
                         ),
@@ -328,11 +328,11 @@ class _LevelPathPainter extends CustomPainter {
 
     final highlightPaint = Paint()
       ..color = _lerpColor(strokeColor, const Color(0xFFFFFFFF), 0.35)
-          .withOpacity(0.75)
+          .withValues(alpha: 0.75)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth * 0.42
       ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, strokeWidth * 0.55);
 
     canvas.drawPath(path, shadowPaint);
     canvas.drawPath(path, basePaint);
@@ -390,7 +390,7 @@ class _LevelPathPainter extends CustomPainter {
         final c = rnd.nextDouble() < 0.6
             ? _lerpColor(strokeColor, const Color(0xFFFFFFFF), 0.4)
             : _lerpColor(strokeColor, const Color(0xFF000000), 0.15);
-        fiberPaint.color = c.withOpacity(0.18 + rnd.nextDouble() * 0.20);
+        fiberPaint.color = c.withValues(alpha: 0.18 + rnd.nextDouble() * 0.20);
 
         canvas.drawLine(start, end, fiberPaint);
       }
