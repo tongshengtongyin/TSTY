@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tsty_app/pages/ai_chat/detail.dart';
 import 'package:tsty_app/pages/learn/level_detail.dart';
 import 'package:tsty_app/pages/mine/edit_profile.dart';
-import 'package:tsty_app/pages/mine/parent_center_placeholder.dart';
+import 'package:tsty_app/pages/mine/parent_center.dart';
 import 'package:tsty_app/pages/mine/parent_entry.dart';
 import 'package:tsty_app/pages/settings/index.dart';
 import 'package:tsty_app/pages/main/index.dart';
@@ -26,7 +26,7 @@ Map<String, Widget Function(BuildContext)> getRootRoutes() {
     "/settings": (context) => const SettingsPage(),
     "/mine/edit-profile": (context) => const EditProfilePage(),
     "/mine/parent-entry": (context) => const ParentEntryPage(),
-    "/mine/parent-center": (context) => const ParentCenterPlaceholderPage(),
+    "/mine/parent-center": (context) => const ParentCenterPage(),
     "/learn/level-detail": (context) => LevelDetailPage.fromArgs(
           ModalRoute.of(context)?.settings.arguments,
         ),

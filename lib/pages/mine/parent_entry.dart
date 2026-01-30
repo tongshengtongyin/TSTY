@@ -3,6 +3,7 @@ import 'package:tsty_app/components/common/YiBaseBackground.dart';
 import 'package:tsty_app/components/common/YiTopBar.dart';
 import 'package:tsty_app/components/mine/parent_entry/parent_entry_feature_list.dart';
 import 'package:tsty_app/components/mine/parent_entry/parent_entry_password_card.dart';
+import 'package:tsty_app/utils/parent_center_prefs.dart';
 
 class ParentEntryPage extends StatefulWidget {
   const ParentEntryPage({super.key});
@@ -63,6 +64,8 @@ class _ParentEntryPageState extends State<ParentEntryPage> {
       _loading = false;
     });
 
+    if (!mounted) return;
+    await ParentCenterPrefs.setParentLoggedIn(true);
     if (!mounted) return;
     Navigator.of(context).pushReplacementNamed('/mine/parent-center');
   }
