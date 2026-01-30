@@ -119,8 +119,12 @@ class _AiChatPageState extends State<AiChatPage> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('进入场景：${scene.name}')),
+    Navigator.of(context).pushNamed(
+      '/ai-chat/detail',
+      arguments: {
+        'sceneId': scene.id,
+        'sceneName': scene.name,
+      },
     );
   }
 
