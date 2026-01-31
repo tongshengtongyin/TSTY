@@ -5,7 +5,8 @@ import 'package:tsty_app/components/ai_chat/ai_chat_recent_list_sliver.dart';
 import 'package:tsty_app/components/ai_chat/ai_chat_scene_grid_sliver.dart';
 import 'package:tsty_app/components/ai_chat/ai_chat_section_header_sliver.dart';
 import 'package:tsty_app/components/ai_chat/ai_chat_teacher_intro_sliver.dart';
-import 'package:tsty_app/style/app_theme.dart';
+import 'package:tsty_app/components/common/select_character_dialog.dart';
+import 'package:tsty_app/utils/user_prefs.dart';
 
 class AiChatPage extends StatefulWidget {
   const AiChatPage({super.key});
@@ -137,19 +138,38 @@ class _AiChatPageState extends State<AiChatPage> {
     ).showSnackBar(SnackBar(content: Text('查看${item.title}历史记录')));
   }
 
+  Future<void> _onTeacherTap() async {
+    final initialValue = await UserPrefs.getSelectedCharacter();
+    if (!mounted) return;
+
+    final selected = await showSelectCharacterDialog(
+      context: context,
+      initialValue: initialValue,
+    );
+    if (selected == null || !mounted) return;
+
+    await UserPrefs.setSelectedCharacter(selected);
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(selected == 0 ? '已切换为 阿依莫' : '已切换为 阿牛惹'),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final deepRed = const Color(0xFF8B0002);
     final warmRed = const Color(0xFFC00003);
-    final warmYellow = const Color(0xFFFFD666);
 
     return CustomScrollView(
       slivers: [
         const AiChatHeaderSliver(),
-        const AiChatTeacherIntroSliver(
+        AiChatTeacherIntroSliver(
           avatarAsset: 'lib/assets/ayimo.webp',
           name: '阿依莫老师',
           desc: '温柔耐心，陪你练习普通话',
+          onTap: _onTeacherTap,
         ),
         AiChatSectionHeaderSliver(
           icon: Icons.apps,
