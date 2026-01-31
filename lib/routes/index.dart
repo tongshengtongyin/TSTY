@@ -5,6 +5,7 @@ import 'package:tsty_app/pages/learn/level_detail.dart';
 import 'package:tsty_app/pages/mine/edit_profile.dart';
 import 'package:tsty_app/pages/mine/parent_center.dart';
 import 'package:tsty_app/pages/mine/parent_entry.dart';
+import 'package:tsty_app/pages/login/index.dart';
 import 'package:tsty_app/pages/settings/index.dart';
 import 'package:tsty_app/pages/main/index.dart';
 import 'package:tsty_app/style/app_theme.dart';
@@ -23,6 +24,7 @@ Widget myApp() {
 Map<String, Widget Function(BuildContext)> getRootRoutes() {
   return {
     "/": (context) => MainPage(), // 主页路由
+    "/login": (context) => const LoginPage(),
     "/settings": (context) => const SettingsPage(),
     "/mine/edit-profile": (context) => const EditProfilePage(),
     "/mine/parent-entry": (context) => const ParentEntryPage(),
@@ -33,6 +35,5 @@ Map<String, Widget Function(BuildContext)> getRootRoutes() {
     "/ai-chat/detail": (context) => AiChatDetailPage.fromArgs(
           ModalRoute.of(context)?.settings.arguments,
         ),
-    //"/login": (context) => LoginPage(), // 登录页路由
   };
 }

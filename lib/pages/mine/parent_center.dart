@@ -5,6 +5,7 @@ import 'package:tsty_app/components/mine/parent_center/parent_center_models.dart
 import 'package:tsty_app/components/mine/parent_center/parent_center_segmented_control.dart';
 import 'package:tsty_app/components/mine/parent_center/parent_control_section.dart';
 import 'package:tsty_app/components/mine/parent_center/parent_report_section.dart';
+import 'package:tsty_app/components/common/yi_dialog.dart';
 import 'package:tsty_app/utils/ToastUtils.dart';
 import 'package:tsty_app/utils/parent_center_prefs.dart';
 
@@ -214,24 +215,13 @@ class _ParentCenterPageState extends State<ParentCenterPage> {
   }
 
   Future<void> _onExit() async {
-    final ok = await showDialog<bool>(
+    final ok = await showYiConfirmDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('退出确认'),
-          content: const Text('确定要退出家长中心吗？'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('取消'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('确定'),
-            ),
-          ],
-        );
-      },
+      title: '退出确认',
+      message: '确定要退出家长中心吗？',
+      danger: true,
+      cancelText: '取消',
+      confirmText: '确定',
     );
 
     if (ok != true || !mounted) return;
