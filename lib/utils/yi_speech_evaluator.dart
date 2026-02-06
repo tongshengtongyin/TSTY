@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/status.dart' as ws_status;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -126,11 +126,41 @@ class YiIseResult {
 }
 
 class YiIseXml {
-  static double? extractTotalScore(String xml) {
-    final m = RegExp(r'total_score\s*=\s*"([0-9]+(?:\.[0-9]+)?)"')
+  static double? _extractAttrDouble(String xml, String attr) {
+    final m = RegExp('$attr\\s*=\\s*"([0-9]+(?:\\.[0-9]+)?)"')
         .firstMatch(xml);
     if (m == null) return null;
     return double.tryParse(m.group(1) ?? '');
+  }
+
+  static int? _extractAttrInt(String xml, String attr) {
+    final m = RegExp('$attr\\s*=\\s*"(-?[0-9]+)"').firstMatch(xml);
+    if (m == null) return null;
+    return int.tryParse(m.group(1) ?? '');
+  }
+
+  static double? extractTotalScore(String xml) {
+    return _extractAttrDouble(xml, 'total_score');
+  }
+
+  static double? extractFluencyScore(String xml) {
+    return _extractAttrDouble(xml, 'fluency_score');
+  }
+
+  static double? extractIntegrityScore(String xml) {
+    return _extractAttrDouble(xml, 'integrity_score');
+  }
+
+  static double? extractToneScore(String xml) {
+    return _extractAttrDouble(xml, 'tone_score');
+  }
+
+  static double? extractPhoneScore(String xml) {
+    return _extractAttrDouble(xml, 'phone_score');
+  }
+
+  static int? extractExceptInfo(String xml) {
+    return _extractAttrInt(xml, 'except_info');
   }
 }
 
@@ -148,6 +178,15 @@ class YiIseEvaluator {
   final YiIseConfig config;
 
   YiIseEvaluator(this.config);
+
+  bool _trySinkAdd(WebSocketChannel channel, Object data) {
+    try {
+      channel.sink.add(data);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
   Stream<YiIseProgress> evaluateBytes({
     required Uint8List audioBytes,
@@ -243,6 +282,9 @@ class YiIseEvaluator {
 
     try {
       final endpoint = authQuery?.applyTo(config.endpoint) ?? config.endpoint;
+      if (kDebugMode) {
+        debugPrint('ISE WS connect: $endpoint');
+      }
       channel = WebSocketChannel.connect(endpoint);
 
       if (timeout != null) {
@@ -281,6 +323,12 @@ class YiIseEvaluator {
                 xmlChunk = null;
               }
             }
+          }
+
+          if (kDebugMode) {
+            debugPrint(
+              'ISE WS recv: code=$code status=$status sid=${sid ?? ''} message=$message',
+            );
           }
 
           emit(YiIseProgress(
@@ -333,12 +381,39 @@ class YiIseEvaluator {
         },
       };
 
-      channel.sink.add(jsonEncode(ssb));
+      if (!_trySinkAdd(channel, jsonEncode(ssb))) {
+        emit(const YiIseProgress(
+          sid: null,
+          code: -1,
+          message: 'ws_closed',
+          status: -1,
+          xmlChunk: null,
+        ));
+        return;
+      }
 
       final bytes = _maybeStripWavHeader(audioBytes);
-      await _sendAudioFrames(channel, bytes);
+      final ok = await _sendAudioFrames(channel, bytes);
+      if (!ok) {
+        emit(const YiIseProgress(
+          sid: null,
+          code: -1,
+          message: 'ws_closed',
+          status: -1,
+          xmlChunk: null,
+        ));
+        return;
+      }
 
       await sub.asFuture<void>();
+    } catch (_) {
+      emit(const YiIseProgress(
+        sid: null,
+        code: -1,
+        message: 'send_error',
+        status: -1,
+        xmlChunk: null,
+      ));
     } finally {
       timeoutTimer?.cancel();
       await sub?.cancel();
@@ -395,7 +470,7 @@ class YiIseEvaluator {
     return null;
   }
 
-  Future<void> _sendAudioFrames(WebSocketChannel channel, Uint8List bytes) async {
+  Future<bool> _sendAudioFrames(WebSocketChannel channel, Uint8List bytes) async {
     if (bytes.isEmpty) {
       final last = {
         'business': {
@@ -407,8 +482,7 @@ class YiIseEvaluator {
           'data': '',
         },
       };
-      channel.sink.add(jsonEncode(last));
-      return;
+      return _trySinkAdd(channel, jsonEncode(last));
     }
 
     final frameSize = config.bytesPerFrame;
@@ -423,7 +497,7 @@ class YiIseEvaluator {
           'data': base64Encode(bytes),
         },
       };
-      channel.sink.add(jsonEncode(first));
+      if (!_trySinkAdd(channel, jsonEncode(first))) return false;
       await Future<void>.delayed(config.frameInterval);
 
       final last = {
@@ -436,8 +510,7 @@ class YiIseEvaluator {
           'data': '',
         },
       };
-      channel.sink.add(jsonEncode(last));
-      return;
+      return _trySinkAdd(channel, jsonEncode(last));
     }
 
     int offset = 0;
@@ -470,7 +543,7 @@ class YiIseEvaluator {
         },
       };
 
-      channel.sink.add(jsonEncode(frame));
+      if (!_trySinkAdd(channel, jsonEncode(frame))) return false;
 
       if (!isLast) {
         await Future<void>.delayed(config.frameInterval);
@@ -479,5 +552,7 @@ class YiIseEvaluator {
       offset = end;
       index += 1;
     }
+
+    return true;
   }
 }

@@ -8,6 +8,7 @@ import 'package:tsty_app/pages/mine/parent_entry.dart';
 import 'package:tsty_app/pages/login/index.dart';
 import 'package:tsty_app/pages/settings/index.dart';
 import 'package:tsty_app/pages/main/index.dart';
+import 'package:tsty_app/routes/route_observer.dart';
 import 'package:tsty_app/style/app_theme.dart';
 
 Widget _wrapSafeArea(Widget child) {
@@ -22,6 +23,7 @@ Widget myApp() {
     theme: appTheme.light(),
     initialRoute: '/',
     routes: getRootRoutes(),
+    navigatorObservers: [routeObserver],
   );
 }
 

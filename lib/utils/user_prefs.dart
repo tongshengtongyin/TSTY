@@ -1,5 +1,17 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+String _yiRandomHex(int len) {
+  final now = DateTime.now().microsecondsSinceEpoch;
+  var x = now;
+  const chars = '0123456789abcdef';
+  final buf = StringBuffer();
+  for (var i = 0; i < len; i++) {
+    x = (x * 1103515245 + 12345) & 0x7fffffff;
+    buf.write(chars[x % 16]);
+  }
+  return buf.toString();
+}
+
 class UserPrefs {
   static const _kLoggedIn = 'user.loggedIn';
   static const _kSelectedCharacter = 'user.selectedCharacter';
@@ -8,6 +20,8 @@ class UserPrefs {
   static const _kFontSizeIndex = 'user.fontSizeIndex';
 
   static const _kAccessToken = 'auth.accessToken';
+
+  static const _kDeviceId = 'device.id';
 
   static const _kIseAuthorization = 'ise.authorization';
   static const _kIseDate = 'ise.date';
@@ -44,6 +58,17 @@ class UserPrefs {
   static Future<void> clearAccessToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_kAccessToken);
+  }
+
+  static Future<String> getOrCreateDeviceId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final existing = prefs.getString(_kDeviceId);
+    final s = existing?.trim() ?? '';
+    if (s.isNotEmpty) return s;
+
+    final id = 'dev_${DateTime.now().millisecondsSinceEpoch}_${_yiRandomHex(10)}';
+    await prefs.setString(_kDeviceId, id);
+    return id;
   }
 
   static Future<IseAuthCache?> getIseAuthCache() async {

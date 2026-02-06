@@ -89,12 +89,23 @@ class DioUtils {
 
   Future<dynamic> _handleRequest(Response<dynamic> task) async {
     try {
-      Response<dynamic> result = task;
-      Map<String, dynamic> handledRes = result.data as Map<String, dynamic>;
-      if (handledRes["code"] == GlobalConstants.successState) {
-        return handledRes["data"];
+      final result = task;
+      final data = result.data;
+
+      if (data is Map) {
+        if (data.containsKey('code')) {
+          final code = data['code'];
+          final ok = code == GlobalConstants.successState ||
+              code?.toString() == GlobalConstants.successState.toString();
+          if (ok) {
+            return data['data'];
+          }
+          throw Exception(data['message']?.toString() ?? '数据处理出错！');
+        }
+        return data;
       }
-      throw Exception(handledRes["message"] ?? "数据处理出错！");
+
+      return data;
     } catch (e) {
       throw Exception(e);
     }

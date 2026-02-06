@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tsty_app/api/learn.dart';
 import 'package:tsty_app/components/learn/learn_header.dart';
@@ -15,9 +16,12 @@ class LearnPage extends StatefulWidget {
 class _LearnPageState extends State<LearnPage> {
   int _selectedUnitIndex = 0;
   bool _loading = false;
+  bool _pullUpRefreshing = false;
+  double _pullUpExtent = 0;
   String _currentUnitId = UnitConstants.initialUnitId;
   int _totalLevels = 23;
   List<LearnLevelData> _levelData = const [];
+  int _loadSeq = 0;
   List<LearnUnitProgress> _unitProgressCache = List<LearnUnitProgress>.generate(
     4,
     (_) => const LearnUnitProgress(completed: 0, total: 0),
@@ -25,6 +29,49 @@ class _LearnPageState extends State<LearnPage> {
 
   Future<UnitProgressResponse> _getLevels(String unitId) async {
     return await getUnitProgressAPI(unitId);
+  }
+
+  Future<UnitProgressResponse> _getLevelsWithRetry(String unitId) async {
+    const maxAttempts = 5;
+    var delay = const Duration(milliseconds: 300);
+
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        return await _getLevels(unitId);
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint(
+            'getUnitProgressAPI failed (attempt $attempt/$maxAttempts, unitId=$unitId): $e',
+          );
+        }
+        if (attempt >= maxAttempts) {
+          rethrow;
+        }
+        await Future<void>.delayed(delay);
+        delay *= 2;
+      }
+    }
+
+    throw Exception('getUnitProgressAPI failed');
+  }
+
+  Future<void> _triggerPullUpRefresh() async {
+    if (_pullUpRefreshing || _loading) return;
+
+    setState(() {
+      _pullUpRefreshing = true;
+      _pullUpExtent = 0;
+    });
+
+    try {
+      await _loadUnit(_selectedUnitIndex);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _pullUpRefreshing = false;
+        });
+      }
+    }
   }
 
   String _unitIdFromIndex(int index) {
@@ -44,16 +91,23 @@ class _LearnPageState extends State<LearnPage> {
 
   LearnLevelStatus _mapStatus(String status) {
     final s = status.trim().toLowerCase();
-    if (s == 'passed' ||
-        s == 'complete' ||
-        s == 'completed' ||
-        s == 'done' ||
-        s == 'success') {
-      return LearnLevelStatus.passed;
+    if (s == 'perfect') {
+      return LearnLevelStatus.perfect;
+    }
+    if (s == 'completed') {
+      return LearnLevelStatus.completed;
     }
     if (s == 'unlocked' || s == 'open' || s == 'available') {
       return LearnLevelStatus.unlocked;
     }
+    if (s == 'locked') {
+      return LearnLevelStatus.locked;
+    }
+
+    if (s == 'passed' || s == 'complete' || s == 'done' || s == 'success') {
+      return LearnLevelStatus.completed;
+    }
+
     return LearnLevelStatus.locked;
   }
 
@@ -65,6 +119,7 @@ class _LearnPageState extends State<LearnPage> {
   }
 
   Future<void> _loadUnit(int index) async {
+    final seq = ++_loadSeq;
     final unitId = _unitIdFromIndex(index);
 
     setState(() {
@@ -74,8 +129,8 @@ class _LearnPageState extends State<LearnPage> {
     });
 
     try {
-      final resp = await _getLevels(unitId);
-      if (!mounted) return;
+      final resp = await _getLevelsWithRetry(unitId);
+      if (!mounted || seq != _loadSeq) return;
 
       final nextProgress = List<LearnUnitProgress>.from(_unitProgressCache);
       if (index >= 0 && index < nextProgress.length) {
@@ -102,7 +157,7 @@ class _LearnPageState extends State<LearnPage> {
         return LearnLevelData(
           id: id,
           levelId: item.levelId,
-          status: _mapStatus(item.status),
+          status: _mapStatus(item.unlockStatus),
           flowers: item.stars.clamp(0, 3),
         );
       });
@@ -114,7 +169,7 @@ class _LearnPageState extends State<LearnPage> {
         _loading = false;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted || seq != _loadSeq) return;
       setState(() {
         _levelData = const [];
         _loading = false;
@@ -125,11 +180,16 @@ class _LearnPageState extends State<LearnPage> {
   @override
   void initState() {
     super.initState();
-    _loadUnit(_selectedUnitIndex);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _loadUnit(_selectedUnitIndex);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    const pullUpTrigger = 80.0;
+
     return Column(
       children: [
         SizedBox(
@@ -144,64 +204,147 @@ class _LearnPageState extends State<LearnPage> {
           child: _loading && _levelData.isEmpty
               ? const Center(child: CircularProgressIndicator())
               : _levelData.isEmpty
-              ? const Center(child: Text('暂无关卡'))
-              : LearnLevelMap(
-                  levels: _levelData,
-                  onLevelTap: (level) {
-                    () async {
-                      final localContext = context;
-                      final levelId = level.levelId;
-                      if (levelId == null || levelId.isEmpty) return;
+                  ? const Center(child: Text('暂无关卡'))
+                  : Stack(
+                      children: [
+                        NotificationListener<ScrollNotification>(
+                          onNotification: (notification) {
+                            final atBottom = notification.metrics.pixels <=
+                                (notification.metrics.minScrollExtent + 0.5);
 
-                      final rootNavigator = Navigator.of(
-                        localContext,
-                        rootNavigator: true,
-                      );
-                      showDialog<void>(
-                        context: localContext,
-                        barrierDismissible: false,
-                        builder: (context) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        },
-                      );
+                            if (!atBottom && _pullUpExtent != 0) {
+                              setState(() {
+                                _pullUpExtent = 0;
+                              });
+                            }
 
-                      try {
-                        final content = await getLevelDetailsAPI(levelId);
-                        if (!localContext.mounted) return;
+                            if (notification is OverscrollNotification) {
+                              if (atBottom &&
+                                  notification.overscroll < 0 &&
+                                  !_pullUpRefreshing &&
+                                  !_loading) {
+                                final next =
+                                    _pullUpExtent + (-notification.overscroll);
+                                if (next != _pullUpExtent) {
+                                  setState(() {
+                                    _pullUpExtent = next;
+                                  });
+                                }
+                              }
+                            }
 
-                        if (rootNavigator.mounted && rootNavigator.canPop()) {
-                          rootNavigator.pop();
-                        }
+                            if (notification is ScrollEndNotification) {
+                              final extent = _pullUpExtent;
+                              if (extent >= pullUpTrigger) {
+                                _triggerPullUpRefresh();
+                              } else if (extent != 0) {
+                                setState(() {
+                                  _pullUpExtent = 0;
+                                });
+                              }
+                            }
 
-                        Navigator.of(localContext).pushNamed(
-                          '/learn/level-detail',
-                          arguments: {
-                            'unitId': _currentUnitId,
-                            'levelId': levelId,
-                            'levelIndex': level.id,
-                            'totalLevels': _totalLevels,
-                            'levelContent': content,
-                            'levelIds': _levelData
-                                .map((e) => e.levelId ?? '')
-                                .toList(growable: false),
+                            return false;
                           },
-                        );
-                      } catch (_) {
-                        if (!localContext.mounted) return;
+                          child: LearnLevelMap(
+                            levels: _levelData,
+                            onLevelTap: (level) {
+                              () async {
+                                final localContext = context;
+                                final levelId = level.levelId;
+                                if (levelId == null || levelId.isEmpty) return;
 
-                        if (rootNavigator.mounted && rootNavigator.canPop()) {
-                          rootNavigator.pop();
-                        }
+                                final rootNavigator = Navigator.of(
+                                  localContext,
+                                  rootNavigator: true,
+                                );
+                                showDialog<void>(
+                                  context: localContext,
+                                  barrierDismissible: false,
+                                  builder: (context) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  },
+                                );
 
-                        ScaffoldMessenger.of(localContext).showSnackBar(
-                          const SnackBar(content: Text('获取关卡详情失败')),
-                        );
-                      }
-                    }();
-                  },
-                ),
+                                try {
+                                  final content =
+                                      await getLevelDetailsAPI(levelId);
+                                  if (!localContext.mounted) return;
+
+                                  if (rootNavigator.mounted &&
+                                      rootNavigator.canPop()) {
+                                    rootNavigator.pop();
+                                  }
+
+                                  Navigator.of(localContext).pushNamed(
+                                    '/learn/level-detail',
+                                    arguments: {
+                                      'unitId': _currentUnitId,
+                                      'levelId': levelId,
+                                      'levelIndex': level.id,
+                                      'totalLevels': _totalLevels,
+                                      'levelContent': content,
+                                      'levelIds': _levelData
+                                          .map((e) => e.levelId ?? '')
+                                          .toList(growable: false),
+                                    },
+                                  );
+                                } catch (_) {
+                                  if (!localContext.mounted) return;
+
+                                  if (rootNavigator.mounted &&
+                                      rootNavigator.canPop()) {
+                                    rootNavigator.pop();
+                                  }
+
+                                  ScaffoldMessenger.of(localContext)
+                                      .showSnackBar(
+                                    const SnackBar(
+                                      content: Text('获取关卡详情失败'),
+                                    ),
+                                  );
+                                }
+                              }();
+                            },
+                          ),
+                        ),
+                        if (_pullUpRefreshing)
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 12,
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.92),
+                                  borderRadius: BorderRadius.circular(999),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.12),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.4,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
         ),
       ],
     );

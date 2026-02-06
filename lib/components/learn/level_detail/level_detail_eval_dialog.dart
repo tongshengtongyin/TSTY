@@ -16,7 +16,7 @@ class LevelDetailEvalDialog extends StatelessWidget {
   final List<LevelEvalPoint> points;
   final String learningTip;
   final VoidCallback onTryAgain;
-  final VoidCallback onNext;
+  final VoidCallback? onNext;
 
   const LevelDetailEvalDialog({
     super.key,
@@ -368,6 +368,10 @@ class LevelDetailEvalDialog extends StatelessWidget {
                                   minimumSize: const Size.fromHeight(64),
                                   backgroundColor: red,
                                   foregroundColor: Colors.white,
+                                  disabledBackgroundColor:
+                                      const Color(0xFFE0E0E0),
+                                  disabledForegroundColor:
+                                      const Color(0xFF8A8A8A),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),

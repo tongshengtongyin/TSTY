@@ -15,6 +15,13 @@ const List<LearnUnitProgress> _defaultUnitProgress = <LearnUnitProgress>[
   LearnUnitProgress(completed: 0, total: 0),
 ];
 
+const List<IconData> _unitIcons = <IconData>[
+  Icons.record_voice_over,
+  Icons.music_note,
+  Icons.translate,
+  Icons.subject,
+];
+
 class LearnHeader extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int>? onUnitTap;
@@ -88,7 +95,7 @@ class LearnHeader extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.book,
+                        _unitIcons[index],
                         color: Theme.of(context).colorScheme.onSurface,
                         size: iconSize,
                       ),
@@ -183,7 +190,7 @@ class LearnContentHeaderDelegate extends SliverPersistentHeaderDelegate {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
-              Icons.book,
+              _unitIcons[index],
               color: Theme.of(context).colorScheme.onSurface,
               size: 36,
             ),

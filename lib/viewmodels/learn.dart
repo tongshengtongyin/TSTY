@@ -45,6 +45,7 @@ class LevelProgressItem {
   String levelId;
   String levelName;
   String status;
+  String unlockStatus;
   int bestScore;
   int stars;
   int attempts;
@@ -54,6 +55,7 @@ class LevelProgressItem {
     required this.levelId,
     required this.levelName,
     required this.status,
+    required this.unlockStatus,
     required this.bestScore,
     required this.stars,
     required this.attempts,
@@ -61,10 +63,15 @@ class LevelProgressItem {
   });
 
   factory LevelProgressItem.fromJSON(Map<String, dynamic> json) {
+    final unlockStatus =
+        (json["unlockStatus"] ?? json["unlock_status"] ?? json["status"] ?? "")
+            .toString();
+    final status = (json["status"] ?? unlockStatus).toString();
     return LevelProgressItem(
       levelId: json["levelId"] ?? "",
       levelName: json["levelName"] ?? "",
-      status: json["status"] ?? "",
+      status: status,
+      unlockStatus: unlockStatus,
       bestScore: json["bestScore"] ?? 0,
       stars: json["stars"] ?? 0,
       attempts: json["attempts"] ?? 0,
@@ -75,17 +82,15 @@ class LevelProgressItem {
 
 // 关卡内容模型
 class LevelContent {
-  String levelId;
-  String levelName;
-  String contentType;
-  String contentValue;
-  String pinyinText;
-  String exampleWord;
-  List<String> tips;
-  int minScoreToPass;
-  int timeLimitSeconds;
+  final String levelId;
+  final String levelName;
+  final String contentType;
+  final String contentValue;
+  final String pinyinText;
+  final String exampleWord;
+  final List<String> tips;
 
-  LevelContent({
+  const LevelContent({
     required this.levelId,
     required this.levelName,
     required this.contentType,
@@ -93,9 +98,17 @@ class LevelContent {
     required this.pinyinText,
     required this.exampleWord,
     required this.tips,
-    required this.minScoreToPass,
-    required this.timeLimitSeconds,
   });
+
+  static const LevelContent empty = LevelContent(
+    levelId: '',
+    levelName: '',
+    contentType: '',
+    contentValue: '',
+    pinyinText: '',
+    exampleWord: '',
+    tips: [],
+  );
 
   factory LevelContent.fromJSON(Map<String, dynamic> json) {
     return LevelContent(
@@ -106,8 +119,6 @@ class LevelContent {
       pinyinText: json["pinyinText"] ?? "",
       exampleWord: json["exampleWord"] ?? "",
       tips: _parseTips(json["tips"]),
-      minScoreToPass: json["minScoreToPass"] ?? 0,
-      timeLimitSeconds: json["timeLimitSeconds"] ?? 0,
     );
   }
 }

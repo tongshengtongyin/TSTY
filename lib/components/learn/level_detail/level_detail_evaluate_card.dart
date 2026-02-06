@@ -8,7 +8,6 @@ class LevelDetailEvaluateCard extends StatelessWidget {
   final String statusText;
   final VoidCallback onLongPressStart;
   final VoidCallback onLongPressEnd;
-  final VoidCallback onShowResult;
 
   const LevelDetailEvaluateCard({
     super.key,
@@ -16,7 +15,6 @@ class LevelDetailEvaluateCard extends StatelessWidget {
     required this.statusText,
     required this.onLongPressStart,
     required this.onLongPressEnd,
-    required this.onShowResult,
   });
 
   @override
@@ -83,22 +81,6 @@ class LevelDetailEvaluateCard extends StatelessWidget {
                       statusText: statusText,
                       onLongPressStart: onLongPressStart,
                       onLongPressEnd: onLongPressEnd,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: red,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    onPressed: onShowResult,
-                    child: const Text(
-                      '查看测评结果',
-                      style: TextStyle(fontWeight: FontWeight.w900),
                     ),
                   ),
                 ],

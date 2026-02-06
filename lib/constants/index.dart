@@ -2,7 +2,7 @@
 class GlobalConstants {
   static const String appName = "TSTY App";
 
-  static const String apiBaseUrl = "http://127.0.0.1:8080";
+  static const String apiBaseUrl = "http://y4134647y5.qicp.vip:10573";
   static const Duration timeoutDuration = Duration(seconds: 10);
   static const int successState = 0;
 
@@ -19,6 +19,11 @@ class HttpConstants {
       "/api/v1/learning/levels/{levelId}/content";
 
   static const String iseAuth = "/api/v1/learning/ise/auth";
+
+  static const String submitEvaluation =
+      "/api/v1/learning/levels/{levelId}/submit-evaluation";
+
+  static const String learningDuration = "/api/v1/learning/duration";
 }
 
 // 单元UnitId常量

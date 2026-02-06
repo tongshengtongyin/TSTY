@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-enum LearnLevelStatus { locked, unlocked, passed }
+enum LearnLevelStatus { locked, unlocked, completed, perfect }
 
 class LearnLevelData {
   final int id;
@@ -117,10 +117,12 @@ class _LearnLevelNodePositioned extends StatelessWidget {
   String get _assetPath {
     switch (level.status) {
       case LearnLevelStatus.locked:
-        return 'lib/assets/level-unlocked.png';
-      case LearnLevelStatus.unlocked:
         return 'lib/assets/level-locked.png';
-      case LearnLevelStatus.passed:
+      case LearnLevelStatus.unlocked:
+        return 'lib/assets/level-unlocked.png';
+      case LearnLevelStatus.completed:
+        return 'lib/assets/level-passed.png';
+      case LearnLevelStatus.perfect:
         return 'lib/assets/level-passed.png';
     }
   }
@@ -128,7 +130,9 @@ class _LearnLevelNodePositioned extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final canTap =
-        level.status == LearnLevelStatus.unlocked || level.status == LearnLevelStatus.passed;
+        level.status == LearnLevelStatus.unlocked ||
+        level.status == LearnLevelStatus.completed ||
+        level.status == LearnLevelStatus.perfect;
 
     return Positioned(
       left: left,
@@ -148,6 +152,30 @@ class _LearnLevelNodePositioned extends StatelessWidget {
                   Positioned.fill(
                     child: Image.asset(_assetPath, fit: BoxFit.contain),
                   ),
+                  if (level.status == LearnLevelStatus.perfect)
+                    Positioned(
+                      right: -4,
+                      top: -6,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.92),
+                          borderRadius: BorderRadius.circular(999),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.14),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.workspace_premium_rounded,
+                          size: 16,
+                          color: Color(0xFFF0C000),
+                        ),
+                      ),
+                    ),
                   Positioned(
                     left: 0,
                     right: 0,
@@ -167,7 +195,9 @@ class _LearnLevelNodePositioned extends StatelessWidget {
               ),
             ),
           ),
-          if (level.status == LearnLevelStatus.passed && level.flowers > 0)
+          if ((level.status == LearnLevelStatus.completed ||
+                  level.status == LearnLevelStatus.perfect) &&
+              level.flowers > 0)
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Row(
