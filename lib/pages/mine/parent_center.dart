@@ -6,6 +6,7 @@ import 'package:tsty_app/components/mine/parent_center/parent_center_segmented_c
 import 'package:tsty_app/components/mine/parent_center/parent_control_section.dart';
 import 'package:tsty_app/components/mine/parent_center/parent_report_section.dart';
 import 'package:tsty_app/components/common/yi_dialog.dart';
+import 'package:tsty_app/api/parent_report.dart';
 import 'package:tsty_app/utils/ToastUtils.dart';
 import 'package:tsty_app/utils/parent_center_prefs.dart';
 
@@ -41,6 +42,7 @@ class _ParentCenterPageState extends State<ParentCenterPage> {
   ParentReportData _report = const ParentReportData(
     summary: ParentReportSummary(
       totalLearningMinutes: 0,
+      totalAiChatMinutes: 0,
       avgDailyMinutes: 0,
       activeDays: 0,
       completedLevels: 0,
@@ -48,6 +50,26 @@ class _ParentCenterPageState extends State<ParentCenterPage> {
       avgScore: 0,
     ),
     progress: ParentReportProgress(
+      totalLevels: 0,
+      completedLevels: 0,
+      completionRate: 0,
+    ),
+    shengmuProgress: ParentReportProgress(
+      totalLevels: 0,
+      completedLevels: 0,
+      completionRate: 0,
+    ),
+    yunmuProgress: ParentReportProgress(
+      totalLevels: 0,
+      completedLevels: 0,
+      completionRate: 0,
+    ),
+    hanziProgress: ParentReportProgress(
+      totalLevels: 0,
+      completedLevels: 0,
+      completionRate: 0,
+    ),
+    ciyuProgress: ParentReportProgress(
       totalLevels: 0,
       completedLevels: 0,
       completionRate: 0,
@@ -97,110 +119,115 @@ class _ParentCenterPageState extends State<ParentCenterPage> {
       _period = period;
     });
 
-    await Future<void>.delayed(const Duration(milliseconds: 380));
-    if (!mounted) return;
+    final periodParam = switch (period) {
+      ParentReportPeriod.week => 'week',
+      ParentReportPeriod.month => 'month',
+      ParentReportPeriod.all => 'all',
+    };
 
-    ParentReportData mock;
-    switch (period) {
-      case ParentReportPeriod.week:
-        mock = _mockReport(
-          totalMinutes: 180,
-          avgDaily: 26,
-          activeDays: 5,
-          avgScore: 85,
-          completionRate: 0.118,
-          dates: const [
-            '10-14',
-            '10-15',
-            '10-16',
-            '10-17',
-            '10-18',
-            '10-19',
-            '10-20'
-          ],
-          minutes: const [30, 25, 35, 20, 40, 30, 0],
-          scores: const [82, 85, 88, 80, 90, 85, 0],
-          evaluation: const ParentReportEvaluation(
-            level: '优秀',
-            comment: '本周学习积极，发音准确度有明显提升！',
-            suggestions: ['可以增加每日学习时间', '多练习韵母发音'],
-          ),
-        );
-        break;
-      case ParentReportPeriod.month:
-        mock = _mockReport(
-          totalMinutes: 720,
-          avgDaily: 24,
-          activeDays: 20,
-          avgScore: 84,
-          completionRate: 0.21,
-          dates: const ['第1周', '第2周', '第3周', '第4周', ''],
-          minutes: const [180, 210, 160, 170, 0],
-          scores: const [83, 84, 86, 82, 0],
-          evaluation: const ParentReportEvaluation(
-            level: '良好',
-            comment: '本月整体学习稳定，建议保持练习频率。',
-            suggestions: ['保持每周学习节奏', '针对薄弱音节做专项训练'],
-          ),
-        );
-        break;
-      case ParentReportPeriod.all:
-        mock = _mockReport(
-          totalMinutes: 1980,
-          avgDaily: 22,
-          activeDays: 90,
-          avgScore: 86,
-          completionRate: 0.32,
-          dates: const ['1月', '2月', '3月', '4月', '5月', '6月'],
-          minutes: const [300, 280, 360, 310, 340, 390],
-          scores: const [84, 85, 86, 87, 86, 88],
-          evaluation: const ParentReportEvaluation(
-            level: '优秀',
-            comment: '持续进步明显，口语表达自信度提升。',
-            suggestions: ['继续保持学习习惯', '适当提高每日学习时长'],
-          ),
-        );
-        break;
+    int asInt(dynamic v, {int fallback = 0}) {
+      if (v is int) return v;
+      if (v is double) return v.round();
+      return int.tryParse(v?.toString() ?? '') ?? fallback;
     }
 
-    setState(() {
-      _report = mock;
-      _reportLoading = false;
-    });
-  }
+    double asDouble(dynamic v, {double fallback = 0}) {
+      if (v is double) return v;
+      if (v is int) return v.toDouble();
+      return double.tryParse(v?.toString() ?? '') ?? fallback;
+    }
 
-  ParentReportData _mockReport({
-    required int totalMinutes,
-    required int avgDaily,
-    required int activeDays,
-    required int avgScore,
-    required double completionRate,
-    required List<String> dates,
-    required List<int> minutes,
-    required List<int> scores,
-    required ParentReportEvaluation evaluation,
-  }) {
-    return ParentReportData(
-      summary: ParentReportSummary(
-        totalLearningMinutes: totalMinutes,
-        avgDailyMinutes: avgDaily,
-        activeDays: activeDays,
-        completedLevels: 15,
-        earnedStars: 22,
-        avgScore: avgScore,
-      ),
-      progress: ParentReportProgress(
-        totalLevels: 127,
-        completedLevels: 15,
-        completionRate: completionRate,
-      ),
-      trend: ParentReportTrend(
-        learningMinutes: minutes,
-        scores: scores,
-        dates: dates,
-      ),
-      evaluation: evaluation,
-    );
+    ParentReportProgress parseProgress(dynamic raw) {
+      if (raw is! Map) {
+        return const ParentReportProgress(
+          totalLevels: 0,
+          completedLevels: 0,
+          completionRate: 0,
+        );
+      }
+      final m = Map<String, dynamic>.from(raw);
+      final total = asInt(m['totalLevels']);
+      final done = asInt(m['completedLevels']);
+      final rateRaw = asDouble(m['completionRate']);
+      final rate = rateRaw > 0
+          ? rateRaw
+          : (total <= 0 ? 0.0 : (done / total).clamp(0.0, 1.0));
+      return ParentReportProgress(
+        totalLevels: total,
+        completedLevels: done,
+        completionRate: rate,
+      );
+    }
+
+    try {
+      final data = await getParentReportOverviewAPI(period: periodParam);
+
+      final summaryRaw = data['summary'];
+      final summaryMap = summaryRaw is Map
+          ? Map<String, dynamic>.from(summaryRaw)
+          : const <String, dynamic>{};
+
+      final trendRaw = data['trend'];
+      final trendMap = trendRaw is Map
+          ? Map<String, dynamic>.from(trendRaw)
+          : const <String, dynamic>{};
+
+      final minutesRaw = trendMap['learningMinutes'];
+      final minutes = minutesRaw is List
+          ? minutesRaw.map((e) => asInt(e)).toList(growable: false)
+          : const <int>[];
+
+      final datesRaw = trendMap['dates'];
+      final dates = datesRaw is List
+          ? datesRaw.map((e) => e?.toString() ?? '').toList(growable: false)
+          : const <String>[];
+
+      final scores = List<int>.filled(minutes.length, 0, growable: false);
+
+      final unitProgressRaw = data['unitProgress'];
+      final unitProgressMap = unitProgressRaw is Map
+          ? Map<String, dynamic>.from(unitProgressRaw)
+          : const <String, dynamic>{};
+
+      final report = ParentReportData(
+        summary: ParentReportSummary(
+          totalLearningMinutes: asInt(summaryMap['totalLearningMinutes']),
+          totalAiChatMinutes: asInt(summaryMap['totalAiChatMinutes']),
+          avgDailyMinutes: asInt(summaryMap['avgDailyMinutes']),
+          activeDays: asInt(summaryMap['activeDays']),
+          completedLevels: 0,
+          earnedStars: asInt(summaryMap['earnedStars']),
+          avgScore: asInt(summaryMap['avgScore']),
+          lastActivityAt: summaryMap['lastActivityAt']?.toString() ?? '',
+          lastStudyDate: summaryMap['lastStudyDate']?.toString() ?? '',
+        ),
+        progress: parseProgress(data['progress']),
+        shengmuProgress: parseProgress(unitProgressMap['shengmu']),
+        yunmuProgress: parseProgress(unitProgressMap['yunmu']),
+        hanziProgress: parseProgress(unitProgressMap['hanzi']),
+        ciyuProgress: parseProgress(unitProgressMap['ciyu']),
+        trend: ParentReportTrend(
+          learningMinutes: minutes,
+          scores: scores,
+          dates: dates,
+        ),
+        evaluation: const ParentReportEvaluation(
+          level: '',
+          comment: '',
+          suggestions: <String>[],
+        ),
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _report = report;
+        _reportLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _reportLoading = false);
+      ToastUtils.showToast(context, '学习报告加载失败');
+    }
   }
 
   void _onBarTap(int index) {

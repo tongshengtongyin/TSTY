@@ -18,6 +18,8 @@ class HttpConstants {
   static const String levelDetails =
       "/api/v1/learning/levels/{levelId}/content";
 
+  static const String parentReportOverview = "/api/v1/parent/report/overview";
+
   static const String iseAuth = "/api/v1/learning/ise/auth";
 
   static const String submitEvaluation =

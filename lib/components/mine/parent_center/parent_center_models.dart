@@ -12,21 +12,29 @@ class ParentChildInfo {
 
 enum ParentReportPeriod { week, month, all }
 
+enum ParentReportUnit { shengmu, yunmu, hanzi, ciyu }
+
 class ParentReportSummary {
   final int totalLearningMinutes;
+  final int totalAiChatMinutes;
   final int avgDailyMinutes;
   final int activeDays;
   final int completedLevels;
   final int earnedStars;
   final int avgScore;
+  final String lastActivityAt;
+  final String lastStudyDate;
 
   const ParentReportSummary({
     required this.totalLearningMinutes,
+    required this.totalAiChatMinutes,
     required this.avgDailyMinutes,
     required this.activeDays,
     required this.completedLevels,
     required this.earnedStars,
     required this.avgScore,
+    this.lastActivityAt = '',
+    this.lastStudyDate = '',
   });
 }
 
@@ -69,12 +77,20 @@ class ParentReportEvaluation {
 class ParentReportData {
   final ParentReportSummary summary;
   final ParentReportProgress progress;
+  final ParentReportProgress shengmuProgress;
+  final ParentReportProgress yunmuProgress;
+  final ParentReportProgress hanziProgress;
+  final ParentReportProgress ciyuProgress;
   final ParentReportTrend trend;
   final ParentReportEvaluation evaluation;
 
   const ParentReportData({
     required this.summary,
     required this.progress,
+    required this.shengmuProgress,
+    required this.yunmuProgress,
+    required this.hanziProgress,
+    required this.ciyuProgress,
     required this.trend,
     required this.evaluation,
   });
