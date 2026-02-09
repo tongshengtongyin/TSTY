@@ -75,16 +75,13 @@ class DioUtils {
     Map<String, dynamic>? data,
     Map<String, dynamic>? headers,
   }) async {
-    try {
-      Response response = await _dio.post(
+    return _handleRequest(
+      await _dio.post(
         url,
         data: data,
         options: headers == null ? null : Options(headers: headers),
-      );
-      return response.data;
-    } catch (e) {
-      throw Exception('POST请求出错: $e');
-    }
+      ),
+    );
   }
 
   Future<dynamic> _handleRequest(Response<dynamic> task) async {

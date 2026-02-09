@@ -11,17 +11,37 @@ pluginManagement {
     includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
 
     repositories {
-        maven{url = uri("https://maven.aliyun.com/repository/google")}
-        maven{url =uri("https://maven.aliyun.com/repository/releases")}
-        maven{url = uri("https://maven.aliyun.com/repository/central")}
-        maven{url =uri("https://maven.aliyun.com/repository/public")}
-        maven{url = uri("https://maven.aliyun.com/repository/gradle-plugin")}
-        maven{url =uri("https://maven.aliyun.com/repository/apache-snapshots")}
-        maven{url = uri("https://maven.aliyun.com/nexus/content/groups/public/")}
-        maven{url = uri("https://jitpack.io")}
+        // 插件仓库：只管Gradle插件下载
+        maven(url = uri("https://artifact.bytedance.com/repository/Volcengine/"))
+        maven(url = uri("https://maven.aliyun.com/repository/releases"))
+        maven(url = uri("https://maven.aliyun.com/repository/central"))
+        maven(url = uri("https://maven.aliyun.com/repository/public"))
+        maven(url = uri("https://maven.aliyun.com/repository/gradle-plugin"))
+        maven(url = uri("https://maven.aliyun.com/repository/apache-snapshots"))
+        maven(url = uri("https://maven.aliyun.com/nexus/content/groups/public/"))
+        maven(url = uri("https://jitpack.io"))
         google()
         mavenCentral()
         gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    // 允许项目级添加仓库
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        // 字节仓库必须放最前面
+        maven(url = uri("https://artifact.bytedance.com/repository/Volcengine/"))
+        // 阿里云镜像
+        maven(url = uri("https://maven.aliyun.com/repository/releases"))
+        maven(url = uri("https://maven.aliyun.com/repository/central"))
+        maven(url = uri("https://maven.aliyun.com/repository/public"))
+        // 基础仓库
+        google()
+        mavenCentral()
+        maven(url = uri("https://jitpack.io"))
+        // 补充Flutter默认仓库
+        maven(url = uri("https://storage.flutter-io.cn/download.flutter.io"))
     }
 }
 

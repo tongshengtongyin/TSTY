@@ -7,6 +7,7 @@ import 'package:tsty_app/components/ai_chat/ai_chat_section_header_sliver.dart';
 import 'package:tsty_app/components/ai_chat/ai_chat_teacher_intro_sliver.dart';
 import 'package:tsty_app/components/common/select_character_dialog.dart';
 import 'package:tsty_app/services/parental_control.dart';
+import 'package:tsty_app/utils/ToastUtils.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 
 class AiChatPage extends StatefulWidget {
@@ -18,6 +19,7 @@ class AiChatPage extends StatefulWidget {
 
 class _AiChatPageState extends State<AiChatPage> {
   bool _parentalBlocked = false;
+  int _selectedCharacter = 0;
 
   final List<AiChatSceneItem> _scenes = const [
     AiChatSceneItem(
@@ -31,7 +33,7 @@ class _AiChatPageState extends State<AiChatPage> {
       locked: false,
     ),
     AiChatSceneItem(
-      id: 'toys',
+      id: 'toy-sharing',
       name: '玩具分享',
       desc: '聊聊喜欢的玩具',
       icon: Icons.extension,
@@ -106,6 +108,13 @@ class _AiChatPageState extends State<AiChatPage> {
   void initState() {
     super.initState();
     _refreshParentalControl();
+    _loadCharacter();
+  }
+
+  Future<void> _loadCharacter() async {
+    final selected = (await UserPrefs.getSelectedCharacter()) ?? 0;
+    if (!mounted) return;
+    setState(() => _selectedCharacter = selected);
   }
 
   Future<void> _refreshParentalControl() async {
@@ -135,9 +144,7 @@ class _AiChatPageState extends State<AiChatPage> {
 
   void _onSceneTap(AiChatSceneItem scene) {
     if (scene.locked) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('请先完成更多关卡解锁此场景')));
+      ToastUtils.showToast(context, '请先完成更多关卡解锁此场景');
       return;
     }
 
@@ -158,9 +165,7 @@ class _AiChatPageState extends State<AiChatPage> {
   }
 
   void _onRecentTap(AiChatRecentChat item) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('查看${item.title}历史记录')));
+    ToastUtils.showToast(context, '查看${item.title}历史记录');
   }
 
   Future<void> _onTeacherTap() async {
@@ -176,24 +181,30 @@ class _AiChatPageState extends State<AiChatPage> {
     await UserPrefs.setSelectedCharacter(selected);
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(selected == 0 ? '已切换为 阿依莫' : '已切换为 阿牛惹'),
-      ),
-    );
+    setState(() => _selectedCharacter = selected);
+
+    ToastUtils.showToast(context, selected == 0 ? '已切换为 阿依莫' : '已切换为 阿牛惹');
   }
 
   @override
   Widget build(BuildContext context) {
     final warmRed = const Color(0xFFC00003);
 
+    final teacherAvatar = _selectedCharacter == 0
+        ? 'lib/assets/ayimo.webp'
+        : 'lib/assets/aniure.webp';
+    final teacherName = _selectedCharacter == 0 ? '阿依莫老师' : '阿牛惹老师';
+    final teacherDesc = _selectedCharacter == 0
+        ? '温柔耐心，陪你练习普通话'
+        : '热情开朗，陪你练习普通话';
+
     return CustomScrollView(
       slivers: [
         const AiChatHeaderSliver(),
         AiChatTeacherIntroSliver(
-          avatarAsset: 'lib/assets/ayimo.webp',
-          name: '阿依莫老师',
-          desc: '温柔耐心，陪你练习普通话',
+          avatarAsset: teacherAvatar,
+          name: teacherName,
+          desc: teacherDesc,
           onTap: _onTeacherTap,
         ),
         AiChatSectionHeaderSliver(

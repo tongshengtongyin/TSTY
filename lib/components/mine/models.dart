@@ -4,6 +4,8 @@ class MineUserInfo {
   final int age;
   final String grade;
   final String school;
+  final String className;
+  final String teacherName;
   final int learningDays;
 
   const MineUserInfo({
@@ -12,19 +14,21 @@ class MineUserInfo {
     required this.age,
     required this.grade,
     required this.school,
+    required this.className,
+    required this.teacherName,
     required this.learningDays,
   });
 }
 
 class MineStats {
   final int completedLevels;
-  final int accuracy;
-  final int flowers;
+  final double averageScore;
+  final int totalStars;
 
   const MineStats({
     required this.completedLevels,
-    required this.accuracy,
-    required this.flowers,
+    required this.averageScore,
+    required this.totalStars,
   });
 }
 

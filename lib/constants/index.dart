@@ -12,6 +12,9 @@ class GlobalConstants {
 
 // HTTP 接口常量
 class HttpConstants {
+  static const String childLoginPassword = "/api/v1/auth/child/login-password";
+  static const String childProfile = "/api/v1/child/profile";
+
   // 获取单元进度接口
   static const String unitProgress = "/api/v1/learning/units/{unitId}/progress";
   // 获取关卡详情接口
@@ -26,6 +29,10 @@ class HttpConstants {
       "/api/v1/learning/levels/{levelId}/submit-evaluation";
 
   static const String learningDuration = "/api/v1/learning/duration";
+
+  static const String aiRtcToken = "/api/v1/ai/rtc/token";
+  static const String aiVoiceChatStart = "/api/v1/ai/voicechat/start";
+  static const String aiVoiceChatStop = "/api/v1/ai/voicechat/stop";
 }
 
 // 单元UnitId常量

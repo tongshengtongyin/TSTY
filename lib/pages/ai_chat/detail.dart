@@ -1,12 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:tsty_app/components/ai_chat/ai_chat_end_dialog.dart';
 import 'package:tsty_app/components/ai_chat/ai_chat_record_overlay.dart';
 import 'package:tsty_app/components/ai_chat/ai_chat_teacher_area.dart';
 import 'package:tsty_app/components/ai_chat/ai_chat_top_bar.dart';
+import 'package:tsty_app/components/common/yi_dialog.dart';
 import 'package:tsty_app/services/parental_control.dart';
+import 'package:tsty_app/services/learning_duration_tracker.dart';
+import 'package:tsty_app/services/realtime_ai_voice_chat_session.dart';
+import 'package:tsty_app/services/rtc_audio_call_service.dart';
+import 'package:tsty_app/routes/route_observer.dart';
 import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/user_prefs.dart';
 import 'package:tsty_app/utils/yi_recorder.dart';
 
 class AiChatDetailPage extends StatefulWidget {
@@ -30,8 +35,8 @@ class AiChatDetailPage extends StatefulWidget {
   @override
   State<AiChatDetailPage> createState() => _AiChatDetailPageState();
 }
-
-class _AiChatDetailPageState extends State<AiChatDetailPage> {
+class _AiChatDetailPageState extends State<AiChatDetailPage>
+    with WidgetsBindingObserver, RouteAware {
   Timer? _timer;
   Timer? _recordCountdown;
 
@@ -46,8 +51,15 @@ class _AiChatDetailPageState extends State<AiChatDetailPage> {
   double _amplitude = 0.0;
 
   final ParentalControlUsageTracker _usageTracker = ParentalControlUsageTracker();
+  late final LearningDurationTracker _durationTracker;
+
+  final RtcAudioCallService _rtc = RtcAudioCallService();
+  late final RealtimeAiVoiceChatSession _aiSession = RealtimeAiVoiceChatSession(_rtc);
+  StreamSubscription<RtcAudioCallState>? _rtcStateSub;
+  StreamSubscription<RtcAudioCallError?>? _rtcErrSub;
 
   String _teacherState = 'idle';
+  int _selectedCharacter = 0;
 
   String get _statusText {
     switch (_teacherState) {
@@ -64,7 +76,7 @@ class _AiChatDetailPageState extends State<AiChatDetailPage> {
 
   final Map<String, Map<String, String>> _scenes = const {
     'greeting': {'name': '日常问候', 'opening': '你好呀！今天开心吗？'},
-    'toys': {'name': '玩具分享', 'opening': '你有喜欢的玩具吗？可以和我说说哦~'},
+    'toy-sharing': {'name': '玩具分享', 'opening': '你有喜欢的玩具吗？可以和我说说哦~'},
     'food': {'name': '食物认知', 'opening': '你最爱吃什么呀？'},
     'weather': {'name': '天气交流', 'opening': '今天天气怎么样？'},
     'family': {'name': '家庭成员', 'opening': '你家里都有谁呀？'},
@@ -73,7 +85,7 @@ class _AiChatDetailPageState extends State<AiChatDetailPage> {
     'yi-culture': {'name': '彝族文化', 'opening': '你知道火把节吗？'},
   };
 
-  String get _sceneId => widget.sceneId ?? 'toys';
+  String get _sceneId => widget.sceneId ?? 'toy-sharing';
 
   String get _sceneTitle {
     if (widget.sceneName != null && widget.sceneName!.trim().isNotEmpty) {
@@ -84,14 +96,57 @@ class _AiChatDetailPageState extends State<AiChatDetailPage> {
 
   String get _openingText => _scenes[_sceneId]?['opening'] ?? '你有喜欢的玩具吗？可以和我说说哦~';
 
+  String get _teacherAsset =>
+      _selectedCharacter == 0 ? 'lib/assets/girl.webp' : 'lib/assets/boy.webp';
+
   @override
   void initState() {
     super.initState();
 
+    _durationTracker = LearningDurationTracker(activityType: ActivityType.aiChat);
+    WidgetsBinding.instance.addObserver(this);
+
     _usageTracker.start();
+
+    () async {
+      final selected = (await UserPrefs.getSelectedCharacter()) ?? 0;
+      if (!mounted) return;
+      setState(() => _selectedCharacter = selected);
+    }();
+
+    () async {
+      try {
+        await _aiSession.start(sceneId: _sceneId);
+
+        _rtcStateSub?.cancel();
+        _rtcStateSub = _rtc.stateStream.listen((s) {
+          if (!mounted) return;
+          if (s == RtcAudioCallState.joining) {
+            setState(() => _teacherState = 'thinking');
+          } else if (s == RtcAudioCallState.joined) {
+            setState(() => _teacherState = 'idle');
+          } else if (s == RtcAudioCallState.error) {
+            setState(() => _teacherState = 'idle');
+          }
+        });
+
+        _rtcErrSub?.cancel();
+        _rtcErrSub = _rtc.errorStream.listen((e) {
+          if (e == null) return;
+          if (!mounted) return;
+          ToastUtils.showToast(context, 'AI通话异常: ${e.message}');
+        });
+      } catch (e) {
+        if (!mounted) return;
+        setState(() => _teacherState = 'idle');
+        ToastUtils.showToast(context, 'AI实时对话启动失败: $e');
+      }
+    }();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showOpening();
+      if (!mounted) return;
+      _durationTracker.start();
     });
 
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -101,22 +156,63 @@ class _AiChatDetailPageState extends State<AiChatDetailPage> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _durationTracker.onAppLifecycleChanged(state);
+  }
+
+  @override
+  void didPush() {
+    _durationTracker.onRouteVisibilityChanged(true);
+  }
+
+  @override
+  void didPopNext() {
+    _durationTracker.onRouteVisibilityChanged(true);
+  }
+
+  @override
+  void didPushNext() {
+    _durationTracker.onRouteVisibilityChanged(false);
+  }
+
   void _showOpening() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(_openingText)),
-    );
+    ToastUtils.showToast(context, _openingText);
   }
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
+    WidgetsBinding.instance.removeObserver(this);
+
     _timer?.cancel();
     _timer = null;
     _recordCountdown?.cancel();
     _recordCountdown = null;
     _ampSub?.cancel();
     _ampSub = null;
+    _rtcStateSub?.cancel();
+    _rtcStateSub = null;
+    _rtcErrSub?.cancel();
+    _rtcErrSub = null;
     _recorder.dispose();
     _usageTracker.stop();
+    _durationTracker.dispose();
+
+    () async {
+      try {
+        await _aiSession.stop();
+      } catch (_) {}
+    }();
     super.dispose();
   }
 
@@ -125,21 +221,26 @@ class _AiChatDetailPageState extends State<AiChatDetailPage> {
   }
 
   void _onEnd() {
-    showDialog<void>(
-      context: context,
-      builder: (context) {
-        return AiChatEndDialog(
-          durationText: _formatDuration(_seconds),
-          onCancel: () => Navigator.of(context).pop(),
-          onConfirm: () {
-            Navigator.of(context).pop();
-            _timer?.cancel();
-            _timer = null;
-            Navigator.of(context).maybePop();
-          },
-        );
-      },
-    );
+    () async {
+      final ok = await showYiConfirmDialog(
+        context: context,
+        title: '结束对话',
+        message: '本次对话时长：${_formatDuration(_seconds)}',
+        cancelText: '继续',
+        confirmText: '结束',
+        danger: true,
+        barrierDismissible: false,
+      );
+      if (ok != true) return;
+
+      _timer?.cancel();
+      _timer = null;
+      try {
+        await _aiSession.stop();
+      } catch (_) {}
+      if (!mounted) return;
+      Navigator.of(context).maybePop();
+    }();
   }
 
   void _onRecordStart() {
@@ -284,7 +385,7 @@ class _AiChatDetailPageState extends State<AiChatDetailPage> {
                 ),
                 const ParentalControlSoftBanner(),
                 AiChatTeacherArea(
-                  teacherAsset: 'lib/assets/girl.webp',
+                  teacherAsset: _teacherAsset,
                   statusText: _statusText,
                 ),
               ],

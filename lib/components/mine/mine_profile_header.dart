@@ -14,6 +14,14 @@ class MineProfileHeader extends StatelessWidget {
     this.statusText = '今天学了10分钟，继续加油～',
   });
 
+  String _formatPercent(double v) {
+    final rounded = v.roundToDouble();
+    if ((v - rounded).abs() < 0.000001) {
+      return '${rounded.toInt()}%';
+    }
+    return '${v.toStringAsFixed(1)}%';
+  }
+
   @override
   Widget build(BuildContext context) {
     final red = Theme.of(context).colorScheme.primary;
@@ -140,6 +148,18 @@ class MineProfileHeader extends StatelessWidget {
                                   text: user.school,
                                   iconColor: yellow,
                                 ),
+                                if (user.className.trim().isNotEmpty)
+                                  _InfoTag(
+                                    icon: Icons.groups,
+                                    text: user.className,
+                                    iconColor: yellow,
+                                  ),
+                                if (user.teacherName.trim().isNotEmpty)
+                                  _InfoTag(
+                                    icon: Icons.person,
+                                    text: user.teacherName,
+                                    iconColor: yellow,
+                                  ),
                               ],
                             ),
                             const SizedBox(height: 8),
@@ -191,15 +211,15 @@ class MineProfileHeader extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: _StatItem(
-                          value: '${stats.accuracy}%',
+                          value: _formatPercent(stats.averageScore),
                           label: '发音准确率',
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: _StatItem(
-                          value: '${stats.flowers}',
-                          label: '收集小红花',
+                          value: '${stats.totalStars}',
+                          label: '获得星星',
                         ),
                       ),
                     ],

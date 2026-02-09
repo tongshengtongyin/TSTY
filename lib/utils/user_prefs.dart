@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 String _yiRandomHex(int len) {
@@ -20,6 +22,9 @@ class UserPrefs {
   static const _kFontSizeIndex = 'user.fontSizeIndex';
 
   static const _kAccessToken = 'auth.accessToken';
+  static const _kRefreshToken = 'auth.refreshToken';
+
+  static const _kChildProfileJson = 'child.profile.json';
 
   static const _kDeviceId = 'device.id';
 
@@ -58,6 +63,46 @@ class UserPrefs {
   static Future<void> clearAccessToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_kAccessToken);
+  }
+
+  static Future<String?> getRefreshToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final s = prefs.getString(_kRefreshToken);
+    return (s == null || s.trim().isEmpty) ? null : s.trim();
+  }
+
+  static Future<void> setRefreshToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kRefreshToken, token.trim());
+  }
+
+  static Future<void> clearRefreshToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kRefreshToken);
+  }
+
+  static Future<Map<String, dynamic>?> getChildProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_kChildProfileJson);
+    final s = raw?.trim() ?? '';
+    if (s.isEmpty) return null;
+    try {
+      final obj = jsonDecode(s);
+      if (obj is Map) {
+        return Map<String, dynamic>.from(obj);
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  static Future<void> setChildProfile(Map<String, dynamic> profile) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kChildProfileJson, jsonEncode(profile));
+  }
+
+  static Future<void> clearChildProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kChildProfileJson);
   }
 
   static Future<String> getOrCreateDeviceId() async {

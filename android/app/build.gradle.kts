@@ -39,6 +39,15 @@ android {
     }
 }
 
+configurations.all {
+    exclude(group = "com.android.support")
+    exclude(group = "com.android.support", module = "support-compat")
+    exclude(group = "com.android.support", module = "versionedparcelable")
+    resolutionStrategy {
+        force("com.volcengine:VolcEngineRTC:3.58.1.63300")
+    }
+}
+
 flutter {
     source = "../.."
 }

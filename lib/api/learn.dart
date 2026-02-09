@@ -74,19 +74,7 @@ Future<Map<String, dynamic>> recordLearningDurationAPI({
   );
 
   if (result is Map) {
-    if (result.containsKey('code')) {
-      final code = result['code'];
-      if (code == GlobalConstants.successState) {
-        final data = result['data'];
-        if (data is Map) {
-          return Map<String, dynamic>.from(data);
-        }
-        return const <String, dynamic>{};
-      }
-      throw Exception(result['message']?.toString() ?? '学习时长记录失败');
-    }
     return Map<String, dynamic>.from(result);
   }
-
   return const <String, dynamic>{};
 }

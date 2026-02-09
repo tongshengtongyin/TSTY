@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tsty_app/components/common/YiBaseBackground.dart';
 import 'package:tsty_app/components/common/select_character_dialog.dart';
@@ -5,6 +6,7 @@ import 'package:tsty_app/components/common/yi_stripe_frame.dart';
 import 'package:tsty_app/components/common/yi_dialog.dart';
 import 'package:tsty_app/components/login/login_primary_button.dart';
 import 'package:tsty_app/components/login/login_text_field.dart';
+import 'package:tsty_app/api/auth.dart';
 import 'package:tsty_app/utils/ToastUtils.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 
@@ -63,17 +65,37 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      await Future<void>.delayed(const Duration(milliseconds: 700));
+      final deviceId = await UserPrefs.getOrCreateDeviceId();
+      final deviceType = switch (defaultTargetPlatform) {
+        TargetPlatform.android => 'android',
+        TargetPlatform.iOS => 'ios',
+        TargetPlatform.windows => 'windows',
+        TargetPlatform.macOS => 'macos',
+        TargetPlatform.linux => 'linux',
+        _ => 'unknown',
+      };
 
-      final ok = password.length >= 6;
-      if (!ok) {
-        setState(() => _errorText = '账号或密码错误');
+      final resp = await childLoginPasswordAPI(
+        username: username,
+        passwordMd5: md5Hex(password),
+        deviceId: deviceId,
+        deviceType: deviceType,
+      );
+
+      final accessToken = resp['accessToken']?.toString() ?? '';
+      final refreshToken = resp['refreshToken']?.toString() ?? '';
+      if (accessToken.trim().isEmpty) {
+        setState(() => _errorText = '登录失败：token为空');
         return;
       }
 
-      if (!mounted) return;
-
+      await UserPrefs.setAccessToken(accessToken);
+      if (refreshToken.trim().isNotEmpty) {
+        await UserPrefs.setRefreshToken(refreshToken);
+      }
+      await UserPrefs.setChildProfile(resp);
       await UserPrefs.setLoggedIn(true);
+
       if (!mounted) return;
       var selectedCharacter = await UserPrefs.getSelectedCharacter();
       if (!mounted) return;
@@ -90,6 +112,10 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
       ToastUtils.showToast(context, '登录成功');
       Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _errorText = e.toString().replaceFirst('Exception: ', ''));
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
