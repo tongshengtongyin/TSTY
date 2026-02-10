@@ -5,6 +5,7 @@ import 'package:tsty_app/components/learn/learn_header.dart';
 import 'package:tsty_app/components/learn/learn_level_map.dart';
 import 'package:tsty_app/constants/index.dart';
 import 'package:tsty_app/services/parental_control.dart';
+import 'package:tsty_app/utils/ToastUtils.dart';
 import 'package:tsty_app/viewmodels/learn.dart';
 
 class LearnPage extends StatefulWidget {
@@ -322,12 +323,7 @@ class _LearnPageState extends State<LearnPage> {
                                     rootNavigator.pop();
                                   }
 
-                                  ScaffoldMessenger.of(localContext)
-                                      .showSnackBar(
-                                    const SnackBar(
-                                      content: Text('获取关卡详情失败'),
-                                    ),
-                                  );
+                                  ToastUtils.showToast(localContext, '获取关卡详情失败');
                                 }
                               }();
                             },

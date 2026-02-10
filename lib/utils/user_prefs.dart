@@ -17,6 +17,7 @@ String _yiRandomHex(int len) {
 class UserPrefs {
   static const _kLoggedIn = 'user.loggedIn';
   static const _kSelectedCharacter = 'user.selectedCharacter';
+  static const _kSelectedAvatarIndex = 'user.selectedAvatarIndex';
   static const _kSoundEnabled = 'user.soundEnabled';
   static const _kThemeIndex = 'user.themeIndex';
   static const _kFontSizeIndex = 'user.fontSizeIndex';
@@ -232,6 +233,22 @@ class UserPrefs {
   static Future<void> clearSelectedCharacter() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_kSelectedCharacter);
+  }
+
+  static Future<int> getSelectedAvatarIndex() async {
+    final prefs = await SharedPreferences.getInstance();
+    final v = prefs.getInt(_kSelectedAvatarIndex);
+    return v ?? 0;
+  }
+
+  static Future<void> setSelectedAvatarIndex(int value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_kSelectedAvatarIndex, value);
+  }
+
+  static Future<void> clearSelectedAvatarIndex() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kSelectedAvatarIndex);
   }
 
   static Future<bool> getSoundEnabled() async {

@@ -13,6 +13,7 @@ class MineClassStarsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final yellow = AppTheme.yiYellow.value;
+    final red = Theme.of(context).colorScheme.primary;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -54,6 +55,112 @@ class MineClassStarsCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
+                if (stars.isEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          yellow.withValues(alpha: 0.16),
+                          red.withValues(alpha: 0.08),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: const Color(0xFFFFF1D6),
+                        width: 2,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: yellow.withValues(alpha: 0.7),
+                              width: 2,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.groups_rounded,
+                            color: red.withValues(alpha: 0.85),
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                '暂无班级排名',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFF3D2800),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '可能是未分配班级，或班级暂无数据',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF3D2800)
+                                      .withValues(alpha: 0.6),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: yellow.withValues(alpha: 0.55),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.star,
+                                size: 16,
+                                color: yellow.withValues(alpha: 0.85),
+                              ),
+                              const SizedBox(width: 4),
+                              const Text(
+                                '去学习',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFF3D2800),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
                 LayoutBuilder(
                   builder: (context, constraints) {
                     final list = _sortedStars();

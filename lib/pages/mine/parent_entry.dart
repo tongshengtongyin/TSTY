@@ -3,7 +3,9 @@ import 'package:tsty_app/components/common/YiBaseBackground.dart';
 import 'package:tsty_app/components/common/YiTopBar.dart';
 import 'package:tsty_app/components/mine/parent_entry/parent_entry_feature_list.dart';
 import 'package:tsty_app/components/mine/parent_entry/parent_entry_password_card.dart';
+import 'package:tsty_app/api/auth.dart';
 import 'package:tsty_app/utils/parent_center_prefs.dart';
+import 'package:tsty_app/utils/ToastUtils.dart';
 
 class ParentEntryPage extends StatefulWidget {
   const ParentEntryPage({super.key});
@@ -41,33 +43,36 @@ class _ParentEntryPageState extends State<ParentEntryPage> {
   Future<void> _onSubmit() async {
     if (_loading) return;
     final pwd = _passwordController.text.trim();
-    if (pwd.length != 6) return;
+    if (pwd.isEmpty) return;
 
     setState(() {
       _loading = true;
       _errorText = null;
     });
 
-    await Future.delayed(const Duration(milliseconds: 450));
-    if (!mounted) return;
+    try {
+      await parentLoginAPI(passwordMd5: md5Hex(pwd));
+      if (!mounted) return;
 
-    if (pwd != '123456') {
+      await ParentCenterPrefs.setParentLoggedIn(true);
+      if (!mounted) return;
+      Navigator.of(context).pushReplacementNamed('/mine/parent-center');
+    } catch (e) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
-        _errorText = '密码不正确，请重新输入';
+        _errorText = e.toString().replaceFirst('Exception: ', '');
         _passwordController.text = '';
       });
+      ToastUtils.showToast(context, _errorText ?? '密码验证失败');
       return;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
     }
-
-    setState(() {
-      _loading = false;
-    });
-
-    if (!mounted) return;
-    await ParentCenterPrefs.setParentLoggedIn(true);
-    if (!mounted) return;
-    Navigator.of(context).pushReplacementNamed('/mine/parent-center');
   }
 
   @override
@@ -162,9 +167,7 @@ class _ParentEntryPageState extends State<ParentEntryPage> {
                         const SizedBox(width: 12),
                         InkWell(
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('请联系老师重置密码')),
-                            );
+                            ToastUtils.showToast(context, '请联系老师重置密码');
                           },
                           child: Text(
                             '忘记密码？',

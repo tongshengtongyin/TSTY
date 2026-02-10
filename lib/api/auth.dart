@@ -44,6 +44,64 @@ Future<Map<String, dynamic>> childLoginPasswordAPI({
   throw Exception('登录响应数据格式错误');
 }
 
+Future<Map<String, dynamic>> parentLoginAPI({
+  required String passwordMd5,
+}) async {
+  final body = <String, dynamic>{
+    'password': passwordMd5,
+  };
+
+  if (kDebugMode) {
+    debugPrint('Parent login request');
+  }
+
+  final result = await dioUtils.post(
+    HttpConstants.parentLogin,
+    data: body,
+    headers: const <String, dynamic>{'Content-Type': 'application/json'},
+  );
+
+  if (kDebugMode) {
+    debugPrint('Parent login response data: $result');
+  }
+
+  if (result is Map) {
+    return Map<String, dynamic>.from(result);
+  }
+  throw Exception('家长验证失败：响应数据格式错误');
+}
+
+Future<Map<String, dynamic>> parentChangePasswordAPI({
+  required String oldPasswordMd5,
+  required String newPasswordMd5,
+  required String confirmPasswordMd5,
+}) async {
+  final body = <String, dynamic>{
+    'oldPassword': oldPasswordMd5,
+    'newPassword': newPasswordMd5,
+    'confirmPassword': confirmPasswordMd5,
+  };
+
+  if (kDebugMode) {
+    debugPrint('Parent change password request');
+  }
+
+  final result = await dioUtils.post(
+    HttpConstants.parentChangePassword,
+    data: body,
+    headers: const <String, dynamic>{'Content-Type': 'application/json'},
+  );
+
+  if (kDebugMode) {
+    debugPrint('Parent change password response data: $result');
+  }
+
+  if (result is Map) {
+    return Map<String, dynamic>.from(result);
+  }
+  return <String, dynamic>{};
+}
+
 Future<Map<String, dynamic>> changePasswordAPI({
   required String oldPasswordMd5,
   required String newPasswordMd5,

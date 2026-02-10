@@ -217,6 +217,20 @@ class DioUtils {
     );
   }
 
+  Future<dynamic> put(
+    String url, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? headers,
+  }) async {
+    return _handleRequest(
+      await _dio.put(
+        url,
+        data: data,
+        options: headers == null ? null : Options(headers: headers),
+      ),
+    );
+  }
+
   Future<dynamic> _handleRequest(Response<dynamic> task) async {
     try {
       final result = task;

@@ -6,9 +6,11 @@ import 'package:tsty_app/components/mine/parent_center/parent_center_segmented_c
 import 'package:tsty_app/components/mine/parent_center/parent_control_section.dart';
 import 'package:tsty_app/components/mine/parent_center/parent_report_section.dart';
 import 'package:tsty_app/components/common/yi_dialog.dart';
+import 'package:tsty_app/api/auth.dart';
 import 'package:tsty_app/api/parent_report.dart';
 import 'package:tsty_app/utils/ToastUtils.dart';
 import 'package:tsty_app/utils/parent_center_prefs.dart';
+import 'package:tsty_app/utils/user_prefs.dart';
 
 class ParentCenterPage extends StatefulWidget {
   const ParentCenterPage({super.key});
@@ -34,9 +36,9 @@ class _ParentCenterPageState extends State<ParentCenterPage> {
     restDurationMinutes: 5,
   );
 
-  final ParentChildInfo _child = const ParentChildInfo(
-    nickname: '阿依彝',
-    className: '向阳幼儿园二班',
+  ParentChildInfo _child = const ParentChildInfo(
+    nickname: '小朋友',
+    className: '',
     avatarAsset: 'lib/assets/avatar01.webp',
   );
 
@@ -102,6 +104,8 @@ class _ParentCenterPageState extends State<ParentCenterPage> {
       return;
     }
 
+    await _loadChildInfo();
+
     final settings = await ParentCenterPrefs.getControlSettings();
     if (!mounted) return;
     setState(() {
@@ -110,6 +114,38 @@ class _ParentCenterPageState extends State<ParentCenterPage> {
     });
 
     await _loadReport(period: _period);
+  }
+
+  Future<void> _loadChildInfo() async {
+    const avatars = <String>[
+      'lib/assets/avatar01.webp',
+      'lib/assets/avatar02.webp',
+      'lib/assets/avatar03.webp',
+      'lib/assets/avatar04.webp',
+      'lib/assets/avatar05.webp',
+    ];
+
+    final profile = await UserPrefs.getChildProfile();
+    final nickname = (profile?['nickname']?.toString() ?? '').trim();
+    final classInfo = profile?['classInfo'];
+    final classInfoMap = classInfo is Map
+        ? Map<String, dynamic>.from(classInfo)
+        : <String, dynamic>{};
+    final className = (classInfoMap['className']?.toString() ?? '').trim();
+
+    final avatarIndex = await UserPrefs.getSelectedAvatarIndex();
+    final safeIndex = (avatarIndex >= 0 && avatarIndex < avatars.length)
+        ? avatarIndex
+        : 0;
+
+    if (!mounted) return;
+    setState(() {
+      _child = ParentChildInfo(
+        nickname: nickname.isEmpty ? '小朋友' : nickname,
+        className: className,
+        avatarAsset: avatars[safeIndex],
+      );
+    });
   }
 
   Future<void> _loadReport({required ParentReportPeriod period}) async {
@@ -266,6 +302,86 @@ class _ParentCenterPageState extends State<ParentCenterPage> {
     ToastUtils.showToast(context, '设置已保存');
   }
 
+  Future<void> _onChangePassword() async {
+    final oldController = TextEditingController();
+    final newController = TextEditingController();
+    final confirmController = TextEditingController();
+
+    Future<void> showMsg(String msg) async {
+      if (!mounted) return;
+      ToastUtils.showToast(context, msg);
+    }
+
+    try {
+      final ok = await showYiDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return YiDialog(
+            title: '修改家长密码',
+            body: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: oldController,
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: '原密码'),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: newController,
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: '新密码'),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: confirmController,
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: '确认新密码'),
+                ),
+              ],
+            ),
+            cancelText: '取消',
+            confirmText: '保存',
+            onCancel: () => Navigator.of(context).pop(false),
+            onConfirm: () => Navigator.of(context).pop(true),
+          );
+        },
+      );
+
+      if (ok != true) return;
+
+      final oldPwd = oldController.text.trim();
+      final newPwd = newController.text.trim();
+      final confirmPwd = confirmController.text.trim();
+
+      if (oldPwd.isEmpty || newPwd.isEmpty || confirmPwd.isEmpty) {
+        await showMsg('请完整填写密码信息');
+        return;
+      }
+      if (newPwd != confirmPwd) {
+        await showMsg('新密码与确认密码不匹配');
+        return;
+      }
+
+      try {
+        final resp = await parentChangePasswordAPI(
+          oldPasswordMd5: md5Hex(oldPwd),
+          newPasswordMd5: md5Hex(newPwd),
+          confirmPasswordMd5: md5Hex(confirmPwd),
+        );
+        final changedAt = resp['changedAt']?.toString().trim() ?? '';
+        await showMsg(changedAt.isEmpty ? '密码修改成功' : '密码修改成功\n$changedAt');
+      } catch (e) {
+        await showMsg(e.toString().replaceFirst('Exception: ', ''));
+      }
+    } finally {
+      oldController.dispose();
+      newController.dispose();
+      confirmController.dispose();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_checkingLogin) {
@@ -280,7 +396,14 @@ class _ParentCenterPageState extends State<ParentCenterPage> {
           bottom: false,
           child: Column(
             children: [
-              YiTopBar(title: '家长中心', onBack: _onExit),
+              YiTopBar(
+                title: '家长中心',
+                onBack: _onExit,
+                right: IconButton(
+                  onPressed: _onChangePassword,
+                  icon: const Icon(Icons.lock_outline, color: Colors.white),
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                 child: ParentCenterSegmentedControl(

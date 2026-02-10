@@ -14,7 +14,10 @@ class GlobalConstants {
 class HttpConstants {
   static const String childLoginPassword = "/api/v1/auth/child/login-password";
   static const String childProfile = "/api/v1/child/profile";
+  static const String childClassRanking = "/api/v1/child/class-ranking";
   static const String changePassword = "/api/v1/auth/change-password";
+  static const String parentLogin = "/api/v1/auth/parent/login";
+  static const String parentChangePassword = "/api/v1/auth/parent/change-password";
   static const String authRefresh = "/api/v1/auth/refresh";
   static const String authLogout = "/api/v1/auth/logout";
 

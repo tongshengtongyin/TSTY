@@ -24,7 +24,7 @@ class ParentEntryPasswordCard extends StatelessWidget {
     final yellow = AppTheme.yiYellow.value;
     final red = Theme.of(context).colorScheme.primary;
 
-    final canSubmit = controller.text.trim().length == 6 && !loading;
+    final canSubmit = controller.text.trim().isNotEmpty && !loading;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
@@ -55,8 +55,7 @@ class ParentEntryPasswordCard extends StatelessWidget {
           TextField(
             controller: controller,
             obscureText: obscureText,
-            keyboardType: TextInputType.number,
-            maxLength: 6,
+            keyboardType: TextInputType.text,
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 22,
@@ -65,7 +64,7 @@ class ParentEntryPasswordCard extends StatelessWidget {
             ),
             decoration: InputDecoration(
               counterText: '',
-              hintText: '请输入6位密码',
+              hintText: '请输入家长密码',
               filled: true,
               fillColor: const Color(0xFFFFFFFF),
               suffixIcon: IconButton(

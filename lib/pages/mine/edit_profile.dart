@@ -3,10 +3,12 @@ import 'package:tsty_app/components/common/YiBaseBackground.dart';
 import 'package:tsty_app/components/common/YiSideStripe.dart';
 import 'package:tsty_app/components/common/YiTopBar.dart';
 import 'package:tsty_app/components/profile/edit_profile/edit_profile_avatar_selector.dart';
-import 'package:tsty_app/components/profile/edit_profile/edit_profile_dropdown_field.dart';
 import 'package:tsty_app/components/profile/edit_profile/edit_profile_form_group.dart';
 import 'package:tsty_app/components/profile/edit_profile/edit_profile_submit_button.dart';
 import 'package:tsty_app/components/profile/edit_profile/edit_profile_text_field.dart';
+import 'package:tsty_app/api/child.dart';
+import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/user_prefs.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -18,16 +20,11 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _nameController =
       TextEditingController(text: '阿依彝');
-  final TextEditingController _schoolController =
-      TextEditingController(text: '向阳幼儿园二班');
 
   bool _loading = false;
   bool _success = false;
 
   int _selectedAvatar = 0;
-  String? _gender = 'female';
-  String? _age = '4';
-  String? _grade = 'middle';
 
   final List<String> _avatars = const [
     'lib/assets/avatar01.webp',
@@ -37,25 +34,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     'lib/assets/avatar05.webp',
   ];
 
-  List<EditProfileDropdownOption> get _genderOptions => const [
-        EditProfileDropdownOption(label: '女生', value: 'female'),
-        EditProfileDropdownOption(label: '男生', value: 'male'),
-      ];
-
-  List<EditProfileDropdownOption> get _ageOptions => const [
-        EditProfileDropdownOption(label: '3岁', value: '3'),
-        EditProfileDropdownOption(label: '4岁', value: '4'),
-        EditProfileDropdownOption(label: '5岁', value: '5'),
-        EditProfileDropdownOption(label: '6岁', value: '6'),
-        EditProfileDropdownOption(label: '7岁', value: '7'),
-      ];
-
-  List<EditProfileDropdownOption> get _gradeOptions => const [
-        EditProfileDropdownOption(label: '小班', value: 'small'),
-        EditProfileDropdownOption(label: '中班', value: 'middle'),
-        EditProfileDropdownOption(label: '大班', value: 'big'),
-      ];
-
   String get _submitText {
     if (_loading) return '正在保存...';
     if (_success) return '已保存';
@@ -63,22 +41,35 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   void _toast(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ToastUtils.showToast(context, msg);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInitial();
+  }
+
+  Future<void> _loadInitial() async {
+    final avatarIndex = await UserPrefs.getSelectedAvatarIndex();
+    final profile = await UserPrefs.getChildProfile();
+    final nickname = (profile?['nickname']?.toString() ?? '').trim();
+    if (!mounted) return;
+    setState(() {
+      _selectedAvatar = avatarIndex;
+      if (nickname.isNotEmpty) {
+        _nameController.text = nickname;
+      }
+    });
   }
 
   Future<void> _onSave() async {
     if (_loading) return;
 
     final name = _nameController.text.trim();
-    final school = _schoolController.text.trim();
 
     if (name.isEmpty) {
       _toast('请输入姓名！');
-      return;
-    }
-
-    if (school.isEmpty) {
-      _toast('请输入幼儿园名称！');
       return;
     }
 
@@ -87,24 +78,40 @@ class _EditProfilePageState extends State<EditProfilePage> {
       _success = false;
     });
 
-    await Future<void>.delayed(const Duration(seconds: 1));
-    if (!mounted) return;
+    try {
+      await UserPrefs.setSelectedAvatarIndex(_selectedAvatar);
 
-    setState(() {
-      _loading = false;
-      _success = true;
-    });
-    _toast('个人信息保存成功！');
+      final resp = await updateChildProfileAPI(nickname: name);
+      final newNickname = (resp['nickname']?.toString() ?? '').trim();
 
-    await Future<void>.delayed(const Duration(milliseconds: 1500));
+      final existing = await UserPrefs.getChildProfile();
+      final merged = <String, dynamic>{};
+      if (existing != null) {
+        merged.addAll(existing);
+      }
+      merged['nickname'] = newNickname.isEmpty ? name : newNickname;
+      await UserPrefs.setChildProfile(merged);
+
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _success = true;
+      });
+      _toast('个人信息保存成功！');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      _toast(e.toString().replaceFirst('Exception: ', ''));
+      return;
+    }
+
     if (!mounted) return;
-    Navigator.of(context).maybePop();
+    Navigator.of(context).pop(true);
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _schoolController.dispose();
     super.dispose();
   }
 
@@ -145,50 +152,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 child: EditProfileTextField(
                                   controller: _nameController,
                                   placeholder: '请输入姓名',
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              EditProfileFormGroup(
-                                label: '性别',
-                                child: EditProfileDropdownField(
-                                  value: _gender,
-                                  placeholder: '请选择性别',
-                                  options: _genderOptions,
-                                  onChanged: (v) {
-                                    setState(() => _gender = v);
-                                  },
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              EditProfileFormGroup(
-                                label: '年龄',
-                                child: EditProfileDropdownField(
-                                  value: _age,
-                                  placeholder: '请选择年龄',
-                                  options: _ageOptions,
-                                  onChanged: (v) {
-                                    setState(() => _age = v);
-                                  },
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              EditProfileFormGroup(
-                                label: '班级',
-                                child: EditProfileDropdownField(
-                                  value: _grade,
-                                  placeholder: '请选择班级',
-                                  options: _gradeOptions,
-                                  onChanged: (v) {
-                                    setState(() => _grade = v);
-                                  },
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              EditProfileFormGroup(
-                                label: '幼儿园',
-                                child: EditProfileTextField(
-                                  controller: _schoolController,
-                                  placeholder: '请输入幼儿园名称',
                                 ),
                               ),
                               const SizedBox(height: 16),

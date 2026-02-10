@@ -6,12 +6,14 @@ class MineProfileHeader extends StatelessWidget {
   final MineUserInfo user;
   final MineStats stats;
   final String statusText;
+  final String avatarAsset;
 
   const MineProfileHeader({
     super.key,
     required this.user,
     required this.stats,
     this.statusText = '今天学了10分钟，继续加油～',
+    this.avatarAsset = 'lib/assets/avatar01.webp',
   });
 
   String _formatPercent(double v) {
@@ -96,7 +98,7 @@ class MineProfileHeader extends StatelessWidget {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(100),
                           child: Image.asset(
-                            'lib/assets/avatar01.webp',
+                            avatarAsset,
                             fit: BoxFit.cover,
                           ),
                         ),

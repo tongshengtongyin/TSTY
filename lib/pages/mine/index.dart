@@ -16,6 +16,8 @@ class MinePage extends StatefulWidget {
 
 class _MinePageState extends State<MinePage> {
   Map<String, dynamic>? _profile;
+  int _avatarIndex = 0;
+  List<MineStarStudent> _classStars = const [];
 
   @override
   void initState() {
@@ -25,15 +27,73 @@ class _MinePageState extends State<MinePage> {
 
   Future<void> _load() async {
     final p = await UserPrefs.getChildProfile();
+    final avatarIndex = await UserPrefs.getSelectedAvatarIndex();
+    List<MineStarStudent> stars = const [];
+    try {
+      stars = await _loadClassRanking();
+    } catch (_) {
+      stars = const [];
+    }
     if (!mounted) return;
-    setState(() => _profile = p);
+    setState(() {
+      _profile = p;
+      _avatarIndex = avatarIndex;
+      _classStars = stars;
+    });
   }
 
   Future<void> _refresh() async {
     final data = await getChildProfileAPI();
     await UserPrefs.setChildProfile(data);
+    final avatarIndex = await UserPrefs.getSelectedAvatarIndex();
+    List<MineStarStudent> stars = const [];
+    try {
+      stars = await _loadClassRanking();
+    } catch (_) {
+      stars = const [];
+    }
     if (!mounted) return;
-    setState(() => _profile = data);
+    setState(() {
+      _profile = data;
+      _avatarIndex = avatarIndex;
+      _classStars = stars;
+    });
+  }
+
+  Future<List<MineStarStudent>> _loadClassRanking() async {
+    const avatarPool = <String>[
+      'lib/assets/avatar01.webp',
+      'lib/assets/avatar02.webp',
+      'lib/assets/avatar03.webp',
+      'lib/assets/avatar04.webp',
+      'lib/assets/avatar05.webp',
+    ];
+
+    final topList = await getChildClassRankingAPI();
+    if (topList.isEmpty) return const [];
+
+    final indices = List<int>.generate(avatarPool.length, (i) => i)..shuffle();
+    final picked = indices.take(3).toList();
+
+    final out = <MineStarStudent>[];
+    for (var i = 0; i < topList.length && i < 3; i++) {
+      final item = topList[i];
+      final fullName = (item['fullName']?.toString() ?? '').trim();
+      final totalStars = item['totalStars'];
+      final stars = totalStars is int
+          ? totalStars
+          : int.tryParse(totalStars?.toString() ?? '') ?? 0;
+
+      out.add(
+        MineStarStudent(
+          avatar: avatarPool[picked[i % picked.length]],
+          rank: i + 1,
+          name: fullName.isEmpty ? '同学' : fullName,
+          badge: '$stars颗',
+        ),
+      );
+    }
+    return out;
   }
 
   String _pickString(String key, {String fallback = ''}) {
@@ -62,6 +122,16 @@ class _MinePageState extends State<MinePage> {
 
   @override
   Widget build(BuildContext context) {
+    const avatars = <String>[
+      'lib/assets/avatar01.webp',
+      'lib/assets/avatar02.webp',
+      'lib/assets/avatar03.webp',
+      'lib/assets/avatar04.webp',
+      'lib/assets/avatar05.webp',
+    ];
+    final safeIndex = (_avatarIndex >= 0 && _avatarIndex < avatars.length) ? _avatarIndex : 0;
+    final avatarAsset = avatars[safeIndex];
+
     final nickname = _pickString('nickname', fallback: '小朋友');
     final gender = _normalizeGender(_pickString('gender', fallback: ''));
     final ageYears = _pickInt('ageYears', fallback: 0);
@@ -107,27 +177,6 @@ class _MinePageState extends State<MinePage> {
       totalStars: totalStars,
     );
 
-    const stars = [
-      MineStarStudent(
-        avatar: 'lib/assets/avatar02.webp',
-        rank: 1,
-        name: '曲比',
-        badge: '96朵',
-      ),
-      MineStarStudent(
-        avatar: 'lib/assets/avatar03.webp',
-        rank: 2,
-        name: '吾木',
-        badge: '85朵',
-      ),
-      MineStarStudent(
-        avatar: 'lib/assets/avatar04.webp',
-        rank: 3,
-        name: '比尔玛',
-        badge: '78朵',
-      ),
-    ];
-
     return Stack(
       children: [
         RefreshIndicator(
@@ -137,15 +186,21 @@ class _MinePageState extends State<MinePage> {
               SliverToBoxAdapter(
                 child: Column(
                   children: [
-                    MineProfileHeader(user: user, stats: stats),
+                    MineProfileHeader(user: user, stats: stats, avatarAsset: avatarAsset),
                     const SizedBox(height: 24),
-                    MineClassStarsCard(stars: stars),
+                    MineClassStarsCard(stars: _classStars),
                     const SizedBox(height: 24),
                     MineMenuSection(
                       onTap: (action) {
                         switch (action) {
                           case MineMenuAction.editProfile:
-                            Navigator.of(context).pushNamed('/mine/edit-profile');
+                            Navigator.of(context)
+                                .pushNamed('/mine/edit-profile')
+                                .then((v) {
+                                  if (v == true) {
+                                    _load();
+                                  }
+                                });
                             break;
                           case MineMenuAction.parentEntry:
                             Navigator.of(context).pushNamed('/mine/parent-entry');
