@@ -5,10 +5,7 @@ import 'package:tsty_app/constants/index.dart';
 import 'package:tsty_app/utils/dio_utils.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 
-Future<IseAuthCache> getIseAuthAPI({
-  String? accessToken,
-  String? targetHost,
-}) async {
+Future<TtsAuthCache> getTtsAuthAPI({String? accessToken}) async {
   final token = (accessToken == null || accessToken.trim().isEmpty)
       ? await UserPrefs.getAccessToken()
       : accessToken.trim();
@@ -20,16 +17,12 @@ Future<IseAuthCache> getIseAuthAPI({
         };
 
   if (kDebugMode) {
-    debugPrint('ISE auth request: ${GlobalConstants.apiBaseUrl}${HttpConstants.iseAuth} '
+    debugPrint('TTS auth request: ${GlobalConstants.apiBaseUrl}${HttpConstants.ttsAuth} '
         'authHeader=${headers == null ? 'none' : 'bearer'}');
   }
 
   final result = await dioUtils.get(
-    HttpConstants.iseAuth,
-    params: {
-      if (targetHost != null && targetHost.trim().isNotEmpty)
-        'host': targetHost.trim(),
-    },
+    HttpConstants.ttsAuth,
     headers: headers,
   );
 
@@ -38,7 +31,7 @@ Future<IseAuthCache> getIseAuthAPI({
   }
 
   if (kDebugMode) {
-    debugPrint('ISE auth response raw: ${jsonEncode(result)}');
+    debugPrint('TTS auth response raw: ${jsonEncode(result)}');
   }
 
   final authorization = result['authorization']?.toString() ?? '';
@@ -47,21 +40,43 @@ Future<IseAuthCache> getIseAuthAPI({
   final appId = (result['appId'] ?? result['app_id'] ?? result['appid'])
           ?.toString() ??
       '';
+  final serviceType = result['serviceType']?.toString() ??
+      result['service_type']?.toString() ??
+      '';
 
   if (authorization.isEmpty || date.isEmpty || host.isEmpty || appId.isEmpty) {
     throw Exception('鉴权数据缺失');
   }
 
   if (kDebugMode) {
-    debugPrint('ISE auth response parsed: appId=$appId host=$host date=$date '
-        'authorizationLen=${authorization.length}');
+    debugPrint('TTS auth response parsed: appId=$appId host=$host date=$date '
+        'authorizationLen=${authorization.length} serviceType=$serviceType');
   }
 
-  return IseAuthCache(
+  return TtsAuthCache(
     authorization: authorization,
     date: date,
     host: host,
     appId: appId,
+    serviceType: serviceType,
     timestamp: DateTime.now().millisecondsSinceEpoch,
   );
+}
+
+class TtsAuthCache {
+  final String authorization;
+  final String date;
+  final String host;
+  final String appId;
+  final String serviceType;
+  final int timestamp;
+
+  const TtsAuthCache({
+    required this.authorization,
+    required this.date,
+    required this.host,
+    required this.appId,
+    required this.serviceType,
+    required this.timestamp,
+  });
 }

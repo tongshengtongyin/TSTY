@@ -75,6 +75,8 @@ flutter:
     - lib/assets/glb/
     - lib/assets/learn/shengmu/audio/
     - lib/assets/learn/shengmu/image/
+    - lib/assets/learn/hanzi/
+    - lib/assets/learn/ciyu/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

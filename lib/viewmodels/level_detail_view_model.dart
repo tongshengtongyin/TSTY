@@ -82,6 +82,28 @@ bool _isYunmuContent(LevelContent content) {
   return s.contains('yunmu') || content.contentType.contains('韵母');
 }
 
+bool _isHanziContent(LevelContent content) {
+  final s = content.contentType.trim().toLowerCase();
+  return s.contains('hanzi') || content.contentType.contains('汉字');
+}
+
+bool _isCiyuContent(LevelContent content) {
+  final s = content.contentType.trim().toLowerCase();
+  return s.contains('ciyu') ||
+      s.contains('word') ||
+      content.contentType.contains('词语');
+}
+
+String _hanziImageAsset(String value) {
+  final key = value.trim();
+  return 'lib/assets/learn/hanzi/$key.webp';
+}
+
+String _ciyuImageAsset(String value) {
+  final key = value.trim();
+  return 'lib/assets/learn/ciyu/$key.webp';
+}
+
 
 String _shengmuAssetKey(String raw) {
   return raw.trim().toLowerCase();
@@ -116,6 +138,18 @@ class LevelDetailViewModel {
       final key = _shengmuAssetKey(c.contentValue);
       if (key.isNotEmpty) {
         return _shengmuImageAsset(key);
+      }
+    }
+    if (_isHanziContent(c)) {
+      final key = c.contentValue.trim();
+      if (key.isNotEmpty) {
+        return _hanziImageAsset(key);
+      }
+    }
+    if (_isCiyuContent(c)) {
+      final key = c.contentValue.trim();
+      if (key.isNotEmpty) {
+        return _ciyuImageAsset(key);
       }
     }
     return 'lib/assets/father.webp';

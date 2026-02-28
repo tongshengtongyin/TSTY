@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tsty_app/api/tts.dart';
 
 String _yiRandomHex(int len) {
   final now = DateTime.now().microsecondsSinceEpoch;
@@ -36,6 +37,12 @@ class UserPrefs {
   static const _kIseHost = 'ise.host';
   static const _kIseAppId = 'ise.appId';
   static const _kIseTimestamp = 'ise.timestamp';
+
+  static const _kTtsAuthorization = 'tts.authorization';
+  static const _kTtsDate = 'tts.date';
+  static const _kTtsHost = 'tts.host';
+  static const _kTtsAppId = 'tts.appId';
+  static const _kTtsTimestamp = 'tts.timestamp';
 
   static Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
@@ -216,6 +223,60 @@ class UserPrefs {
     await prefs.remove(_kIseHost);
     await prefs.remove(_kIseAppId);
     await prefs.remove(_kIseTimestamp);
+  }
+
+  static Future<TtsAuthCache?> getTtsAuthCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    final authorization = prefs.getString(_kTtsAuthorization);
+    final date = prefs.getString(_kTtsDate);
+    final host = prefs.getString(_kTtsHost);
+    final appId = prefs.getString(_kTtsAppId);
+    final serviceType = prefs.getString('tts.serviceType');
+    final ts = prefs.getInt(_kTtsTimestamp);
+
+    if (authorization == null ||
+        authorization.trim().isEmpty ||
+        date == null ||
+        date.trim().isEmpty ||
+        host == null ||
+        host.trim().isEmpty ||
+        appId == null ||
+        appId.trim().isEmpty ||
+        serviceType == null ||
+        serviceType.trim().isEmpty ||
+        ts == null ||
+        ts <= 0) {
+      return null;
+    }
+
+    return TtsAuthCache(
+      authorization: authorization,
+      date: date,
+      host: host,
+      appId: appId,
+      serviceType: serviceType,
+      timestamp: ts,
+    );
+  }
+
+  static Future<void> setTtsAuthCache(TtsAuthCache cache) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kTtsAuthorization, cache.authorization);
+    await prefs.setString(_kTtsDate, cache.date);
+    await prefs.setString(_kTtsHost, cache.host);
+    await prefs.setString(_kTtsAppId, cache.appId);
+    await prefs.setString('tts.serviceType', cache.serviceType);
+    await prefs.setInt(_kTtsTimestamp, cache.timestamp);
+  }
+
+  static Future<void> clearTtsAuthCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kTtsAuthorization);
+    await prefs.remove(_kTtsDate);
+    await prefs.remove(_kTtsHost);
+    await prefs.remove(_kTtsAppId);
+    await prefs.remove('tts.serviceType');
+    await prefs.remove(_kTtsTimestamp);
   }
 
   /// 0 = girl, 1 = boy

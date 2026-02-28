@@ -171,17 +171,11 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _openPrivacySettings() async {
-    await _showInfoDialog(
-      '隐私设置',
-      '你可以在这里管理隐私相关选项。\n\n(示例)\n- 个性化推荐\n- 数据使用说明\n- 权限管理',
-    );
+    Navigator.of(context).pushNamed('/settings/privacy');
   }
 
   Future<void> _openThirdPartyShareList() async {
-    await _showInfoDialog(
-      '第三方共享个人信息清单',
-      '用于说明应用可能会与第三方共享的个人信息类型与目的。\n\n(示例)\n- 设备信息：用于稳定性分析\n- 使用数据：用于功能优化',
-    );
+    Navigator.of(context).pushNamed('/settings/third-party-share');
   }
 
   Future<void> _openAbout() async {
@@ -194,7 +188,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _openHelp() async {
     await _showInfoDialog(
       '帮助与反馈',
-      '如果你在使用中遇到问题，可以通过以下方式反馈：\n\n(示例)\n- 在应用内提交问题描述与截图\n- 联系客服：400-000-0000',
+      '如果你在使用中遇到问题，可以按以下方式排查并反馈：\n\n常见问题\n- 听不到声音：请检查系统音量与静音状态，并确认已授予麦克风权限\n- 语音功能不可用：请确认网络连接正常，或稍后重试\n- 页面卡顿/闪退：建议先尝试“清除缓存”，再重新进入\n\n反馈方式\n- 邮箱：2629103796@qq.com\n\n为了更快定位问题，建议在邮件中附上：设备型号、系统版本、发生时间、问题描述、复现步骤与截图/录屏（如有）。',
     );
   }
 

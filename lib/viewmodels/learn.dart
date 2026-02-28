@@ -88,6 +88,7 @@ class LevelContent {
   final String contentValue;
   final String pinyinText;
   final String exampleWord;
+  final String exampleSentence;
   final List<String> tips;
 
   const LevelContent({
@@ -97,6 +98,7 @@ class LevelContent {
     required this.contentValue,
     required this.pinyinText,
     required this.exampleWord,
+    required this.exampleSentence,
     required this.tips,
   });
 
@@ -107,6 +109,7 @@ class LevelContent {
     contentValue: '',
     pinyinText: '',
     exampleWord: '',
+    exampleSentence: '',
     tips: [],
   );
 
@@ -118,6 +121,7 @@ class LevelContent {
       contentValue: json["contentValue"] ?? "",
       pinyinText: json["pinyinText"] ?? "",
       exampleWord: json["exampleWord"] ?? "",
+      exampleSentence: json["exampleSentence"] ?? json["example_sentence"] ?? "",
       tips: _parseTips(json["tips"]),
     );
   }

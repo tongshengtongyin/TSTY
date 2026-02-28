@@ -31,6 +31,8 @@ class HttpConstants {
 
   static const String iseAuth = "/api/v1/learning/ise/auth";
 
+  static const String ttsAuth = "/api/v1/learning/tts/auth";
+
   static const String submitEvaluation =
       "/api/v1/learning/levels/{levelId}/submit-evaluation";
 

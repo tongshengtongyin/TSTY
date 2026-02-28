@@ -13,6 +13,7 @@ import 'package:tsty_app/utils/ToastUtils.dart';
 import 'package:tsty_app/services/learning_duration_tracker.dart';
 import 'package:tsty_app/services/level_evaluation_flow.dart';
 import 'package:tsty_app/services/level_audio_player.dart';
+import 'package:tsty_app/services/learning_tts_player.dart';
 import 'package:tsty_app/services/parental_control.dart';
 import 'package:tsty_app/viewmodels/level_detail_view_model.dart';
 import 'package:tsty_app/utils/yi_recorder.dart';
@@ -78,7 +79,8 @@ class _LevelDetailPageState extends State<LevelDetailPage>
   late final LearningDurationTracker _durationTracker;
   final ParentalControlUsageTracker _usageTracker = ParentalControlUsageTracker();
   late final LevelAudioPlayer _audioPlayer;
-  late final LevelEvaluationFlow _evaluationFlow;
+  late final LearningTtsPlayer _ttsPlayer;
+  late LevelEvaluationFlow _evaluationFlow;
   final YiRecorderController _recorder = YiRecorderController();
   StreamSubscription<Duration>? _recordDurationSub;
 
@@ -95,6 +97,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
     );
     _durationTracker = LearningDurationTracker(activityType: ActivityType.learn);
     _audioPlayer = LevelAudioPlayer();
+    _ttsPlayer = LearningTtsPlayer();
     _evaluationFlow = LevelEvaluationFlow(
       levelId: widget.levelId ?? '',
       unitId: widget.unitId ?? '',
@@ -155,7 +158,9 @@ class _LevelDetailPageState extends State<LevelDetailPage>
     _audioPlayer.dispose();
     _recordDurationSub?.cancel();
     _recordDurationSub = null;
+
     _recorder.dispose();
+    _ttsPlayer.dispose();
     super.dispose();
   }
 
@@ -258,6 +263,11 @@ class _LevelDetailPageState extends State<LevelDetailPage>
     ToastUtils.showToast(context, msg);
   }
 
+  bool _isShengmuOrYunmu(LevelContent content) {
+    final s = content.contentType.trim().toLowerCase();
+    return s.contains('shengmu') || content.contentType.contains('声母');
+  }
+
   void _playStandard() {
     () async {
       final guard = await ParentalControlGuard.checkCanStartAction();
@@ -269,21 +279,46 @@ class _LevelDetailPageState extends State<LevelDetailPage>
 
       if (!mounted) return;
 
-      _audioPlayer.playStandard(
-        content: _vm.content ?? LevelContent.empty,
-        onUnsupported: () => _toast('播放标准音（示例）'),
-        onMissingAsset: () => _toast('暂无标准音'),
-      );
+      final content = _vm.content ?? LevelContent.empty;
+
+      // 1) 声母：优先本地标准音（声母已有mp3）
+      if (_isShengmuOrYunmu(content)) {
+        var fallbackToTts = false;
+        await _audioPlayer.playStandard(
+          content: content,
+          onUnsupported: () => fallbackToTts = true,
+          onMissingAsset: () => fallbackToTts = true,
+        );
+        if (!fallbackToTts) return;
+      }
+
+      // 2) 其它内容：播放学习内容本身
+      if (!mounted) return;
+      await _ttsPlayer.speak(context: context, text: content.contentValue);
     }();
   }
 
   void _playTip() {
-    final tip = _vm.nextTip();
-    if (tip.isEmpty) {
-      ToastUtils.showToast(context, '暂无提示');
-      return;
-    }
-    ToastUtils.showToast(context, tip);
+    () async {
+      final guard = await ParentalControlGuard.checkCanStartAction();
+      if (!guard.allowed) {
+        if (!mounted) return;
+        await showParentalControlBlockedSheet(context: context, result: guard);
+        return;
+      }
+
+      if (!mounted) return;
+
+      final content = _vm.content ?? LevelContent.empty;
+      final example =
+          '${content.exampleWord}[p1000]${content.exampleSentence}'.trim();
+      if (example.isEmpty) {
+        ToastUtils.showToast(context, '暂无提示');
+        return;
+      }
+
+      await _ttsPlayer.speak(context: context, text: example);
+    }();
   }
 
   void _startRecording() {
