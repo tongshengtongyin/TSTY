@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ParentCenterPrefs {
   static const _kParentLoggedIn = 'parentLoggedIn';
 
+  static const _kEnabled = 'parentControl.enabled';
   static const _kDailyLimitMinutes = 'parentControl.dailyLimitMinutes';
   static const _kTimeEnabled = 'parentControl.timeEnabled';
   static const _kStartTime = 'parentControl.startTime';
@@ -29,6 +30,7 @@ class ParentCenterPrefs {
   static Future<ParentControlSettings> getControlSettings() async {
     final prefs = await SharedPreferences.getInstance();
     return ParentControlSettings(
+      enabled: prefs.getBool(_kEnabled) ?? false,
       dailyLimitMinutes: prefs.getInt(_kDailyLimitMinutes) ?? 30,
       timeEnabled: prefs.getBool(_kTimeEnabled) ?? true,
       startTime: prefs.getString(_kStartTime) ?? '18:00',
@@ -41,6 +43,7 @@ class ParentCenterPrefs {
 
   static Future<void> setControlSettings(ParentControlSettings settings) async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kEnabled, settings.enabled);
     await prefs.setInt(_kDailyLimitMinutes, settings.dailyLimitMinutes);
     await prefs.setBool(_kTimeEnabled, settings.timeEnabled);
     await prefs.setString(_kStartTime, settings.startTime);
@@ -52,6 +55,7 @@ class ParentCenterPrefs {
 }
 
 class ParentControlSettings {
+  final bool enabled;
   final int dailyLimitMinutes;
   final bool timeEnabled;
   final String startTime;
@@ -61,6 +65,7 @@ class ParentControlSettings {
   final int restDurationMinutes;
 
   const ParentControlSettings({
+    required this.enabled,
     required this.dailyLimitMinutes,
     required this.timeEnabled,
     required this.startTime,
@@ -71,6 +76,7 @@ class ParentControlSettings {
   });
 
   ParentControlSettings copyWith({
+    bool? enabled,
     int? dailyLimitMinutes,
     bool? timeEnabled,
     String? startTime,
@@ -80,6 +86,7 @@ class ParentControlSettings {
     int? restDurationMinutes,
   }) {
     return ParentControlSettings(
+      enabled: enabled ?? this.enabled,
       dailyLimitMinutes: dailyLimitMinutes ?? this.dailyLimitMinutes,
       timeEnabled: timeEnabled ?? this.timeEnabled,
       startTime: startTime ?? this.startTime,

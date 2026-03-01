@@ -15,6 +15,7 @@ import 'package:tsty_app/services/level_evaluation_flow.dart';
 import 'package:tsty_app/services/level_audio_player.dart';
 import 'package:tsty_app/services/learning_tts_player.dart';
 import 'package:tsty_app/services/parental_control.dart';
+import 'package:tsty_app/utils/parent_center_prefs.dart';
 import 'package:tsty_app/viewmodels/level_detail_view_model.dart';
 import 'package:tsty_app/utils/yi_recorder.dart';
 import 'package:tsty_app/viewmodels/learn.dart';
@@ -112,7 +113,12 @@ class _LevelDetailPageState extends State<LevelDetailPage>
     _vm.setContent(widget.levelContent);
 
     WidgetsBinding.instance.addObserver(this);
-    _usageTracker.start();
+    ParentCenterPrefs.getControlSettings().then((s) {
+      if (!mounted) return;
+      if (s.enabled) {
+        _usageTracker.start();
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _durationTracker.start();

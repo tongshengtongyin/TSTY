@@ -16,6 +16,8 @@ class ParentControlSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controlsEnabled = settings.enabled;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 120),
       child: Column(
@@ -23,25 +25,34 @@ class ParentControlSection extends StatelessWidget {
         children: [
           const _TipCard(),
           const SizedBox(height: 14),
+          _EnableCard(
+            enabled: controlsEnabled,
+            onChanged: (v) => onChanged(settings.copyWith(enabled: v)),
+          ),
+          const SizedBox(height: 14),
           _DailyLimitCard(
+            enabled: controlsEnabled,
             minutes: settings.dailyLimitMinutes,
             onChanged: (m) => onChanged(settings.copyWith(dailyLimitMinutes: m)),
           ),
           const SizedBox(height: 14),
           _TimeRangeCard(
-            enabled: settings.timeEnabled,
+            enabled: controlsEnabled && settings.timeEnabled,
             startTime: settings.startTime,
             endTime: settings.endTime,
-            onEnabledChanged: (v) => onChanged(settings.copyWith(timeEnabled: v)),
+            onEnabledChanged: (v) {
+              if (!controlsEnabled) return;
+              onChanged(settings.copyWith(timeEnabled: v));
+            },
             onStartPick: () async {
-              if (!settings.timeEnabled) return;
+              if (!controlsEnabled || !settings.timeEnabled) return;
               final picked = await _pickTime(context, settings.startTime);
               if (picked != null) {
                 onChanged(settings.copyWith(startTime: picked));
               }
             },
             onEndPick: () async {
-              if (!settings.timeEnabled) return;
+              if (!controlsEnabled || !settings.timeEnabled) return;
               final picked = await _pickTime(context, settings.endTime);
               if (picked != null) {
                 onChanged(settings.copyWith(endTime: picked));
@@ -50,18 +61,76 @@ class ParentControlSection extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           _RestCard(
-            enabled: settings.restEnabled,
+            enabled: controlsEnabled && settings.restEnabled,
             interval: settings.restIntervalMinutes,
             duration: settings.restDurationMinutes,
-            onEnabledChanged: (v) => onChanged(settings.copyWith(restEnabled: v)),
-            onIntervalChanged: (v) =>
-                onChanged(settings.copyWith(restIntervalMinutes: v)),
-            onDurationChanged: (v) =>
-                onChanged(settings.copyWith(restDurationMinutes: v)),
+            onEnabledChanged: (v) {
+              if (!controlsEnabled) return;
+              onChanged(settings.copyWith(restEnabled: v));
+            },
+            onIntervalChanged: (v) {
+              if (!controlsEnabled) return;
+              onChanged(settings.copyWith(restIntervalMinutes: v));
+            },
+            onDurationChanged: (v) {
+              if (!controlsEnabled) return;
+              onChanged(settings.copyWith(restDurationMinutes: v));
+            },
           ),
           const SizedBox(height: 10),
           _SaveButton(onSave: onSave),
           const SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
+}
+
+class _EnableCard extends StatelessWidget {
+  final bool enabled;
+  final ValueChanged<bool> onChanged;
+
+  const _EnableCard({required this.enabled, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final yellow = AppTheme.yiYellow.value;
+    final red = Theme.of(context).colorScheme.primary;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: yellow, width: 3),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: red,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: yellow, width: 2),
+            ),
+            child: const Icon(Icons.lock_clock, color: Colors.white, size: 22),
+          ),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Text(
+              '启用家长管控',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF2A1E00),
+              ),
+            ),
+          ),
+          Switch(
+            value: enabled,
+            onChanged: onChanged,
+          ),
         ],
       ),
     );
@@ -208,10 +277,15 @@ class _CardShell extends StatelessWidget {
 }
 
 class _DailyLimitCard extends StatelessWidget {
+  final bool enabled;
   final int minutes;
   final ValueChanged<int> onChanged;
 
-  const _DailyLimitCard({required this.minutes, required this.onChanged});
+  const _DailyLimitCard({
+    required this.enabled,
+    required this.minutes,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -285,7 +359,8 @@ class _DailyLimitCard extends StatelessWidget {
               min: 15,
               max: 120,
               divisions: (120 - 15) ~/ 5,
-              onChanged: (v) => onChanged(((v / 5).round() * 5).clamp(15, 120)),
+              onChanged:
+                  enabled ? (v) => onChanged(((v / 5).round() * 5).clamp(15, 120)) : null,
             ),
           ),
           const SizedBox(height: 2),

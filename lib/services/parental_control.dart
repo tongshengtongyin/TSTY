@@ -98,6 +98,11 @@ class ParentalControlGuard {
     await _ensureResetIfNeeded(prefs);
 
     final settings = await ParentCenterPrefs.getControlSettings();
+    if (!settings.enabled) {
+      return const ParentalControlGuardResult.allowed(
+        remainingTodaySeconds: 1 << 30,
+      );
+    }
     if (!settings.timeEnabled && settings.dailyLimitMinutes <= 0) {
       return const ParentalControlGuardResult.allowed(remainingTodaySeconds: 1 << 30);
     }
@@ -209,6 +214,11 @@ class ParentalControlUsageTracker with WidgetsBindingObserver {
     final prefs = await SharedPreferences.getInstance();
     await ParentalControlGuard._ensureResetIfNeeded(prefs);
 
+    final settings = await ParentCenterPrefs.getControlSettings();
+    if (!settings.enabled) {
+      return;
+    }
+
     final used = prefs.getInt(_kUsedSeconds) ?? 0;
     final session = prefs.getInt(_kSessionSeconds) ?? 0;
 
@@ -217,8 +227,6 @@ class ParentalControlUsageTracker with WidgetsBindingObserver {
 
     await prefs.setInt(_kUsedSeconds, nextUsed);
     await prefs.setInt(_kSessionSeconds, nextSession);
-
-    final settings = await ParentCenterPrefs.getControlSettings();
 
     if (settings.restEnabled) {
       final intervalSeconds = settings.restIntervalMinutes.clamp(1, 24 * 60) * 60;
@@ -248,6 +256,8 @@ Future<ParentalControlSoftBannerStatus?> getParentalControlSoftBannerStatus() as
   final prefs = await SharedPreferences.getInstance();
   await ParentalControlGuard._ensureResetIfNeeded(prefs);
   final settings = await ParentCenterPrefs.getControlSettings();
+
+  if (!settings.enabled) return null;
 
   final limitSeconds = (settings.dailyLimitMinutes.clamp(0, 24 * 60)) * 60;
   final used = prefs.getInt('parentalControl.usedSeconds') ?? 0;

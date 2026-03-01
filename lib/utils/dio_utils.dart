@@ -50,8 +50,7 @@ class DioUtils {
             final path = options.path;
             final skipAuth = options.extra['skipAuth'] == true ||
                 path.contains(HttpConstants.authRefresh) ||
-                path.contains(HttpConstants.childLoginPassword) ||
-                path.contains(HttpConstants.parentLogin);
+                path.contains(HttpConstants.childLoginPassword);
 
             if (!skipAuth) {
               final headers = options.headers;
@@ -84,8 +83,7 @@ class DioUtils {
           final path = response.requestOptions.path;
           final skipAuth = response.requestOptions.extra['skipAuth'] == true ||
               path.contains(HttpConstants.authRefresh) ||
-              path.contains(HttpConstants.childLoginPassword) ||
-              path.contains(HttpConstants.parentLogin);
+              path.contains(HttpConstants.childLoginPassword);
 
           final data = response.data;
           if (data is Map && data.containsKey('code')) {
@@ -142,8 +140,7 @@ class DioUtils {
           final path = opts.path;
           final skipAuth = opts.extra['skipAuth'] == true ||
               path.contains(HttpConstants.authRefresh) ||
-              path.contains(HttpConstants.childLoginPassword) ||
-              path.contains(HttpConstants.parentLogin);
+              path.contains(HttpConstants.childLoginPassword);
 
           final status = error.response?.statusCode;
           if (!skipAuth && status == 401 && opts.extra['retried'] != true) {

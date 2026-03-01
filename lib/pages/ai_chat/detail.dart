@@ -14,6 +14,7 @@ import 'package:tsty_app/routes/route_observer.dart';
 import 'package:tsty_app/utils/ToastUtils.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 import 'package:tsty_app/utils/yi_recorder.dart';
+import 'package:tsty_app/utils/parent_center_prefs.dart';
 
 class AiChatDetailPage extends StatefulWidget {
   final String? sceneId;
@@ -36,6 +37,7 @@ class AiChatDetailPage extends StatefulWidget {
   @override
   State<AiChatDetailPage> createState() => _AiChatDetailPageState();
 }
+
 class _AiChatDetailPageState extends State<AiChatDetailPage>
     with WidgetsBindingObserver, RouteAware {
   Timer? _timer;
@@ -114,8 +116,6 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
     _durationTracker = LearningDurationTracker(activityType: ActivityType.aiChat);
     WidgetsBinding.instance.addObserver(this);
 
-    _usageTracker.start();
-
     () async {
       final selected = (await UserPrefs.getSelectedCharacter()) ?? 0;
       if (!mounted) return;
@@ -154,19 +154,18 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
         setState(() => _teacherState = 'idle');
         ToastUtils.showToast(context, 'AI实时对话启动失败: $e');
       }
-    }();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showOpening();
-      if (!mounted) return;
-      _durationTracker.start();
-    });
+      ParentCenterPrefs.getControlSettings().then((s) {
+        if (!mounted) return;
+        if (s.enabled) {
+          _usageTracker.start();
+        }
+      });
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() {
         _seconds++;
       });
-    });
+    }();
   }
 
   @override

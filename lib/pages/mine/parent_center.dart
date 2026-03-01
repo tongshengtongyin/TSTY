@@ -27,6 +27,7 @@ class _ParentCenterPageState extends State<ParentCenterPage> {
   bool _reportLoading = false;
 
   ParentControlSettings _controlSettings = const ParentControlSettings(
+    enabled: false,
     dailyLimitMinutes: 30,
     timeEnabled: true,
     startTime: '18:00',
