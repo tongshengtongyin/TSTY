@@ -1,5 +1,6 @@
+import 'package:tsty_app/components/ai_chat/ai_chat_models.dart';
+import 'package:flutter/material.dart';
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tsty_app/api/tts.dart';
 
@@ -340,6 +341,56 @@ class UserPrefs {
   static Future<void> setFontSizeIndex(int value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_kFontSizeIndex, value);
+  }
+
+  static const _kRecentChatsJson = 'ai.recentChats.json';
+
+  static Future<List<AiChatRecentChat>> getRecentChats() async {
+    final prefs = await SharedPreferences.getInstance();
+    final s = prefs.getString(_kRecentChatsJson) ?? '[]';
+    try {
+      final List<dynamic> list = jsonDecode(s);
+      return list.map((item) {
+        final map = Map<String, dynamic>.from(item);
+        return AiChatRecentChat(
+          id: map['id'] ?? '',
+          title: map['title'] ?? '',
+          timestamp: DateTime.parse(map['timestamp']),
+          type: map['type'] ?? '',
+          icon: IconData(map['icon'], fontFamily: 'MaterialIcons'),
+          iconColor: Color(map['iconColor']),
+          bgColor: Color(map['bgColor']),
+        );
+      }).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  static Future<void> addRecentChat(AiChatRecentChat chat) async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = await getRecentChats();
+    
+    // Remove if already exists with same type (keep only latest of same type if desired, 
+    // but here we just follow "last 5" rule)
+    list.insert(0, chat);
+    
+    // Keep only 5
+    if (list.length > 5) {
+      list.removeRange(5, list.length);
+    }
+
+    final jsonList = list.map((item) => {
+      'id': item.id,
+      'title': item.title,
+      'timestamp': item.timestamp.toIso8601String(),
+      'type': item.type,
+      'icon': item.icon.codePoint,
+      'iconColor': item.iconColor.toARGB32(),
+      'bgColor': item.bgColor.toARGB32(),
+    }).toList();
+
+    await prefs.setString(_kRecentChatsJson, jsonEncode(jsonList));
   }
 }
 

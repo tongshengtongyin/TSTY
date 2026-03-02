@@ -1,3 +1,4 @@
+import 'package:tsty_app/components/ai_chat/ai_chat_models.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -162,8 +163,11 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
         }
       });
 
-      setState(() {
-        _seconds++;
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (!mounted) return;
+        setState(() {
+          _seconds++;
+        });
       });
     }();
   }
@@ -238,6 +242,23 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
 
   Future<void> _closeSession({required bool pop}) async {
     _closingFuture ??= () async {
+      // 记录最近聊天
+      if (_seconds > 0) {
+        final scene = _scenes[_sceneId];
+        if (scene != null) {
+          final recent = AiChatRecentChat(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            title: scene['name'] ?? '未知场景',
+            timestamp: DateTime.now(),
+            type: _sceneId,
+            icon: _getIconForScene(_sceneId),
+            iconColor: _getIconColorForScene(_sceneId),
+            bgColor: _getBgColorForScene(_sceneId),
+          );
+          await UserPrefs.addRecentChat(recent);
+        }
+      }
+
       // Stop UI timers early to avoid setState after dispose.
       _timer?.cancel();
       _timer = null;
@@ -423,6 +444,48 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
         });
       });
     }();
+  }
+
+  IconData _getIconForScene(String id) {
+    switch (id) {
+      case 'greeting': return Icons.sentiment_satisfied_alt;
+      case 'toy-sharing': return Icons.extension;
+      case 'food': return Icons.restaurant;
+      case 'weather': return Icons.wb_sunny;
+      case 'family': return Icons.favorite;
+      case 'kindergarten': return Icons.home;
+      case 'festival': return Icons.card_giftcard;
+      case 'yi-culture': return Icons.local_fire_department;
+      default: return Icons.chat;
+    }
+  }
+
+  Color _getIconColorForScene(String id) {
+    switch (id) {
+      case 'greeting': return const Color(0xFF1565C0);
+      case 'toy-sharing': return const Color(0xFF2E7D32);
+      case 'food': return const Color(0xFFE65100);
+      case 'weather': return const Color(0xFFF9A825);
+      case 'family': return const Color(0xFFC2185B);
+      case 'kindergarten': return const Color(0xFF7B1FA2);
+      case 'festival': return const Color(0xFFC62828);
+      case 'yi-culture': return const Color(0xFFC00003);
+      default: return Colors.grey;
+    }
+  }
+
+  Color _getBgColorForScene(String id) {
+    switch (id) {
+      case 'greeting': return const Color(0xFFE3F2FD);
+      case 'toy-sharing': return const Color(0xFFE8F5E9);
+      case 'food': return const Color(0xFFFFF3E0);
+      case 'weather': return const Color(0xFFFFFDE7);
+      case 'family': return const Color(0xFFFCE4EC);
+      case 'kindergarten': return const Color(0xFFF3E5F5);
+      case 'festival': return const Color(0xFFFFEBEE);
+      case 'yi-culture': return const Color(0xFFF0C000);
+      default: return Colors.grey.shade100;
+    }
   }
 
   String _formatTime(int s) {

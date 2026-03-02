@@ -25,7 +25,8 @@ class AiChatSceneItem {
 class AiChatRecentChat {
   final String id;
   final String title;
-  final String meta;
+  final DateTime timestamp;
+  final String type;
   final IconData icon;
   final Color iconColor;
   final Color bgColor;
@@ -33,7 +34,8 @@ class AiChatRecentChat {
   const AiChatRecentChat({
     required this.id,
     required this.title,
-    required this.meta,
+    required this.timestamp,
+    required this.type,
     required this.icon,
     required this.iconColor,
     required this.bgColor,

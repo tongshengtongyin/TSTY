@@ -104,11 +104,14 @@ class _AiChatPageState extends State<AiChatPage> {
     ),
   ];
 
+  List<AiChatRecentChat> _recentChats = [];
+
   @override
   void initState() {
     super.initState();
     _refreshParentalControl();
     _loadCharacter();
+    _loadRecentChats();
   }
 
   Future<void> _loadCharacter() async {
@@ -122,25 +125,11 @@ class _AiChatPageState extends State<AiChatPage> {
     if (!mounted) return;
     setState(() => _parentalBlocked = !result.allowed);
   }
-
-  final List<AiChatRecentChat> _recentChats = const [
-    AiChatRecentChat(
-      id: '1',
-      title: '玩具分享',
-      meta: '2分钟前 · 聊了5句',
-      icon: Icons.extension,
-      iconColor: Color(0xFF2E7D32),
-      bgColor: Color(0xFFE8F5E9),
-    ),
-    AiChatRecentChat(
-      id: '2',
-      title: '日常问候',
-      meta: '昨天 10:30 · 聊了8句',
-      icon: Icons.sentiment_satisfied_alt,
-      iconColor: Color(0xFF1565C0),
-      bgColor: Color(0xFFE3F2FD),
-    ),
-  ];
+  Future<void> _loadRecentChats() async {
+    final list = await UserPrefs.getRecentChats();
+    if (!mounted) return;
+    setState(() => _recentChats = list);
+  }
 
   void _onSceneTap(AiChatSceneItem scene) {
     if (scene.locked) {
@@ -157,15 +146,12 @@ class _AiChatPageState extends State<AiChatPage> {
       }
 
       if (!mounted) return;
-      Navigator.of(context).pushNamed(
+      await Navigator.of(context).pushNamed(
         '/ai-chat/detail',
         arguments: {'sceneId': scene.id, 'sceneName': scene.name},
       );
+      _loadRecentChats();
     }();
-  }
-
-  void _onRecentTap(AiChatRecentChat item) {
-    ToastUtils.showToast(context, '查看${item.title}历史记录');
   }
 
   Future<void> _onTeacherTap() async {
@@ -223,7 +209,7 @@ class _AiChatPageState extends State<AiChatPage> {
           title: '最近聊天',
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
         ),
-        AiChatRecentListSliver(chats: _recentChats, onTap: _onRecentTap),
+        AiChatRecentListSliver(chats: _recentChats.take(5).toList()),
         const SliverToBoxAdapter(child: SizedBox(height: 110)),
       ],
     );

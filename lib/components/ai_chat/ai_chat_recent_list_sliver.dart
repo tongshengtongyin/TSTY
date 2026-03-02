@@ -4,12 +4,10 @@ import 'package:tsty_app/components/ai_chat/ai_chat_recent_chat_tile.dart';
 
 class AiChatRecentListSliver extends StatelessWidget {
   final List<AiChatRecentChat> chats;
-  final ValueChanged<AiChatRecentChat> onTap;
 
   const AiChatRecentListSliver({
     super.key,
     required this.chats,
-    required this.onTap,
   });
 
   @override
@@ -35,7 +33,6 @@ class AiChatRecentListSliver extends StatelessWidget {
                 AiChatRecentChatTile(
                   chat: chats[i],
                   showDivider: i != chats.length - 1,
-                  onTap: () => onTap(chats[i]),
                 ),
             ],
           ),
