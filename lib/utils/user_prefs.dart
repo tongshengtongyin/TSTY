@@ -346,6 +346,29 @@ class UserPrefs {
   static const _kRecentChatsJson = 'ai.recentChats.json';
   static const _kLearnProgressCacheJson = 'learn.progress.cache.json';
 
+  static IconData _recentChatIconByType(String type) {
+    switch (type) {
+      case 'greeting':
+        return Icons.sentiment_satisfied_alt;
+      case 'toy-sharing':
+        return Icons.extension;
+      case 'food':
+        return Icons.restaurant;
+      case 'weather':
+        return Icons.wb_sunny;
+      case 'family':
+        return Icons.favorite;
+      case 'kindergarten':
+        return Icons.home;
+      case 'festival':
+        return Icons.card_giftcard;
+      case 'yi-culture':
+        return Icons.local_fire_department;
+      default:
+        return Icons.chat;
+    }
+  }
+
   static Future<List<AiChatRecentChat>> getRecentChats() async {
     final prefs = await SharedPreferences.getInstance();
     final s = prefs.getString(_kRecentChatsJson) ?? '[]';
@@ -353,12 +376,13 @@ class UserPrefs {
       final List<dynamic> list = jsonDecode(s);
       return list.map((item) {
         final map = Map<String, dynamic>.from(item);
+        final type = map['type'] ?? '';
         return AiChatRecentChat(
           id: map['id'] ?? '',
           title: map['title'] ?? '',
           timestamp: DateTime.parse(map['timestamp']),
-          type: map['type'] ?? '',
-          icon: IconData(map['icon'], fontFamily: 'MaterialIcons'),
+          type: type,
+          icon: _recentChatIconByType(type),
           iconColor: Color(map['iconColor']),
           bgColor: Color(map['bgColor']),
         );
@@ -386,7 +410,6 @@ class UserPrefs {
       'title': item.title,
       'timestamp': item.timestamp.toIso8601String(),
       'type': item.type,
-      'icon': item.icon.codePoint,
       'iconColor': item.iconColor.toARGB32(),
       'bgColor': item.bgColor.toARGB32(),
     }).toList();
