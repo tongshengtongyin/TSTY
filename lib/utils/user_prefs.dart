@@ -344,6 +344,7 @@ class UserPrefs {
   }
 
   static const _kRecentChatsJson = 'ai.recentChats.json';
+  static const _kLearnProgressCacheJson = 'learn.progress.cache.json';
 
   static Future<List<AiChatRecentChat>> getRecentChats() async {
     final prefs = await SharedPreferences.getInstance();
@@ -391,6 +392,23 @@ class UserPrefs {
     }).toList();
 
     await prefs.setString(_kRecentChatsJson, jsonEncode(jsonList));
+  }
+
+  static Future<List<Map<String, int>>> getLearnProgressCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    final s = prefs.getString(_kLearnProgressCacheJson);
+    if (s == null) return [];
+    try {
+      final List<dynamic> list = jsonDecode(s);
+      return list.map((e) => Map<String, int>.from(e)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  static Future<void> setLearnProgressCache(List<Map<String, int>> progress) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kLearnProgressCacheJson, jsonEncode(progress));
   }
 }
 

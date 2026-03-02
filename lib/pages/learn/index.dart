@@ -1,3 +1,4 @@
+import 'package:tsty_app/utils/user_prefs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tsty_app/api/learn.dart';
@@ -177,6 +178,13 @@ class _LearnPageState extends State<LearnPage> {
         _unitProgressCache = nextProgress;
         _loading = false;
       });
+
+      // 保存缓存
+      final cacheData = nextProgress.map((p) => {
+        'completed': p.completed,
+        'total': p.total,
+      }).toList();
+      UserPrefs.setLearnProgressCache(cacheData);
     } catch (_) {
       if (!mounted || seq != _loadSeq) return;
       setState(() {
@@ -190,10 +198,25 @@ class _LearnPageState extends State<LearnPage> {
   void initState() {
     super.initState();
     _refreshParentalControl();
+    _loadCachedProgress();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _loadUnit(_selectedUnitIndex);
     });
+  }
+
+  Future<void> _loadCachedProgress() async {
+    final cached = await UserPrefs.getLearnProgressCache();
+    if (cached.isNotEmpty && mounted) {
+      setState(() {
+        _unitProgressCache = cached.map((e) {
+          return LearnUnitProgress(
+            completed: e['completed'] ?? 0,
+            total: e['total'] ?? 0,
+          );
+        }).toList();
+      });
+    }
   }
 
   @override
