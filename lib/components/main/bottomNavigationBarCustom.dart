@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:tsty_app/constants/tabList.dart';
-import 'package:tsty_app/pages/ai_chat/index.dart';
-import 'package:tsty_app/pages/learn/index.dart';
-import 'package:tsty_app/pages/mine/index.dart';
 import 'package:tsty_app/style/app_theme.dart';
 
 class BottomNavigationBarCustom extends StatefulWidget {

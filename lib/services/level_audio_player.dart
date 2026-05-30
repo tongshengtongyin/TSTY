@@ -1,7 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'package:tsty_app/viewmodels/learn.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
 
 class LevelAudioPlayer {
   final AudioPlayer _player = AudioPlayer();
@@ -13,10 +12,6 @@ class LevelAudioPlayer {
 
   String _shengmuAssetKey(String raw) {
     return raw.trim().toLowerCase();
-  }
-
-  String _shengmuImageAsset(String key) {
-    return 'lib/assets/learn/shengmu/image/$key.webp';
   }
 
   String _shengmuAudioAsset(String key) {

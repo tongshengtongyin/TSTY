@@ -54,11 +54,13 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
   StreamSubscription<double>? _ampSub;
   double _amplitude = 0.0;
 
-  final ParentalControlUsageTracker _usageTracker = ParentalControlUsageTracker();
+  final ParentalControlUsageTracker _usageTracker =
+      ParentalControlUsageTracker();
   late final LearningDurationTracker _durationTracker;
 
   final RtcAudioCallService _rtc = RtcAudioCallService();
-  late final RealtimeAiVoiceChatSession _aiSession = RealtimeAiVoiceChatSession(_rtc);
+  late final RealtimeAiVoiceChatSession _aiSession =
+      RealtimeAiVoiceChatSession(_rtc);
   StreamSubscription<RtcAudioCallState>? _rtcStateSub;
   StreamSubscription<RtcAudioCallError?>? _rtcErrSub;
 
@@ -101,8 +103,6 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
     return _scenes[_sceneId]?['name'] ?? '玩具分享';
   }
 
-  String get _openingText => _scenes[_sceneId]?['opening'] ?? '你有喜欢的玩具吗？可以和我说说哦~';
-
   String get _teacherAsset =>
       _selectedCharacter == 0 ? 'lib/assets/girl.webp' : 'lib/assets/boy.webp';
 
@@ -114,7 +114,8 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
   void initState() {
     super.initState();
 
-    _durationTracker = LearningDurationTracker(activityType: ActivityType.aiChat);
+    _durationTracker =
+        LearningDurationTracker(activityType: ActivityType.aiChat);
     WidgetsBinding.instance.addObserver(this);
 
     () async {
@@ -199,10 +200,6 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
   @override
   void didPushNext() {
     _durationTracker.onRouteVisibilityChanged(false);
-  }
-
-  void _showOpening() {
-    ToastUtils.showToast(context, _openingText);
   }
 
   @override
@@ -294,9 +291,9 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
 
       try {
         await _aiSession.stop().timeout(
-          const Duration(seconds: 5),
-          onTimeout: () {},
-        );
+              const Duration(seconds: 5),
+              onTimeout: () {},
+            );
       } catch (_) {}
     }();
 
@@ -448,43 +445,70 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
 
   IconData _getIconForScene(String id) {
     switch (id) {
-      case 'greeting': return Icons.sentiment_satisfied_alt;
-      case 'toy-sharing': return Icons.extension;
-      case 'food': return Icons.restaurant;
-      case 'weather': return Icons.wb_sunny;
-      case 'family': return Icons.favorite;
-      case 'kindergarten': return Icons.home;
-      case 'festival': return Icons.card_giftcard;
-      case 'yi-culture': return Icons.local_fire_department;
-      default: return Icons.chat;
+      case 'greeting':
+        return Icons.sentiment_satisfied_alt;
+      case 'toy-sharing':
+        return Icons.extension;
+      case 'food':
+        return Icons.restaurant;
+      case 'weather':
+        return Icons.wb_sunny;
+      case 'family':
+        return Icons.favorite;
+      case 'kindergarten':
+        return Icons.home;
+      case 'festival':
+        return Icons.card_giftcard;
+      case 'yi-culture':
+        return Icons.local_fire_department;
+      default:
+        return Icons.chat;
     }
   }
 
   Color _getIconColorForScene(String id) {
     switch (id) {
-      case 'greeting': return const Color(0xFF1565C0);
-      case 'toy-sharing': return const Color(0xFF2E7D32);
-      case 'food': return const Color(0xFFE65100);
-      case 'weather': return const Color(0xFFF9A825);
-      case 'family': return const Color(0xFFC2185B);
-      case 'kindergarten': return const Color(0xFF7B1FA2);
-      case 'festival': return const Color(0xFFC62828);
-      case 'yi-culture': return const Color(0xFFC00003);
-      default: return Colors.grey;
+      case 'greeting':
+        return const Color(0xFF1565C0);
+      case 'toy-sharing':
+        return const Color(0xFF2E7D32);
+      case 'food':
+        return const Color(0xFFE65100);
+      case 'weather':
+        return const Color(0xFFF9A825);
+      case 'family':
+        return const Color(0xFFC2185B);
+      case 'kindergarten':
+        return const Color(0xFF7B1FA2);
+      case 'festival':
+        return const Color(0xFFC62828);
+      case 'yi-culture':
+        return const Color(0xFFC00003);
+      default:
+        return Colors.grey;
     }
   }
 
   Color _getBgColorForScene(String id) {
     switch (id) {
-      case 'greeting': return const Color(0xFFE3F2FD);
-      case 'toy-sharing': return const Color(0xFFE8F5E9);
-      case 'food': return const Color(0xFFFFF3E0);
-      case 'weather': return const Color(0xFFFFFDE7);
-      case 'family': return const Color(0xFFFCE4EC);
-      case 'kindergarten': return const Color(0xFFF3E5F5);
-      case 'festival': return const Color(0xFFFFEBEE);
-      case 'yi-culture': return const Color(0xFFF0C000);
-      default: return Colors.grey.shade100;
+      case 'greeting':
+        return const Color(0xFFE3F2FD);
+      case 'toy-sharing':
+        return const Color(0xFFE8F5E9);
+      case 'food':
+        return const Color(0xFFFFF3E0);
+      case 'weather':
+        return const Color(0xFFFFFDE7);
+      case 'family':
+        return const Color(0xFFFCE4EC);
+      case 'kindergarten':
+        return const Color(0xFFF3E5F5);
+      case 'festival':
+        return const Color(0xFFFFEBEE);
+      case 'yi-culture':
+        return const Color(0xFFF0C000);
+      default:
+        return Colors.grey.shade100;
     }
   }
 
