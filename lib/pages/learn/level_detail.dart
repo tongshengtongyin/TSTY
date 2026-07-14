@@ -271,7 +271,8 @@ class _LevelDetailPageState extends State<LevelDetailPage>
 
   bool _isShengmuOrYunmu(LevelContent content) {
     final s = content.contentType.trim().toLowerCase();
-    return s.contains('shengmu') || content.contentType.contains('声母');
+    return s.contains('shengmu') || s.contains('yunmu') ||
+           content.contentType.contains('声母') || content.contentType.contains('韵母');
   }
 
   void _playStandard() {
@@ -316,14 +317,84 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       if (!mounted) return;
 
       final content = _vm.content ?? LevelContent.empty;
-      final example =
-          '${content.exampleWord}[p1000]${content.exampleSentence}'.trim();
-      if (example.isEmpty) {
+      
+      final exampleWord = content.exampleWord.trim();
+      final exampleSentence = content.exampleSentence.trim();
+      
+      if (exampleWord.isEmpty && exampleSentence.isEmpty) {
         ToastUtils.showToast(context, '暂无提示');
         return;
       }
 
-      await _ttsPlayer.speak(context: context, text: example);
+      if (!mounted) return;
+
+      await showModalBottomSheet<void>(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return Container(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.lightbulb, color: Color(0xFFF0C000), size: 24),
+                    const SizedBox(width: 10),
+                    const Text(
+                      '学习提示',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF2A1E00),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                if (exampleWord.isNotEmpty)
+                  Text(
+                    exampleWord,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2A1E00),
+                    ),
+                  ),
+                if (exampleWord.isNotEmpty && exampleSentence.isNotEmpty)
+                  const SizedBox(height: 10),
+                if (exampleSentence.isNotEmpty)
+                  Text(
+                    exampleSentence,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF666666),
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                Center(
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text(
+                      '知道了',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFCC0000),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
     }();
   }
 

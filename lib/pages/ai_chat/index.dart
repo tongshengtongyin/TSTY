@@ -24,8 +24,8 @@ class _AiChatPageState extends State<AiChatPage> {
   final List<AiChatSceneItem> _scenes = const [
     AiChatSceneItem(
       id: 'greeting',
-      name: '日常问候',
-      desc: '打招呼、问好',
+      name: '通用对话',
+      desc: '自由交流、畅所欲言',
       icon: Icons.sentiment_satisfied_alt,
       iconColor: Color(0xFF1565C0),
       iconBg: Color(0xFFE3F2FD),

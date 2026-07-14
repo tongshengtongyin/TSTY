@@ -82,7 +82,7 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
   }
 
   final Map<String, Map<String, String>> _scenes = const {
-    'greeting': {'name': '日常问候', 'opening': '你好呀！今天开心吗？'},
+    'greeting': {'name': '通用对话', 'opening': '小朋友，你好呀！我们来用普通话聊天吧~'},
     'toy-sharing': {'name': '玩具分享', 'opening': '你有喜欢的玩具吗？可以和我说说哦~'},
     'food': {'name': '食物认知', 'opening': '你最爱吃什么呀？'},
     'weather': {'name': '天气交流', 'opening': '今天天气怎么样？'},
@@ -106,9 +106,13 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
   String get _teacherAsset =>
       _selectedCharacter == 0 ? 'lib/assets/girl.webp' : 'lib/assets/boy.webp';
 
-  String get _teacherWaitGlbAsset => _selectedCharacter == 0
-      ? 'lib/assets/glb/ayimo_wait.glb'
-      : 'lib/assets/glb/aniure_wait.glb';
+  String get _teacherWaitingVideo => _selectedCharacter == 0
+      ? 'video/AyiMo-waiting.mp4'
+      : 'video/AniuRe-waiting.mp4';
+
+  String get _teacherAnsweringVideo => _selectedCharacter == 0
+      ? 'video/AyiMo-answering.mp4'
+      : 'video/AniuRe-answering.mp4';
 
   @override
   void initState() {
@@ -530,8 +534,10 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
                   const ParentalControlSoftBanner(),
                   AiChatTeacherArea(
                     teacherAsset: _teacherAsset,
-                    teacherGlbAsset: _teacherWaitGlbAsset,
+                    waitingVideoAsset: _teacherWaitingVideo,
+                    answeringVideoAsset: _teacherAnsweringVideo,
                     statusText: _statusText,
+                    isSpeaking: !_isRecording,
                   ),
                 ],
               ),

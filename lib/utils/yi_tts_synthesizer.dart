@@ -12,6 +12,7 @@ class YiTtsConfig {
   final Uri endpoint;
   final String appId;
   final String vcn;
+  final String serviceType;
   final int speed;
   final int volume;
   final int pitch;
@@ -20,6 +21,7 @@ class YiTtsConfig {
     required this.endpoint,
     required this.appId,
     required this.vcn,
+    this.serviceType = 'tts',
     this.speed = 50,
     this.volume = 50,
     this.pitch = 50,
@@ -165,11 +167,9 @@ class YiTtsSynthesizer {
       'header': {
         'app_id': config.appId,
         'status': 2,
+        'service_type': config.serviceType,
       },
       'parameter': {
-        'oral': {
-          'oral_level': 'mid',
-        },
         'tts': {
           'vcn': config.vcn,
           'speed': config.speed,

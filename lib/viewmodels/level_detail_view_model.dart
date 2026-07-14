@@ -113,6 +113,16 @@ String _shengmuImageAsset(String key) {
   return 'lib/assets/learn/shengmu/image/$key.webp';
 }
 
+String _yunmuAssetKey(String raw) {
+  var s = raw.trim().toLowerCase();
+  s = s.replaceAll('v', 'ü');
+  return s;
+}
+
+String _yunmuImageAsset(String key) {
+  return 'lib/assets/learn/yunmu/image/$key.webp';
+}
+
 class LevelDetailViewModel {
   late final int currentLevel;
   late final int totalLevels;
@@ -138,6 +148,12 @@ class LevelDetailViewModel {
       final key = _shengmuAssetKey(c.contentValue);
       if (key.isNotEmpty) {
         return _shengmuImageAsset(key);
+      }
+    }
+    if (_isYunmuContent(c)) {
+      final key = _yunmuAssetKey(c.contentValue);
+      if (key.isNotEmpty) {
+        return _yunmuImageAsset(key);
       }
     }
     if (_isHanziContent(c)) {

@@ -2,7 +2,7 @@
 class GlobalConstants {
   static const String appName = "TSTY App";
 
-  static const String apiBaseUrl = "http://47.120.41.128:8080";
+  static const String apiBaseUrl = "http://123.207.116.44:8081";
   static const Duration timeoutDuration = Duration(seconds: 30);
   static const int successState = 0;
 
