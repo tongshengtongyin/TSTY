@@ -96,10 +96,12 @@ class _LevelDetailRecordSectionState extends State<LevelDetailRecordSection>
                           alignment: Alignment.center,
                           children: List.generate(3, (i) {
                             final p = (t + i / 3) % 1.0;
-                            final scale = (1.0 + p * 0.95) * (_isPressed ? 0.92 : 1.0);
+                            final scale =
+                                (1.0 + p * 0.95) * (_isPressed ? 0.92 : 1.0);
                             final alpha = (1.0 - p) * 0.22;
-                            final c = const Color(0xFF6AD192)
-                                .withValues(alpha: alpha);
+                            final c = const Color(
+                              0xFF6AD192,
+                            ).withValues(alpha: alpha);
 
                             return Transform.scale(
                               scale: scale,
@@ -134,9 +136,12 @@ class _LevelDetailRecordSectionState extends State<LevelDetailRecordSection>
                         border: Border.all(color: Colors.white, width: 3),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF6AD192)
-                                .withValues(alpha: widget.recording ? 0.75 : 0.4),
-                            blurRadius: _isPressed ? 10 : (widget.recording ? 22 : 15),
+                            color: const Color(
+                              0xFF6AD192,
+                            ).withValues(alpha: widget.recording ? 0.75 : 0.4),
+                            blurRadius: _isPressed
+                                ? 10
+                                : (widget.recording ? 22 : 15),
                             offset: Offset(0, _isPressed ? 2 : 5),
                           ),
                         ],

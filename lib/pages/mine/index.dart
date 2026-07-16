@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:tsty_app/api/child.dart';
 import 'package:tsty_app/components/common/YiSideStripe.dart';
 import 'package:tsty_app/components/mine/mine_class_stars_card.dart';
 import 'package:tsty_app/components/mine/mine_menu_section.dart';
 import 'package:tsty_app/components/mine/mine_profile_header.dart';
 import 'package:tsty_app/components/mine/models.dart';
-import 'package:tsty_app/api/child.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 
 class MinePage extends StatefulWidget {
@@ -129,14 +129,18 @@ class _MinePageState extends State<MinePage> {
       'lib/assets/avatar04.webp',
       'lib/assets/avatar05.webp',
     ];
-    final safeIndex = (_avatarIndex >= 0 && _avatarIndex < avatars.length) ? _avatarIndex : 0;
+    final safeIndex = (_avatarIndex >= 0 && _avatarIndex < avatars.length)
+        ? _avatarIndex
+        : 0;
     final avatarAsset = avatars[safeIndex];
 
     final nickname = _pickString('nickname', fallback: '小朋友');
     final gender = _normalizeGender(_pickString('gender', fallback: ''));
     final ageYears = _pickInt('ageYears', fallback: 0);
     final classInfo = _profile?['classInfo'];
-    final classInfoMap = classInfo is Map ? Map<String, dynamic>.from(classInfo) : <String, dynamic>{};
+    final classInfoMap = classInfo is Map
+        ? Map<String, dynamic>.from(classInfo)
+        : <String, dynamic>{};
     final grade = (classInfoMap['grade']?.toString() ?? '').trim();
     final schoolName = (classInfoMap['schoolName']?.toString() ?? '').trim();
     final className = (classInfoMap['className']?.toString() ?? '').trim();
@@ -144,7 +148,9 @@ class _MinePageState extends State<MinePage> {
     final school = [schoolName].where((e) => e.trim().isNotEmpty).join(' · ');
 
     final statsObj = _profile?['stats'];
-    final statsMap = statsObj is Map ? Map<String, dynamic>.from(statsObj) : <String, dynamic>{};
+    final statsMap = statsObj is Map
+        ? Map<String, dynamic>.from(statsObj)
+        : <String, dynamic>{};
     final completedLevels = (statsMap['completedLevels'] is int)
         ? statsMap['completedLevels'] as int
         : int.tryParse(statsMap['completedLevels']?.toString() ?? '') ?? 0;
@@ -186,7 +192,11 @@ class _MinePageState extends State<MinePage> {
               SliverToBoxAdapter(
                 child: Column(
                   children: [
-                    MineProfileHeader(user: user, stats: stats, avatarAsset: avatarAsset),
+                    MineProfileHeader(
+                      user: user,
+                      stats: stats,
+                      avatarAsset: avatarAsset,
+                    ),
                     const SizedBox(height: 24),
                     MineClassStarsCard(stars: _classStars),
                     const SizedBox(height: 24),
@@ -194,16 +204,18 @@ class _MinePageState extends State<MinePage> {
                       onTap: (action) {
                         switch (action) {
                           case MineMenuAction.editProfile:
-                            Navigator.of(context)
-                                .pushNamed('/mine/edit-profile')
-                                .then((v) {
-                                  if (v == true) {
-                                    _load();
-                                  }
-                                });
+                            Navigator.of(
+                              context,
+                            ).pushNamed('/mine/edit-profile').then((v) {
+                              if (v == true) {
+                                _load();
+                              }
+                            });
                             break;
                           case MineMenuAction.parentEntry:
-                            Navigator.of(context).pushNamed('/mine/parent-entry');
+                            Navigator.of(
+                              context,
+                            ).pushNamed('/mine/parent-entry');
                             break;
                           case MineMenuAction.settings:
                             Navigator.of(context).pushNamed('/settings');

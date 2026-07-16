@@ -125,6 +125,7 @@ class _AiChatPageState extends State<AiChatPage> {
     if (!mounted) return;
     setState(() => _parentalBlocked = !result.allowed);
   }
+
   Future<void> _loadRecentChats() async {
     final list = await UserPrefs.getRecentChats();
     if (!mounted) return;

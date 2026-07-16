@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class SettingsSectionTitle extends StatelessWidget {
   final String text;
 
-  const SettingsSectionTitle({
-    super.key,
-    required this.text,
-  });
+  const SettingsSectionTitle({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {

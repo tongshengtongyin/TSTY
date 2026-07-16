@@ -8,18 +8,17 @@ import 'package:tsty_app/components/learn/level_detail/level_detail_card.dart';
 import 'package:tsty_app/components/learn/level_detail/level_detail_evaluate_card.dart';
 import 'package:tsty_app/components/learn/level_detail/level_detail_header.dart';
 import 'package:tsty_app/routes/route_observer.dart';
+import 'package:tsty_app/services/learning_duration_tracker.dart';
+import 'package:tsty_app/services/learning_tts_player.dart';
+import 'package:tsty_app/services/level_audio_player.dart';
+import 'package:tsty_app/services/level_evaluation_flow.dart';
+import 'package:tsty_app/services/parental_control.dart';
 import 'package:tsty_app/style/app_theme.dart';
 import 'package:tsty_app/utils/ToastUtils.dart';
-import 'package:tsty_app/services/learning_duration_tracker.dart';
-import 'package:tsty_app/services/level_evaluation_flow.dart';
-import 'package:tsty_app/services/level_audio_player.dart';
-import 'package:tsty_app/services/learning_tts_player.dart';
-import 'package:tsty_app/services/parental_control.dart';
 import 'package:tsty_app/utils/parent_center_prefs.dart';
-import 'package:tsty_app/viewmodels/level_detail_view_model.dart';
 import 'package:tsty_app/utils/yi_recorder.dart';
 import 'package:tsty_app/viewmodels/learn.dart';
-
+import 'package:tsty_app/viewmodels/level_detail_view_model.dart';
 
 class LevelDetailPage extends StatefulWidget {
   final int? levelIndex;
@@ -53,9 +52,9 @@ class LevelDetailPage extends StatefulWidget {
 
       final parsedLevelIds = levelIds is List
           ? levelIds
-              .map((e) => e?.toString() ?? '')
-              .where((e) => e.isNotEmpty)
-              .toList(growable: false)
+                .map((e) => e?.toString() ?? '')
+                .where((e) => e.isNotEmpty)
+                .toList(growable: false)
           : null;
       return LevelDetailPage(
         levelIndex: levelIndex is int ? levelIndex : null,
@@ -78,7 +77,8 @@ class _LevelDetailPageState extends State<LevelDetailPage>
     with WidgetsBindingObserver, RouteAware {
   late final LevelDetailViewModel _vm;
   late final LearningDurationTracker _durationTracker;
-  final ParentalControlUsageTracker _usageTracker = ParentalControlUsageTracker();
+  final ParentalControlUsageTracker _usageTracker =
+      ParentalControlUsageTracker();
   late final LevelAudioPlayer _audioPlayer;
   late final LearningTtsPlayer _ttsPlayer;
   late LevelEvaluationFlow _evaluationFlow;
@@ -96,7 +96,9 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       totalLevels: widget.totalLevels ?? 23,
       levelIds: widget.levelIds ?? const [],
     );
-    _durationTracker = LearningDurationTracker(activityType: ActivityType.learn);
+    _durationTracker = LearningDurationTracker(
+      activityType: ActivityType.learn,
+    );
     _audioPlayer = LevelAudioPlayer();
     _ttsPlayer = LearningTtsPlayer();
     _evaluationFlow = LevelEvaluationFlow(
@@ -271,8 +273,10 @@ class _LevelDetailPageState extends State<LevelDetailPage>
 
   bool _isShengmuOrYunmu(LevelContent content) {
     final s = content.contentType.trim().toLowerCase();
-    return s.contains('shengmu') || s.contains('yunmu') ||
-           content.contentType.contains('声母') || content.contentType.contains('韵母');
+    return s.contains('shengmu') ||
+        s.contains('yunmu') ||
+        content.contentType.contains('声母') ||
+        content.contentType.contains('韵母');
   }
 
   void _playStandard() {
@@ -317,10 +321,10 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       if (!mounted) return;
 
       final content = _vm.content ?? LevelContent.empty;
-      
+
       final exampleWord = content.exampleWord.trim();
       final exampleSentence = content.exampleSentence.trim();
-      
+
       if (exampleWord.isEmpty && exampleSentence.isEmpty) {
         ToastUtils.showToast(context, '暂无提示');
         return;
@@ -344,7 +348,11 @@ class _LevelDetailPageState extends State<LevelDetailPage>
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.lightbulb, color: Color(0xFFF0C000), size: 24),
+                    const Icon(
+                      Icons.lightbulb,
+                      color: Color(0xFFF0C000),
+                      size: 24,
+                    ),
                     const SizedBox(width: 10),
                     const Text(
                       '学习提示',

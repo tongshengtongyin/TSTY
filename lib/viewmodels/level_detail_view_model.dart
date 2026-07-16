@@ -104,7 +104,6 @@ String _ciyuImageAsset(String value) {
   return 'lib/assets/learn/ciyu/$key.webp';
 }
 
-
 String _shengmuAssetKey(String raw) {
   return raw.trim().toLowerCase();
 }
@@ -132,6 +131,7 @@ class LevelDetailViewModel {
   int tipIndex = 0;
 
   String get character => content?.contentValue ?? '';
+
   String get pinyin {
     final c = content;
     if (c == null) return '';
@@ -172,6 +172,7 @@ class LevelDetailViewModel {
   }
 
   String get hintLabel => content?.exampleWord ?? '';
+
   String get exampleText {
     final c = content;
     if (c == null) return '';

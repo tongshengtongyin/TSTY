@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
 import 'dart:math' as math;
+import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
 
 /// 彝族风格基础渐变背景（含45°/-45°条纹）
 class YiBaseBackground extends StatelessWidget {

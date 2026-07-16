@@ -26,7 +26,10 @@ class EditProfileTextField extends StatelessWidget {
         hintText: placeholder,
         hintStyle: const TextStyle(color: Color(0xFF999999)),
         isDense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(color: yellow, width: 2),

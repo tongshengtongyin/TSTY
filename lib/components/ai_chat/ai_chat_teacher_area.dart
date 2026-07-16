@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class AiChatTeacherArea extends StatefulWidget {
@@ -70,7 +70,10 @@ class _AiChatTeacherAreaState extends State<AiChatTeacherArea> {
     }
   }
 
-  void _onVideoChanged(VideoPlayerController controller, {required bool isWaiting}) {
+  void _onVideoChanged(
+    VideoPlayerController controller, {
+    required bool isWaiting,
+  }) {
     if (_disposed || !controller.value.isInitialized) return;
 
     final position = controller.value.position;
@@ -193,14 +196,21 @@ class _AiChatTeacherAreaState extends State<AiChatTeacherArea> {
                   duration: const Duration(milliseconds: 160),
                   opacity: showStatus ? 1 : 0,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.60),
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
                       showStatus ? widget.statusText : '',
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),

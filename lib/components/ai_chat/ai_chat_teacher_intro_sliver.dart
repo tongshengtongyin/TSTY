@@ -63,10 +63,7 @@ class AiChatTeacherIntroSliver extends StatelessWidget {
                       ],
                     ),
                     child: ClipOval(
-                      child: Image.asset(
-                        avatarAsset,
-                        fit: BoxFit.cover,
-                      ),
+                      child: Image.asset(avatarAsset, fit: BoxFit.cover),
                     ),
                   ),
                   const SizedBox(width: 16),

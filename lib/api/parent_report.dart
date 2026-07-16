@@ -13,20 +13,18 @@ Future<Map<String, dynamic>> getParentReportOverviewAPI({
 
   final headers = (token == null || token.isEmpty)
       ? null
-      : <String, dynamic>{
-          'Authorization': 'Bearer $token',
-        };
+      : <String, dynamic>{'Authorization': 'Bearer $token'};
 
   if (kDebugMode) {
-    debugPrint('Parent report overview request: ${HttpConstants.parentReportOverview} '
-        'period=$period authHeader=${headers == null ? 'none' : 'bearer'}');
+    debugPrint(
+      'Parent report overview request: ${HttpConstants.parentReportOverview} '
+      'period=$period authHeader=${headers == null ? 'none' : 'bearer'}',
+    );
   }
 
   final result = await dioUtils.get(
     HttpConstants.parentReportOverview,
-    params: <String, dynamic>{
-      'period': period,
-    },
+    params: <String, dynamic>{'period': period},
     headers: headers,
   );
 

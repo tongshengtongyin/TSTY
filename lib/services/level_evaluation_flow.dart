@@ -60,7 +60,9 @@ class LevelEvaluationFlow {
         return cached;
       }
       if (kDebugMode) {
-        debugPrint('ISE auth cache expired: ageMs=$ageMs ttlMs=$ttlMs, clearing');
+        debugPrint(
+          'ISE auth cache expired: ageMs=$ageMs ttlMs=$ttlMs, clearing',
+        );
       }
       await UserPrefs.clearIseAuthCache();
     }
@@ -108,8 +110,8 @@ class LevelEvaluationFlow {
         text: totalScore >= 90
             ? '整体表现优秀'
             : totalScore >= 75
-                ? '整体不错'
-                : '多练习会更好',
+            ? '整体不错'
+            : '多练习会更好',
       ),
     ];
 
@@ -254,8 +256,8 @@ class LevelEvaluationFlow {
     final lessonIdToUse = (lessonId ?? '').trim().isNotEmpty
         ? (lessonId ?? '').trim()
         : unitId.trim().isNotEmpty
-            ? unitId.trim()
-            : 'lesson-b';
+        ? unitId.trim()
+        : 'lesson-b';
 
     final body = <String, dynamic>{
       'lessonId': lessonIdToUse,
@@ -311,8 +313,8 @@ class LevelEvaluationFlow {
     try {
       final evalText = (_isShengmuContent(content) || _isYunmuContent(content))
           ? (content.pinyinText.trim().isEmpty
-              ? content.contentValue
-              : content.pinyinText)
+                ? content.contentValue
+                : content.pinyinText)
           : content.contentValue;
       final result = await evaluator.evaluateFileToResult(
         filePath: recordResult.path,
@@ -344,18 +346,18 @@ class LevelEvaluationFlow {
       final stars = score >= 95
           ? 3
           : score >= 80
-              ? 2
-              : score >= 60
-                  ? 1
-                  : 0;
+          ? 2
+          : score >= 60
+          ? 1
+          : 0;
       final flowers = stars;
       final accuracyText = score >= 90
           ? '太棒了！'
           : score >= 75
-              ? '不错哦！'
-              : score >= 60
-                  ? '继续加油！'
-                  : '再试一次！';
+          ? '不错哦！'
+          : score >= 60
+          ? '继续加油！'
+          : '再试一次！';
 
       final points = _buildEvalPoints(
         totalScore: score,
@@ -375,7 +377,8 @@ class LevelEvaluationFlow {
       );
 
       final nextPos = currentLevel;
-      final canGoNext = currentLevel < totalLevels &&
+      final canGoNext =
+          currentLevel < totalLevels &&
           levelIds.isNotEmpty &&
           nextPos >= 0 &&
           nextPos < levelIds.length &&

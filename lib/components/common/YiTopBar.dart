@@ -6,12 +6,7 @@ class YiTopBar extends StatelessWidget {
   final VoidCallback? onBack;
   final Widget? right;
 
-  const YiTopBar({
-    super.key,
-    required this.title,
-    this.onBack,
-    this.right,
-  });
+  const YiTopBar({super.key, required this.title, this.onBack, this.right});
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +30,7 @@ class YiTopBar extends StatelessWidget {
           ],
           stops: const [0.0, 0.55, 1.0],
         ),
-        border: Border(
-          bottom: BorderSide(color: yellow, width: 3),
-        ),
+        border: Border(bottom: BorderSide(color: yellow, width: 3)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.10),
@@ -62,11 +55,7 @@ class YiTopBar extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(
-            width: 44,
-            height: 44,
-            child: right,
-          ),
+          SizedBox(width: 44, height: 44, child: right),
         ],
       ),
     );
@@ -91,10 +80,7 @@ class _YiBackButton extends StatelessWidget {
         child: InkWell(
           customBorder: const CircleBorder(),
           onTap: onBack,
-          child: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-          ),
+          child: const Icon(Icons.arrow_back, color: Colors.white),
         ),
       ),
     );

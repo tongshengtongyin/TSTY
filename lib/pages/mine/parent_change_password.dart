@@ -9,13 +9,15 @@ class ParentChangePasswordPage extends StatefulWidget {
   const ParentChangePasswordPage({super.key});
 
   @override
-  State<ParentChangePasswordPage> createState() => _ParentChangePasswordPageState();
+  State<ParentChangePasswordPage> createState() =>
+      _ParentChangePasswordPageState();
 }
 
 class _ParentChangePasswordPageState extends State<ParentChangePasswordPage> {
   final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   bool _obscureOld = true;
   bool _obscureNew = true;
   bool _obscureConfirm = true;
@@ -62,7 +64,10 @@ class _ParentChangePasswordPageState extends State<ParentChangePasswordPage> {
       Navigator.of(context).pushReplacementNamed('/mine/parent-center');
     } catch (e) {
       if (!mounted) return;
-      ToastUtils.showToast(context, '修改失败：${e.toString().replaceFirst('Exception: ', '')}');
+      ToastUtils.showToast(
+        context,
+        '修改失败：${e.toString().replaceFirst('Exception: ', '')}',
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -117,7 +122,8 @@ class _ParentChangePasswordPageState extends State<ParentChangePasswordPage> {
                       label: '原密码',
                       hint: '请输入原密码',
                       obscure: _obscureOld,
-                      onToggle: () => setState(() => _obscureOld = !_obscureOld),
+                      onToggle: () =>
+                          setState(() => _obscureOld = !_obscureOld),
                       yellow: yellow,
                     ),
                     const SizedBox(height: 20),
@@ -126,7 +132,8 @@ class _ParentChangePasswordPageState extends State<ParentChangePasswordPage> {
                       label: '新密码',
                       hint: '请输入 6-32 位新密码',
                       obscure: _obscureNew,
-                      onToggle: () => setState(() => _obscureNew = !_obscureNew),
+                      onToggle: () =>
+                          setState(() => _obscureNew = !_obscureNew),
                       yellow: yellow,
                     ),
                     const SizedBox(height: 20),
@@ -135,7 +142,8 @@ class _ParentChangePasswordPageState extends State<ParentChangePasswordPage> {
                       label: '确认新密码',
                       hint: '请再次输入新密码',
                       obscure: _obscureConfirm,
-                      onToggle: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                      onToggle: () =>
+                          setState(() => _obscureConfirm = !_obscureConfirm),
                       yellow: yellow,
                     ),
                     const SizedBox(height: 40),

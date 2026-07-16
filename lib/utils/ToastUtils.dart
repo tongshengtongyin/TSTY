@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
 
 class ToastUtils {
   static void showToast(BuildContext context, String msg) {
@@ -9,7 +10,8 @@ class ToastUtils {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final textStyle = theme.textTheme.bodyMedium?.copyWith(
+    final textStyle =
+        theme.textTheme.bodyMedium?.copyWith(
           fontSize: 14,
           fontWeight: FontWeight.w700,
           color: colorScheme.onSurface,

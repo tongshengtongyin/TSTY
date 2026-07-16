@@ -33,7 +33,8 @@ class ParentControlSection extends StatelessWidget {
           _DailyLimitCard(
             enabled: controlsEnabled,
             minutes: settings.dailyLimitMinutes,
-            onChanged: (m) => onChanged(settings.copyWith(dailyLimitMinutes: m)),
+            onChanged: (m) =>
+                onChanged(settings.copyWith(dailyLimitMinutes: m)),
           ),
           const SizedBox(height: 14),
           _TimeRangeCard(
@@ -127,10 +128,7 @@ class _EnableCard extends StatelessWidget {
               ),
             ),
           ),
-          Switch(
-            value: enabled,
-            onChanged: onChanged,
-          ),
+          Switch(value: enabled, onChanged: onChanged),
         ],
       ),
     );
@@ -266,11 +264,7 @@ class _CardShell extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          header,
-          const SizedBox(height: 12),
-          child,
-        ],
+        children: [header, const SizedBox(height: 12), child],
       ),
     );
   }
@@ -359,8 +353,9 @@ class _DailyLimitCard extends StatelessWidget {
               min: 15,
               max: 120,
               divisions: (120 - 15) ~/ 5,
-              onChanged:
-                  enabled ? (v) => onChanged(((v / 5).round() * 5).clamp(15, 120)) : null,
+              onChanged: enabled
+                  ? (v) => onChanged(((v / 5).round() * 5).clamp(15, 120))
+                  : null,
             ),
           ),
           const SizedBox(height: 2),
@@ -595,8 +590,10 @@ class _RestCard extends StatelessWidget {
                 if (recommend) ...[
                   const SizedBox(height: 6),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF0C000),
                       borderRadius: BorderRadius.circular(10),
@@ -656,11 +653,7 @@ class _RestCard extends StatelessWidget {
           Opacity(
             opacity: enabled ? 1 : 0.55,
             child: Row(
-              children: [
-                option(10),
-                option(15, recommend: true),
-                option(20),
-              ],
+              children: [option(10), option(15, recommend: true), option(20)],
             ),
           ),
           const SizedBox(height: 12),

@@ -224,8 +224,8 @@ class _AiChatRecordOverlayState extends State<AiChatRecordOverlay> {
                           color: widget.isDisabled
                               ? const Color(0xFFCCCCCC)
                               : (widget.isRecording
-                                  ? const Color(0xFFAA0000)
-                                  : red),
+                                    ? const Color(0xFFAA0000)
+                                    : red),
                           borderRadius: BorderRadius.circular(999),
                           boxShadow: [
                             BoxShadow(

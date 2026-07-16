@@ -1,4 +1,3 @@
-import 'package:tsty_app/utils/user_prefs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tsty_app/api/learn.dart';
@@ -7,6 +6,7 @@ import 'package:tsty_app/components/learn/learn_level_map.dart';
 import 'package:tsty_app/constants/index.dart';
 import 'package:tsty_app/services/parental_control.dart';
 import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/user_prefs.dart';
 import 'package:tsty_app/viewmodels/learn.dart';
 
 class LearnPage extends StatefulWidget {
@@ -180,10 +180,9 @@ class _LearnPageState extends State<LearnPage> {
       });
 
       // 保存缓存
-      final cacheData = nextProgress.map((p) => {
-        'completed': p.completed,
-        'total': p.total,
-      }).toList();
+      final cacheData = nextProgress
+          .map((p) => {'completed': p.completed, 'total': p.total})
+          .toList();
       UserPrefs.setLearnProgressCache(cacheData);
     } catch (_) {
       if (!mounted || seq != _loadSeq) return;
@@ -237,159 +236,158 @@ class _LearnPageState extends State<LearnPage> {
           child: _loading && _levelData.isEmpty
               ? const Center(child: CircularProgressIndicator())
               : _levelData.isEmpty
-                  ? const Center(child: Text('暂无关卡'))
-                  : Stack(
-                      children: [
-                        NotificationListener<ScrollNotification>(
-                          onNotification: (notification) {
-                            final atBottom = notification.metrics.pixels <=
-                                (notification.metrics.minScrollExtent + 0.5);
+              ? const Center(child: Text('暂无关卡'))
+              : Stack(
+                  children: [
+                    NotificationListener<ScrollNotification>(
+                      onNotification: (notification) {
+                        final atBottom =
+                            notification.metrics.pixels <=
+                            (notification.metrics.minScrollExtent + 0.5);
 
-                            if (!atBottom && _pullUpExtent != 0) {
+                        if (!atBottom && _pullUpExtent != 0) {
+                          setState(() {
+                            _pullUpExtent = 0;
+                          });
+                        }
+
+                        if (notification is OverscrollNotification) {
+                          if (atBottom &&
+                              notification.overscroll < 0 &&
+                              !_pullUpRefreshing &&
+                              !_loading) {
+                            final next =
+                                _pullUpExtent + (-notification.overscroll);
+                            if (next != _pullUpExtent) {
                               setState(() {
-                                _pullUpExtent = 0;
+                                _pullUpExtent = next;
                               });
                             }
+                          }
+                        }
 
-                            if (notification is OverscrollNotification) {
-                              if (atBottom &&
-                                  notification.overscroll < 0 &&
-                                  !_pullUpRefreshing &&
-                                  !_loading) {
-                                final next =
-                                    _pullUpExtent + (-notification.overscroll);
-                                if (next != _pullUpExtent) {
-                                  setState(() {
-                                    _pullUpExtent = next;
-                                  });
-                                }
-                              }
+                        if (notification is ScrollEndNotification) {
+                          final extent = _pullUpExtent;
+                          if (extent >= pullUpTrigger) {
+                            _triggerPullUpRefresh();
+                          } else if (extent != 0) {
+                            setState(() {
+                              _pullUpExtent = 0;
+                            });
+                          }
+                        }
+
+                        return false;
+                      },
+                      child: LearnLevelMap(
+                        levels: _levelData,
+                        blocked: _parentalBlocked,
+                        onLevelTap: (level) {
+                          () async {
+                            final localContext = context;
+                            final levelId = level.levelId;
+                            if (levelId == null || levelId.isEmpty) return;
+
+                            final guard =
+                                await ParentalControlGuard.checkCanStartAction();
+                            if (!guard.allowed) {
+                              if (!localContext.mounted) return;
+                              await showParentalControlBlockedSheet(
+                                context: localContext,
+                                result: guard,
+                              );
+                              return;
                             }
 
-                            if (notification is ScrollEndNotification) {
-                              final extent = _pullUpExtent;
-                              if (extent >= pullUpTrigger) {
-                                _triggerPullUpRefresh();
-                              } else if (extent != 0) {
-                                setState(() {
-                                  _pullUpExtent = 0;
-                                });
+                            if (!localContext.mounted) return;
+
+                            final rootNavigator = Navigator.of(
+                              localContext,
+                              rootNavigator: true,
+                            );
+                            showDialog<void>(
+                              context: localContext,
+                              barrierDismissible: false,
+                              builder: (context) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              },
+                            );
+
+                            try {
+                              final content = await getLevelDetailsAPI(levelId);
+                              if (!localContext.mounted) return;
+
+                              if (rootNavigator.mounted &&
+                                  rootNavigator.canPop()) {
+                                rootNavigator.pop();
                               }
+
+                              await Navigator.of(localContext).pushNamed(
+                                '/learn/level-detail',
+                                arguments: {
+                                  'unitId': _currentUnitId,
+                                  'levelId': levelId,
+                                  'levelIndex': level.id,
+                                  'totalLevels': _totalLevels,
+                                  'levelContent': content,
+                                  'levelIds': _levelData
+                                      .map((e) => e.levelId ?? '')
+                                      .toList(growable: false),
+                                },
+                              );
+
+                              if (!mounted) return;
+                              await _loadUnit(_selectedUnitIndex);
+                            } catch (_) {
+                              if (!localContext.mounted) return;
+
+                              if (rootNavigator.mounted &&
+                                  rootNavigator.canPop()) {
+                                rootNavigator.pop();
+                              }
+
+                              ToastUtils.showToast(localContext, '获取关卡详情失败');
                             }
-
-                            return false;
-                          },
-                          child: LearnLevelMap(
-                            levels: _levelData,
-                            blocked: _parentalBlocked,
-                            onLevelTap: (level) {
-                              () async {
-                                final localContext = context;
-                                final levelId = level.levelId;
-                                if (levelId == null || levelId.isEmpty) return;
-
-                                final guard =
-                                    await ParentalControlGuard.checkCanStartAction();
-                                if (!guard.allowed) {
-                                  if (!localContext.mounted) return;
-                                  await showParentalControlBlockedSheet(
-                                    context: localContext,
-                                    result: guard,
-                                  );
-                                  return;
-                                }
-
-                                if (!localContext.mounted) return;
-
-                                final rootNavigator = Navigator.of(
-                                  localContext,
-                                  rootNavigator: true,
-                                );
-                                showDialog<void>(
-                                  context: localContext,
-                                  barrierDismissible: false,
-                                  builder: (context) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  },
-                                );
-
-                                try {
-                                  final content =
-                                      await getLevelDetailsAPI(levelId);
-                                  if (!localContext.mounted) return;
-
-                                  if (rootNavigator.mounted &&
-                                      rootNavigator.canPop()) {
-                                    rootNavigator.pop();
-                                  }
-
-                                  await Navigator.of(localContext).pushNamed(
-                                    '/learn/level-detail',
-                                    arguments: {
-                                      'unitId': _currentUnitId,
-                                      'levelId': levelId,
-                                      'levelIndex': level.id,
-                                      'totalLevels': _totalLevels,
-                                      'levelContent': content,
-                                      'levelIds': _levelData
-                                          .map((e) => e.levelId ?? '')
-                                          .toList(growable: false),
-                                    },
-                                  );
-
-                                  if (!mounted) return;
-                                  await _loadUnit(_selectedUnitIndex);
-                                } catch (_) {
-                                  if (!localContext.mounted) return;
-
-                                  if (rootNavigator.mounted &&
-                                      rootNavigator.canPop()) {
-                                    rootNavigator.pop();
-                                  }
-
-                                  ToastUtils.showToast(localContext, '获取关卡详情失败');
-                                }
-                              }();
-                            },
-                          ),
-                        ),
-                        if (_pullUpRefreshing)
-                          Positioned(
-                            left: 0,
-                            right: 0,
-                            bottom: 12,
-                            child: Center(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
+                          }();
+                        },
+                      ),
+                    ),
+                    if (_pullUpRefreshing)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 12,
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.92),
+                              borderRadius: BorderRadius.circular(999),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.12),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
                                 ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.92),
-                                  borderRadius: BorderRadius.circular(999),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.12),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.4,
-                                  ),
-                                ),
+                              ],
+                            ),
+                            child: const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.4,
                               ),
                             ),
                           ),
-                      ],
-                    ),
+                        ),
+                      ),
+                  ],
+                ),
         ),
       ],
     );

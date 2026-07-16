@@ -20,9 +20,7 @@ class EditProfileSubmitButton extends StatelessWidget {
       style: FilledButton.styleFrom(
         backgroundColor: red,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
       onPressed: loading ? null : onPressed,
       child: SizedBox(

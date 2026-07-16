@@ -82,7 +82,7 @@ flutter:
     - lib/assets/learn/yunmu/image/
     - lib/assets/learn/hanzi/
     - lib/assets/learn/ciyu/
-    - video/
+    - lib/assets/video/
 
 flutter_launcher_icons:
   android: true

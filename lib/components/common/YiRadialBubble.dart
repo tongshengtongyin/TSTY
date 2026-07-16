@@ -25,7 +25,8 @@ class YiRadialBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final base = color.withValues(alpha: (color.a * opacity).clamp(0.0, 1.0));
-    final center = Alignment.lerp(
+    final center =
+        Alignment.lerp(
           highlightAlignment,
           Alignment.center,
           highlightCenterBias.clamp(0.0, 1.0),

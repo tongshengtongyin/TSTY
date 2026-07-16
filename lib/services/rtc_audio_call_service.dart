@@ -3,9 +3,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
-import 'package:volc_engine_rtc/volc_engine_rtc.dart';
-
 import 'package:tsty_app/utils/yi_recorder.dart';
+import 'package:volc_engine_rtc/volc_engine_rtc.dart';
 
 enum RtcAudioCallState {
   idle,
@@ -54,15 +53,19 @@ class RtcAudioCallService {
   bool _muted = false;
 
   Stream<RtcAudioCallState> get stateStream => _stateController.stream;
+
   Stream<RtcAudioCallError?> get errorStream => _errorController.stream;
+
   Stream<Set<String>> get remoteUsersStream => _remoteUsersController.stream;
 
   RtcAudioCallState get state => _state;
+
   RtcAudioCallSession? get session => _session;
 
   Set<String> get remoteUsers => Set<String>.unmodifiable(_remoteUsers);
 
   bool get speakerphone => _speakerphone;
+
   bool get muted => _muted;
 
   void _emitState(RtcAudioCallState s) {
@@ -250,7 +253,9 @@ class RtcAudioCallService {
       );
 
       if (kDebugMode) {
-        debugPrint('sendFinishRecognitionMessage success, messageId: $messageId');
+        debugPrint(
+          'sendFinishRecognitionMessage success, messageId: $messageId',
+        );
       }
 
       return messageId != null && messageId >= 0;
@@ -311,16 +316,18 @@ class RtcAudioCallService {
 
     _roomHandler.onRoomStateChanged =
         (String roomId, String uid, int state, String extraInfo) {
-      if (kDebugMode) {
-        debugPrint('RTC roomState: roomId=$roomId uid=$uid state=$state extra=$extraInfo');
-      }
-      if (state == 0) {
-        _emitState(RtcAudioCallState.joined);
-      } else {
-        _emitState(RtcAudioCallState.error);
-        _emitError('join_room_failed_state_$state');
-      }
-    };
+          if (kDebugMode) {
+            debugPrint(
+              'RTC roomState: roomId=$roomId uid=$uid state=$state extra=$extraInfo',
+            );
+          }
+          if (state == 0) {
+            _emitState(RtcAudioCallState.joined);
+          } else {
+            _emitState(RtcAudioCallState.error);
+            _emitError('join_room_failed_state_$state');
+          }
+        };
 
     _roomHandler.onUserJoined = (UserInfo userInfo, int elapsed) {
       if (kDebugMode) debugPrint('RTC userJoined: ${userInfo.uid}');

@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 
 class AppTheme {
   final TextTheme textTheme;
+
   const AppTheme({
     this.textTheme = const TextTheme(
       bodyLarge: TextStyle(fontSize: 16, color: Colors.black),
@@ -12,7 +13,8 @@ class AppTheme {
   static ColorScheme lightScheme() {
     return const ColorScheme(
       brightness: Brightness.light,
-      primary: Color(0xffbe0003), // 火红 #E62117
+      primary: Color(0xffbe0003),
+      // 火红 #E62117
       surfaceTint: Color(0xffc00003),
       onPrimary: Color(0xffffffff),
       primaryContainer: Color(0xffe62117),

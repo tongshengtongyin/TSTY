@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:tsty_app/api/auth.dart';
 import 'package:tsty_app/components/common/YiBaseBackground.dart';
 import 'package:tsty_app/components/common/YiSideStripe.dart';
 import 'package:tsty_app/components/common/YiTopBar.dart';
-import 'package:tsty_app/components/common/select_character_dialog.dart';
 import 'package:tsty_app/components/common/yi_dialog.dart';
 import 'package:tsty_app/components/settings/settings_item.dart';
 import 'package:tsty_app/components/settings/settings_logout_button.dart';
 import 'package:tsty_app/components/settings/settings_section.dart';
 import 'package:tsty_app/components/settings/settings_section_title.dart';
-import 'package:tsty_app/api/auth.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -20,26 +19,10 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   bool _logoutLoading = false;
-  bool _soundEnabled = true;
-  int _themeIndex = 0;
-  int _fontSizeIndex = 1;
 
   @override
   void initState() {
     super.initState();
-    _loadPrefs();
-  }
-
-  Future<void> _loadPrefs() async {
-    final soundEnabled = await UserPrefs.getSoundEnabled();
-    final themeIndex = await UserPrefs.getThemeIndex();
-    final fontSizeIndex = await UserPrefs.getFontSizeIndex();
-    if (!mounted) return;
-    setState(() {
-      _soundEnabled = soundEnabled;
-      _themeIndex = themeIndex;
-      _fontSizeIndex = fontSizeIndex;
-    });
   }
 
   Future<void> _showInfoDialog(String title, String message) async {
@@ -71,103 +54,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (ok != true || !mounted) return;
     await _showInfoDialog('清除成功', '缓存已清除。');
-  }
-
-  Future<void> _chooseThemeColor() async {
-    final options = <String>['红色(默认)', '蓝色', '紫色'];
-
-    final selected = await showYiDialog<int>(
-      context: context,
-      builder: (context) {
-        var temp = _themeIndex;
-
-        return StatefulBuilder(
-          builder: (context, setLocalState) {
-            return YiDialog(
-              title: '主题颜色',
-              message: '选择你喜欢的主题色（当前仅作用于设置页提示）。',
-              cancelText: '取消',
-              confirmText: '应用',
-              onCancel: () => Navigator.of(context).pop(null),
-              onConfirm: () => Navigator.of(context).pop(temp),
-              body: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: List.generate(options.length, (i) {
-                  return ChoiceChip(
-                    label: Text(options[i]),
-                    selected: temp == i,
-                    onSelected: (_) => setLocalState(() => temp = i),
-                  );
-                }),
-              ),
-            );
-          },
-        );
-      },
-    );
-
-    if (selected == null || !mounted) return;
-    setState(() => _themeIndex = selected);
-    await UserPrefs.setThemeIndex(selected);
-    if (!mounted) return;
-    await _showInfoDialog('主题颜色', '已选择主题：${options[selected]}');
-  }
-
-  Future<void> _chooseFontSize() async {
-    final options = <String>['小', '中(默认)', '大'];
-
-    final selected = await showYiDialog<int>(
-      context: context,
-      builder: (context) {
-        var temp = _fontSizeIndex;
-
-        return StatefulBuilder(
-          builder: (context, setLocalState) {
-            return YiDialog(
-              title: '字体大小',
-              message: '选择更适合你的文字大小（当前仅作用于设置页提示）。',
-              cancelText: '取消',
-              confirmText: '应用',
-              onCancel: () => Navigator.of(context).pop(null),
-              onConfirm: () => Navigator.of(context).pop(temp),
-              body: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: List.generate(options.length, (i) {
-                  return ChoiceChip(
-                    label: Text(options[i]),
-                    selected: temp == i,
-                    onSelected: (_) => setLocalState(() => temp = i),
-                  );
-                }),
-              ),
-            );
-          },
-        );
-      },
-    );
-
-    if (selected == null || !mounted) return;
-    setState(() => _fontSizeIndex = selected);
-    await UserPrefs.setFontSizeIndex(selected);
-    if (!mounted) return;
-    await _showInfoDialog('字体大小', '字体大小：${options[selected]}');
-  }
-
-  Future<void> _chooseCharacter() async {
-    final initialValue = await UserPrefs.getSelectedCharacter();
-    if (!mounted) return;
-
-    final selected = await showSelectCharacterDialog(
-      context: context,
-      initialValue: initialValue,
-    );
-    if (selected == null || !mounted) return;
-
-    await UserPrefs.setSelectedCharacter(selected);
-    if (!mounted) return;
-    await _showInfoDialog('卡通人物选择', selected == 0 ? '已选择：阿依莫' : '已选择：阿牛惹');
   }
 
   Future<void> _openPrivacySettings() async {

@@ -39,10 +39,7 @@ class EditProfileAvatarSelector extends StatelessWidget {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(24),
-              child: Image.asset(
-                avatarAssets[index],
-                fit: BoxFit.cover,
-              ),
+              child: Image.asset(avatarAssets[index], fit: BoxFit.cover),
             ),
           ),
         );

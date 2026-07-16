@@ -4,10 +4,7 @@ import 'package:tsty_app/style/app_theme.dart';
 class SettingsSection extends StatelessWidget {
   final List<Widget> children;
 
-  const SettingsSection({
-    super.key,
-    required this.children,
-  });
+  const SettingsSection({super.key, required this.children});
 
   @override
   Widget build(BuildContext context) {

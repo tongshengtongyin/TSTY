@@ -15,13 +15,13 @@ Future<IseAuthCache> getIseAuthAPI({
 
   final headers = (token == null || token.isEmpty)
       ? null
-      : <String, dynamic>{
-          'Authorization': 'Bearer $token',
-        };
+      : <String, dynamic>{'Authorization': 'Bearer $token'};
 
   if (kDebugMode) {
-    debugPrint('ISE auth request: ${GlobalConstants.apiBaseUrl}${HttpConstants.iseAuth} '
-        'authHeader=${headers == null ? 'none' : 'bearer'}');
+    debugPrint(
+      'ISE auth request: ${GlobalConstants.apiBaseUrl}${HttpConstants.iseAuth} '
+      'authHeader=${headers == null ? 'none' : 'bearer'}',
+    );
   }
 
   final result = await dioUtils.get(
@@ -44,8 +44,8 @@ Future<IseAuthCache> getIseAuthAPI({
   final authorization = result['authorization']?.toString() ?? '';
   final date = result['date']?.toString() ?? '';
   final host = result['host']?.toString() ?? '';
-  final appId = (result['appId'] ?? result['app_id'] ?? result['appid'])
-          ?.toString() ??
+  final appId =
+      (result['appId'] ?? result['app_id'] ?? result['appid'])?.toString() ??
       '';
 
   if (authorization.isEmpty || date.isEmpty || host.isEmpty || appId.isEmpty) {
@@ -53,8 +53,10 @@ Future<IseAuthCache> getIseAuthAPI({
   }
 
   if (kDebugMode) {
-    debugPrint('ISE auth response parsed: appId=$appId host=$host date=$date '
-        'authorizationLen=${authorization.length}');
+    debugPrint(
+      'ISE auth response parsed: appId=$appId host=$host date=$date '
+      'authorizationLen=${authorization.length}',
+    );
   }
 
   return IseAuthCache(

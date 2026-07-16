@@ -2,8 +2,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
-import 'package:tsty_app/constants/index.dart';
 import 'package:tsty_app/api/auth.dart';
+import 'package:tsty_app/constants/index.dart';
 import 'package:tsty_app/routes/app_navigator.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 
@@ -30,12 +30,18 @@ class DioUtils {
     if (kDebugMode) {
       _dio.interceptors.add(
         PrettyDioLogger(
-          requestHeader: true, // 打印请求头
-          requestBody: true, // 打印请求参数
-          responseBody: true, // 打印响应数据
-          responseHeader: false, // 不打印响应头
-          error: true, // 打印错误信息
-          compact: false, // 格式化打印（非紧凑模式）
+          requestHeader: true,
+          // 打印请求头
+          requestBody: true,
+          // 打印请求参数
+          responseBody: true,
+          // 打印响应数据
+          responseHeader: false,
+          // 不打印响应头
+          error: true,
+          // 打印错误信息
+          compact: false,
+          // 格式化打印（非紧凑模式）
           maxWidth: 120, // 每行最大长度
         ),
       );
@@ -48,13 +54,16 @@ class DioUtils {
         onRequest: (options, handler) async {
           try {
             final path = options.path;
-            final skipAuth = options.extra['skipAuth'] == true ||
+            final skipAuth =
+                options.extra['skipAuth'] == true ||
                 path.contains(HttpConstants.authRefresh) ||
                 path.contains(HttpConstants.childLoginPassword);
 
             if (!skipAuth) {
               final headers = options.headers;
-              final hasAuth = headers['Authorization']?.toString().trim().isNotEmpty == true;
+              final hasAuth =
+                  headers['Authorization']?.toString().trim().isNotEmpty ==
+                  true;
 
               if (!hasAuth) {
                 final token = await UserPrefs.getAccessToken();
@@ -81,14 +90,17 @@ class DioUtils {
         },
         onResponse: (response, handler) async {
           final path = response.requestOptions.path;
-          final skipAuth = response.requestOptions.extra['skipAuth'] == true ||
+          final skipAuth =
+              response.requestOptions.extra['skipAuth'] == true ||
               path.contains(HttpConstants.authRefresh) ||
               path.contains(HttpConstants.childLoginPassword);
 
           final data = response.data;
           if (data is Map && data.containsKey('code')) {
             final code = data['code'];
-            final intCode = (code is int) ? code : int.tryParse(code?.toString() ?? '');
+            final intCode = (code is int)
+                ? code
+                : int.tryParse(code?.toString() ?? '');
 
             if (intCode != null && intCode != GlobalConstants.successState) {
               final message = data['message']?.toString() ?? '请求失败';
@@ -138,7 +150,8 @@ class DioUtils {
         onError: (error, handler) async {
           final opts = error.requestOptions;
           final path = opts.path;
-          final skipAuth = opts.extra['skipAuth'] == true ||
+          final skipAuth =
+              opts.extra['skipAuth'] == true ||
               path.contains(HttpConstants.authRefresh) ||
               path.contains(HttpConstants.childLoginPassword);
 
@@ -179,7 +192,10 @@ class DioUtils {
         }
 
         final deviceId = await UserPrefs.getOrCreateDeviceId();
-        final resp = await refreshTokenAPI(refreshToken: rt, deviceId: deviceId);
+        final resp = await refreshTokenAPI(
+          refreshToken: rt,
+          deviceId: deviceId,
+        );
 
         final accessToken = resp['accessToken']?.toString() ?? '';
         final newRefreshToken = resp['refreshToken']?.toString() ?? '';
@@ -249,7 +265,8 @@ class DioUtils {
       await _dio.post(
         url,
         data: data,
-        options: options ?? (headers == null ? null : Options(headers: headers)),
+        options:
+            options ?? (headers == null ? null : Options(headers: headers)),
       ),
     );
   }
@@ -276,7 +293,8 @@ class DioUtils {
       if (data is Map) {
         if (data.containsKey('code')) {
           final code = data['code'];
-          final ok = code == GlobalConstants.successState ||
+          final ok =
+              code == GlobalConstants.successState ||
               code?.toString() == GlobalConstants.successState.toString();
           if (ok) {
             return data['data'];

@@ -5,10 +5,7 @@ import 'package:tsty_app/style/app_theme.dart';
 class MineMenuSection extends StatelessWidget {
   final ValueChanged<MineMenuAction>? onTap;
 
-  const MineMenuSection({
-    super.key,
-    this.onTap,
-  });
+  const MineMenuSection({super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -51,11 +48,7 @@ class MineMenuSection extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 4),
-                Icon(
-                  Icons.chevron_right,
-                  color: Color(0xFF3D2800),
-                  size: 28,
-                ),
+                Icon(Icons.chevron_right, color: Color(0xFF3D2800), size: 28),
               ],
             ),
             onTap: () => onTap?.call(MineMenuAction.parentEntry),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tsty_app/api/child.dart';
 import 'package:tsty_app/components/common/YiBaseBackground.dart';
 import 'package:tsty_app/components/common/YiSideStripe.dart';
 import 'package:tsty_app/components/common/YiTopBar.dart';
@@ -6,7 +7,6 @@ import 'package:tsty_app/components/profile/edit_profile/edit_profile_avatar_sel
 import 'package:tsty_app/components/profile/edit_profile/edit_profile_form_group.dart';
 import 'package:tsty_app/components/profile/edit_profile/edit_profile_submit_button.dart';
 import 'package:tsty_app/components/profile/edit_profile/edit_profile_text_field.dart';
-import 'package:tsty_app/api/child.dart';
 import 'package:tsty_app/utils/ToastUtils.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 
@@ -18,8 +18,9 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  final TextEditingController _nameController =
-      TextEditingController(text: '阿依彝');
+  final TextEditingController _nameController = TextEditingController(
+    text: '阿依彝',
+  );
 
   bool _loading = false;
   bool _success = false;

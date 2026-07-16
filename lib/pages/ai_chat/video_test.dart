@@ -15,7 +15,9 @@ class _VideoTestPageState extends State<VideoTestPage> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.asset('video/AniuRe-waiting.mp4');
+    _controller = VideoPlayerController.asset(
+      'lib/assets/video/AniuRe-waiting.mp4',
+    );
     _controller.addListener(() {
       print('Video listener:');
       print('  isInitialized: ${_controller.value.isInitialized}');

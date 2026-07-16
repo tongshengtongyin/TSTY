@@ -32,6 +32,7 @@ class RealtimeAiVoiceChatSession {
   RealtimeAiVoiceChatSession(this._rtc);
 
   RealtimeAiVoiceChatSessionInfo? get info => _info;
+
   bool get started => _started;
 
   static String _safeId(String s, {int maxLen = 64}) {
@@ -43,7 +44,10 @@ class RealtimeAiVoiceChatSession {
   static String _randomSuffix() {
     final r = Random();
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    return List<String>.generate(6, (_) => chars[r.nextInt(chars.length)]).join();
+    return List<String>.generate(
+      6,
+      (_) => chars[r.nextInt(chars.length)],
+    ).join();
   }
 
   Future<RealtimeAiVoiceChatSessionInfo> start({
@@ -62,7 +66,9 @@ class RealtimeAiVoiceChatSession {
       final taskId = _safeId('task_${now}_${_randomSuffix()}', maxLen: 64);
 
       if (kDebugMode) {
-        debugPrint('AI session start: sceneId=$sceneId deviceId=$deviceId roomId=$roomId taskId=$taskId');
+        debugPrint(
+          'AI session start: sceneId=$sceneId deviceId=$deviceId roomId=$roomId taskId=$taskId',
+        );
       }
 
       stage = 'rtc_token';
@@ -73,7 +79,9 @@ class RealtimeAiVoiceChatSession {
       final rtcToken = tokenResp['token']?.toString() ?? '';
 
       if (kDebugMode) {
-        debugPrint('AI rtc-token parsed: appId=$appId roomId=$effectiveRoomId userId=$userId tokenLen=${rtcToken.length}');
+        debugPrint(
+          'AI rtc-token parsed: appId=$appId roomId=$effectiveRoomId userId=$userId tokenLen=${rtcToken.length}',
+        );
       }
 
       if (appId.isEmpty || rtcToken.isEmpty || userId.isEmpty) {
@@ -91,7 +99,9 @@ class RealtimeAiVoiceChatSession {
       final characterId = selected == 0 ? 'ayimo' : 'aniure';
 
       if (kDebugMode) {
-        debugPrint('AI voicechat characterId=$characterId (selected=$selected)');
+        debugPrint(
+          'AI voicechat characterId=$characterId (selected=$selected)',
+        );
       }
 
       stage = 'voicechat_start';
@@ -108,7 +118,8 @@ class RealtimeAiVoiceChatSession {
 
       final success = startResp['success'] == true;
       if (!success) {
-        final msg = startResp['errorMessage']?.toString() ??
+        final msg =
+            startResp['errorMessage']?.toString() ??
             startResp['message']?.toString() ??
             'StartVoiceChat failed';
         throw Exception(msg);
@@ -130,7 +141,9 @@ class RealtimeAiVoiceChatSession {
       _started = true;
 
       if (kDebugMode) {
-        debugPrint('Realtime AI voice chat started: appId=${info.appId} roomId=${info.roomId} userId=${info.userId} taskId=${info.taskId}');
+        debugPrint(
+          'Realtime AI voice chat started: appId=${info.appId} roomId=${info.roomId} userId=${info.userId} taskId=${info.taskId}',
+        );
       }
 
       return info;
@@ -155,7 +168,9 @@ class RealtimeAiVoiceChatSession {
     if (info != null) {
       try {
         if (kDebugMode) {
-          debugPrint('AI session stop: roomId=${info.roomId} taskId=${info.taskId}');
+          debugPrint(
+            'AI session stop: roomId=${info.roomId} taskId=${info.taskId}',
+          );
         }
         await stopAiVoiceChatAPI(roomId: info.roomId, taskId: info.taskId);
       } catch (_) {}

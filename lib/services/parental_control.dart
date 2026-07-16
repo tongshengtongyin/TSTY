@@ -4,11 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tsty_app/utils/parent_center_prefs.dart';
 
-enum ParentalControlReason {
-  outOfTimeWindow,
-  dailyLimit,
-  restCooldown,
-}
+enum ParentalControlReason { outOfTimeWindow, dailyLimit, restCooldown }
 
 enum ParentalControlBlockType { none, hard }
 
@@ -27,11 +23,12 @@ class ParentalControlGuardResult {
     required this.remainingTodaySeconds,
   });
 
-  const ParentalControlGuardResult.allowed({required this.remainingTodaySeconds})
-      : allowed = true,
-        blockType = ParentalControlBlockType.none,
-        reason = null,
-        nextAllowedAt = null;
+  const ParentalControlGuardResult.allowed({
+    required this.remainingTodaySeconds,
+  }) : allowed = true,
+       blockType = ParentalControlBlockType.none,
+       reason = null,
+       nextAllowedAt = null;
 }
 
 class ParentalControlGuard {
@@ -87,8 +84,11 @@ class ParentalControlGuard {
 
   static DateTime _nextStart({required DateTime now, required String startHm}) {
     final startMin = _parseHmToMinutes(startHm);
-    final target = DateTime(now.year, now.month, now.day)
-        .add(Duration(minutes: startMin));
+    final target = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).add(Duration(minutes: startMin));
     if (now.isBefore(target)) return target;
     return target.add(const Duration(days: 1));
   }
@@ -104,13 +104,19 @@ class ParentalControlGuard {
       );
     }
     if (!settings.timeEnabled && settings.dailyLimitMinutes <= 0) {
-      return const ParentalControlGuardResult.allowed(remainingTodaySeconds: 1 << 30);
+      return const ParentalControlGuardResult.allowed(
+        remainingTodaySeconds: 1 << 30,
+      );
     }
 
     final now = DateTime.now();
 
     if (settings.timeEnabled &&
-        !_inWindow(now: now, startHm: settings.startTime, endHm: settings.endTime)) {
+        !_inWindow(
+          now: now,
+          startHm: settings.startTime,
+          endHm: settings.endTime,
+        )) {
       final next = _nextStart(now: now, startHm: settings.startTime);
       return ParentalControlGuardResult(
         allowed: false,
@@ -138,7 +144,11 @@ class ParentalControlGuard {
     final used = prefs.getInt(_kUsedSeconds) ?? 0;
     final limitSeconds = (settings.dailyLimitMinutes.clamp(0, 24 * 60)) * 60;
     if (limitSeconds > 0 && used >= limitSeconds) {
-      final tomorrow = DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
+      final tomorrow = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).add(const Duration(days: 1));
       return ParentalControlGuardResult(
         allowed: false,
         blockType: ParentalControlBlockType.hard,
@@ -153,7 +163,10 @@ class ParentalControlGuard {
     );
   }
 
-  static int _remainingTodaySeconds(SharedPreferences prefs, ParentControlSettings settings) {
+  static int _remainingTodaySeconds(
+    SharedPreferences prefs,
+    ParentControlSettings settings,
+  ) {
     final used = prefs.getInt(_kUsedSeconds) ?? 0;
     final limitSeconds = (settings.dailyLimitMinutes.clamp(0, 24 * 60)) * 60;
     if (limitSeconds <= 0) return 1 << 30;
@@ -229,7 +242,8 @@ class ParentalControlUsageTracker with WidgetsBindingObserver {
     await prefs.setInt(_kSessionSeconds, nextSession);
 
     if (settings.restEnabled) {
-      final intervalSeconds = settings.restIntervalMinutes.clamp(1, 24 * 60) * 60;
+      final intervalSeconds =
+          settings.restIntervalMinutes.clamp(1, 24 * 60) * 60;
       if (nextSession >= intervalSeconds) {
         final restSeconds = settings.restDurationMinutes.clamp(1, 60) * 60;
         final until = DateTime.now().add(Duration(seconds: restSeconds));
@@ -249,10 +263,14 @@ class ParentalControlSoftBannerStatus {
   final bool show;
   final String message;
 
-  const ParentalControlSoftBannerStatus({required this.show, required this.message});
+  const ParentalControlSoftBannerStatus({
+    required this.show,
+    required this.message,
+  });
 }
 
-Future<ParentalControlSoftBannerStatus?> getParentalControlSoftBannerStatus() async {
+Future<ParentalControlSoftBannerStatus?>
+getParentalControlSoftBannerStatus() async {
   final prefs = await SharedPreferences.getInstance();
   await ParentalControlGuard._ensureResetIfNeeded(prefs);
   final settings = await ParentCenterPrefs.getControlSettings();
@@ -261,19 +279,27 @@ Future<ParentalControlSoftBannerStatus?> getParentalControlSoftBannerStatus() as
 
   final limitSeconds = (settings.dailyLimitMinutes.clamp(0, 24 * 60)) * 60;
   final used = prefs.getInt('parentalControl.usedSeconds') ?? 0;
-  final remainingToday = limitSeconds <= 0 ? (1 << 30) : (limitSeconds - used).clamp(0, limitSeconds);
+  final remainingToday = limitSeconds <= 0
+      ? (1 << 30)
+      : (limitSeconds - used).clamp(0, limitSeconds);
 
   if (remainingToday <= 0) return null;
 
   if (limitSeconds > 0 && remainingToday <= 5 * 60) {
     final mins = (remainingToday / 60).ceil().clamp(1, 24 * 60);
-    return ParentalControlSoftBannerStatus(show: true, message: '今天还可以使用$mins分钟');
+    return ParentalControlSoftBannerStatus(
+      show: true,
+      message: '今天还可以使用$mins分钟',
+    );
   }
 
   if (settings.restEnabled) {
     final intervalSeconds = settings.restIntervalMinutes.clamp(1, 24 * 60) * 60;
     final session = prefs.getInt('parentalControl.sessionSeconds') ?? 0;
-    final remainingToRest = (intervalSeconds - session).clamp(0, intervalSeconds);
+    final remainingToRest = (intervalSeconds - session).clamp(
+      0,
+      intervalSeconds,
+    );
 
     if (remainingToRest <= 60) {
       final restMins = settings.restDurationMinutes.clamp(1, 60);
@@ -308,7 +334,10 @@ class ParentalControlSoftBanner extends StatelessWidget {
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: color.withValues(alpha: 0.25), width: 1.5),
+              border: Border.all(
+                color: color.withValues(alpha: 0.25),
+                width: 1.5,
+              ),
             ),
             child: Row(
               children: [
@@ -384,7 +413,10 @@ Future<void> showParentalControlBlockedSheet({
           children: [
             Row(
               children: [
-                const Icon(Icons.lock_outline_rounded, color: Color(0xFFC00003)),
+                const Icon(
+                  Icons.lock_outline_rounded,
+                  color: Color(0xFFC00003),
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(

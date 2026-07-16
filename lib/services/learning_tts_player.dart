@@ -16,8 +16,9 @@ class LearningTtsPlayer {
 
   Future<void>? _current;
 
-  static final Uri _ttsEndpoint =
-      Uri.parse('wss://cbm01.cn-huabei-1.xf-yun.com/v1/private/mcd9m97e6');
+  static final Uri _ttsEndpoint = Uri.parse(
+    'wss://cbm01.cn-huabei-1.xf-yun.com/v1/private/mcd9m97e6',
+  );
   static const String _defaultVcn = 'x6_lingyouyou_pro';
 
   Future<TtsAuthCache?> _ensureAuth() async {
@@ -58,65 +59,65 @@ class LearningTtsPlayer {
     // Serialize play requests. New request stops previous playback.
     final prev = _current;
     _current = () async {
-        try {
-          await _player.stop();
-        } catch (_) {}
+      try {
+        await _player.stop();
+      } catch (_) {}
 
-        final key = _cacheKey(text: trimmed);
-        final cachedBytes = _memCache[key];
-        if (cachedBytes != null && cachedBytes.isNotEmpty) {
-          await _player.play(BytesSource(cachedBytes));
-          onComplete?.call();
-          return;
-        }
-
-        final auth = await _ensureAuth();
-        if (auth == null) {
-          if (context.mounted) {
-            ToastUtils.showToast(context, '获取语音合成鉴权失败');
-          }
-          onComplete?.call();
-          return;
-        }
-
-        final authQuery = YiIseAuthQuery(
-          authorization: auth.authorization,
-          host: auth.host,
-          date: auth.date,
-        );
-
-        final synthesizer = YiTtsSynthesizer(
-          YiTtsConfig(
-            endpoint: _ttsEndpoint,
-            appId: auth.appId,
-            vcn: _defaultVcn,
-            serviceType: auth.serviceType.isEmpty ? 'tts' : auth.serviceType,
-          ),
-        );
-
-        Uint8List bytes;
-        try {
-          bytes = await synthesizer.synthesizeToBytes(
-            text: trimmed,
-            authQuery: authQuery,
-            timeout: GlobalConstants.timeoutDuration,
-          );
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint('TTS synthesize failed: $e');
-          }
-          if (context.mounted) {
-            final errorMsg = kDebugMode ? '合成失败: $e' : '合成失败';
-            ToastUtils.showToast(context, errorMsg);
-          }
-          onComplete?.call();
-          return;
-        }
-
-        _memCache[key] = bytes;
-        await _player.play(BytesSource(bytes));
+      final key = _cacheKey(text: trimmed);
+      final cachedBytes = _memCache[key];
+      if (cachedBytes != null && cachedBytes.isNotEmpty) {
+        await _player.play(BytesSource(cachedBytes));
         onComplete?.call();
-      }();
+        return;
+      }
+
+      final auth = await _ensureAuth();
+      if (auth == null) {
+        if (context.mounted) {
+          ToastUtils.showToast(context, '获取语音合成鉴权失败');
+        }
+        onComplete?.call();
+        return;
+      }
+
+      final authQuery = YiIseAuthQuery(
+        authorization: auth.authorization,
+        host: auth.host,
+        date: auth.date,
+      );
+
+      final synthesizer = YiTtsSynthesizer(
+        YiTtsConfig(
+          endpoint: _ttsEndpoint,
+          appId: auth.appId,
+          vcn: _defaultVcn,
+          serviceType: auth.serviceType.isEmpty ? 'tts' : auth.serviceType,
+        ),
+      );
+
+      Uint8List bytes;
+      try {
+        bytes = await synthesizer.synthesizeToBytes(
+          text: trimmed,
+          authQuery: authQuery,
+          timeout: GlobalConstants.timeoutDuration,
+        );
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('TTS synthesize failed: $e');
+        }
+        if (context.mounted) {
+          final errorMsg = kDebugMode ? '合成失败: $e' : '合成失败';
+          ToastUtils.showToast(context, errorMsg);
+        }
+        onComplete?.call();
+        return;
+      }
+
+      _memCache[key] = bytes;
+      await _player.play(BytesSource(bytes));
+      onComplete?.call();
+    }();
 
     // Ensure FIFO semantics.
     if (prev != null) {

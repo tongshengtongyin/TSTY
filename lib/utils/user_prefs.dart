@@ -1,8 +1,9 @@
-import 'package:tsty_app/components/ai_chat/ai_chat_models.dart';
-import 'package:flutter/material.dart';
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tsty_app/api/tts.dart';
+import 'package:tsty_app/components/ai_chat/ai_chat_models.dart';
 
 String _yiRandomHex(int len) {
   final now = DateTime.now().microsecondsSinceEpoch;
@@ -173,7 +174,8 @@ class UserPrefs {
     final s = existing?.trim() ?? '';
     if (s.isNotEmpty) return s;
 
-    final id = 'dev_${DateTime.now().millisecondsSinceEpoch}_${_yiRandomHex(10)}';
+    final id =
+        'dev_${DateTime.now().millisecondsSinceEpoch}_${_yiRandomHex(10)}';
     await prefs.setString(_kDeviceId, id);
     return id;
   }
@@ -395,24 +397,28 @@ class UserPrefs {
   static Future<void> addRecentChat(AiChatRecentChat chat) async {
     final prefs = await SharedPreferences.getInstance();
     final list = await getRecentChats();
-    
-    // Remove if already exists with same type (keep only latest of same type if desired, 
+
+    // Remove if already exists with same type (keep only latest of same type if desired,
     // but here we just follow "last 5" rule)
     list.insert(0, chat);
-    
+
     // Keep only 5
     if (list.length > 5) {
       list.removeRange(5, list.length);
     }
 
-    final jsonList = list.map((item) => {
-      'id': item.id,
-      'title': item.title,
-      'timestamp': item.timestamp.toIso8601String(),
-      'type': item.type,
-      'iconColor': item.iconColor.toARGB32(),
-      'bgColor': item.bgColor.toARGB32(),
-    }).toList();
+    final jsonList = list
+        .map(
+          (item) => {
+            'id': item.id,
+            'title': item.title,
+            'timestamp': item.timestamp.toIso8601String(),
+            'type': item.type,
+            'iconColor': item.iconColor.toARGB32(),
+            'bgColor': item.bgColor.toARGB32(),
+          },
+        )
+        .toList();
 
     await prefs.setString(_kRecentChatsJson, jsonEncode(jsonList));
   }
@@ -429,7 +435,9 @@ class UserPrefs {
     }
   }
 
-  static Future<void> setLearnProgressCache(List<Map<String, int>> progress) async {
+  static Future<void> setLearnProgressCache(
+    List<Map<String, int>> progress,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kLearnProgressCacheJson, jsonEncode(progress));
   }

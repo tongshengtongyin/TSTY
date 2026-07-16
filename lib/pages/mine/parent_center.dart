@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:tsty_app/api/auth.dart';
+import 'package:tsty_app/api/parent_report.dart';
 import 'package:tsty_app/components/common/YiBaseBackground.dart';
 import 'package:tsty_app/components/common/YiTopBar.dart';
+import 'package:tsty_app/components/common/yi_dialog.dart';
 import 'package:tsty_app/components/mine/parent_center/parent_center_models.dart';
 import 'package:tsty_app/components/mine/parent_center/parent_center_segmented_control.dart';
 import 'package:tsty_app/components/mine/parent_center/parent_control_section.dart';
 import 'package:tsty_app/components/mine/parent_center/parent_report_section.dart';
-import 'package:tsty_app/components/common/yi_dialog.dart';
-import 'package:tsty_app/api/auth.dart';
-import 'package:tsty_app/api/parent_report.dart';
 import 'package:tsty_app/utils/ToastUtils.dart';
 import 'package:tsty_app/utils/parent_center_prefs.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
@@ -273,8 +273,12 @@ class _ParentCenterPageState extends State<ParentCenterPage> {
     final minutes = _report.trend.learningMinutes[index];
     if (minutes == 0) return;
 
-    final date = index < _report.trend.dates.length ? _report.trend.dates[index] : '';
-    final score = index < _report.trend.scores.length ? _report.trend.scores[index] : 0;
+    final date = index < _report.trend.dates.length
+        ? _report.trend.dates[index]
+        : '';
+    final score = index < _report.trend.scores.length
+        ? _report.trend.scores[index]
+        : 0;
 
     ToastUtils.showToast(context, '$date: $minutes分钟, 得分$score分');
   }
@@ -385,9 +389,7 @@ class _ParentCenterPageState extends State<ParentCenterPage> {
   @override
   Widget build(BuildContext context) {
     if (_checkingLogin) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(

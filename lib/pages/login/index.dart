@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:tsty_app/api/auth.dart';
 import 'package:tsty_app/components/common/YiBaseBackground.dart';
 import 'package:tsty_app/components/common/select_character_dialog.dart';
-import 'package:tsty_app/components/common/yi_stripe_frame.dart';
 import 'package:tsty_app/components/common/yi_dialog.dart';
+import 'package:tsty_app/components/common/yi_stripe_frame.dart';
 import 'package:tsty_app/components/login/login_primary_button.dart';
 import 'package:tsty_app/components/login/login_text_field.dart';
-import 'package:tsty_app/api/auth.dart';
 import 'package:tsty_app/utils/ToastUtils.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 
@@ -121,7 +121,9 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
     } catch (e) {
       if (mounted) {
-        setState(() => _errorText = e.toString().replaceFirst('Exception: ', ''));
+        setState(
+          () => _errorText = e.toString().replaceFirst('Exception: ', ''),
+        );
       }
     } finally {
       if (mounted) setState(() => _loading = false);

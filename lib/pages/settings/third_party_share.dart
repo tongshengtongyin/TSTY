@@ -50,9 +50,15 @@ class ThirdPartySharePage extends StatelessWidget {
                     name: '科大讯飞开放平台',
                     service: '语音测评 / 语音合成',
                     items: [
-                      _buildInfoItem('共享信息', '语音音频（您主动录制或触发播放时）、文本内容（用于合成/评测）、设备基础信息（网络状态、设备型号/系统版本、时间戳）、必要的鉴权信息'),
+                      _buildInfoItem(
+                        '共享信息',
+                        '语音音频（您主动录制或触发播放时）、文本内容（用于合成/评测）、设备基础信息（网络状态、设备型号/系统版本、时间戳）、必要的鉴权信息',
+                      ),
                       _buildInfoItem('使用目的', '语音评测打分与语音合成播放'),
-                      _buildInfoItem('隐私政策', 'https://www.xfyun.cn/doc/policy/privacy.html'),
+                      _buildInfoItem(
+                        '隐私政策',
+                        'https://www.xfyun.cn/doc/policy/privacy.html',
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -63,7 +69,10 @@ class ThirdPartySharePage extends StatelessWidget {
                     items: [
                       _buildInfoItem('共享信息', '实时音频流、设备网络信息、房间标识与必要的连接参数'),
                       _buildInfoItem('使用目的', '提供实时音频互动能力'),
-                      _buildInfoItem('隐私政策', 'https://www.agora.io/cn/privacy-policy'),
+                      _buildInfoItem(
+                        '隐私政策',
+                        'https://www.agora.io/cn/privacy-policy',
+                      ),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -78,7 +87,11 @@ class ThirdPartySharePage extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.warning_amber, color: Colors.orange, size: 20),
+                            Icon(
+                              Icons.warning_amber,
+                              color: Colors.orange,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               '重要说明',
@@ -106,10 +119,7 @@ class ThirdPartySharePage extends StatelessWidget {
                   Center(
                     child: Text(
                       '如您对信息共享有任何疑问，请联系：2629103796@qq.com',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -177,10 +187,7 @@ class ThirdPartySharePage extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         service,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
