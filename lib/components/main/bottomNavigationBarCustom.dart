@@ -38,7 +38,7 @@ class _BottomNavigationBarCustomState extends State<BottomNavigationBarCustom> {
         topRight: Radius.circular(16),
       ),
       child: Container(
-        height: 100,
+        height: 110,
         padding: const EdgeInsets.only(top: 12),
         decoration: BoxDecoration(
           color: AppTheme.yiYellow.value,
@@ -71,14 +71,16 @@ class _BottomNavigationBarCustomState extends State<BottomNavigationBarCustom> {
                 elevation: 0,
                 selectedItemColor: Theme.of(context).colorScheme.onPrimary,
                 selectedLabelStyle: TextStyle(
-                  fontSize: 18,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
                 unselectedItemColor: Theme.of(context).colorScheme.shadow,
                 unselectedLabelStyle: TextStyle(
-                  fontSize: 16,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
+                selectedFontSize: 14,
+                unselectedFontSize: 12,
                 backgroundColor: Colors.transparent,
                 type: BottomNavigationBarType.fixed,
                 items: _buildTabItems(),

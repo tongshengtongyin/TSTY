@@ -172,7 +172,6 @@ class YiTtsSynthesizer {
       'header': {
         'app_id': config.appId,
         'status': 2,
-        'service_type': config.serviceType,
       },
       'parameter': {
         'tts': {

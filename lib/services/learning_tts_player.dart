@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tsty_app/api/tts.dart';
 import 'package:tsty_app/constants/index.dart';
+import 'package:tsty_app/services/flutter_tts_service.dart';
 import 'package:tsty_app/utils/ToastUtils.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 import 'package:tsty_app/utils/yi_speech_evaluator.dart';
@@ -13,6 +14,7 @@ import 'package:tsty_app/utils/yi_tts_synthesizer.dart';
 class LearningTtsPlayer {
   final AudioPlayer _player = AudioPlayer();
   final Map<String, Uint8List> _memCache = <String, Uint8List>{};
+  final FlutterTtsService _flutterTts = FlutterTtsService();
 
   Future<void>? _current;
 
@@ -56,7 +58,16 @@ class LearningTtsPlayer {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
 
-    // Serialize play requests. New request stops previous playback.
+    final engine = await UserPrefs.getTtsEngine();
+    if (engine == 'flutter_tts') {
+      await _flutterTts.speak(
+        context: context,
+        text: trimmed,
+        onComplete: onComplete,
+      );
+      return;
+    }
+
     final prev = _current;
     _current = () async {
       try {
@@ -73,10 +84,14 @@ class LearningTtsPlayer {
 
       final auth = await _ensureAuth();
       if (auth == null) {
-        if (context.mounted) {
-          ToastUtils.showToast(context, '获取语音合成鉴权失败');
+        if (kDebugMode) {
+          debugPrint('TTS auth failed, fallback to flutter_tts');
         }
-        onComplete?.call();
+        await _flutterTts.speak(
+          context: context,
+          text: trimmed,
+          onComplete: onComplete,
+        );
         return;
       }
 
@@ -104,13 +119,13 @@ class LearningTtsPlayer {
         );
       } catch (e) {
         if (kDebugMode) {
-          debugPrint('TTS synthesize failed: $e');
+          debugPrint('TTS synthesize failed, fallback to flutter_tts: $e');
         }
-        if (context.mounted) {
-          final errorMsg = kDebugMode ? '合成失败: $e' : '合成失败';
-          ToastUtils.showToast(context, errorMsg);
-        }
-        onComplete?.call();
+        await _flutterTts.speak(
+          context: context,
+          text: trimmed,
+          onComplete: onComplete,
+        );
         return;
       }
 
@@ -119,7 +134,6 @@ class LearningTtsPlayer {
       onComplete?.call();
     }();
 
-    // Ensure FIFO semantics.
     if (prev != null) {
       try {
         await prev;
@@ -132,6 +146,7 @@ class LearningTtsPlayer {
 
   void dispose() {
     _memCache.clear();
+    _flutterTts.dispose();
     try {
       _player.dispose();
     } catch (_) {}

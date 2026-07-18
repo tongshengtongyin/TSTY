@@ -45,6 +45,7 @@ class UserPrefs {
   static const _kTtsHost = 'tts.host';
   static const _kTtsAppId = 'tts.appId';
   static const _kTtsTimestamp = 'tts.timestamp';
+  static const _kTtsEngine = 'tts.engine';
 
   static Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
@@ -440,6 +441,16 @@ class UserPrefs {
   ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kLearnProgressCacheJson, jsonEncode(progress));
+  }
+
+  static Future<String> getTtsEngine() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kTtsEngine) ?? 'xunfei';
+  }
+
+  static Future<void> setTtsEngine(String engine) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kTtsEngine, engine);
   }
 }
 
