@@ -184,55 +184,33 @@ class _AiChatTeacherAreaState extends State<AiChatTeacherArea> {
             Positioned.fill(
               child: Image.asset(widget.teacherAsset, fit: BoxFit.cover),
             ),
-          Positioned(
-            bottom: 10,
-            left: 0,
-            right: 0,
-            height: 38,
-            child: Center(
-              child: IgnorePointer(
-                ignoring: !showStatus,
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 160),
-                  opacity: showStatus ? 1 : 0,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.60),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      showStatus ? widget.statusText : '',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 
   Widget _buildVideo(VideoPlayerController controller) {
-    return Positioned.fill(
-      child: FittedBox(
-        fit: BoxFit.cover,
-        alignment: Alignment.center,
-        child: SizedBox(
-          width: controller.value.size.width,
-          height: controller.value.size.height,
-          child: VideoPlayer(controller),
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final videoHeight = constraints.maxHeight;
+        final videoWidth = controller.value.size.width * (videoHeight / controller.value.size.height);
+        
+        return Center(
+          child: SizedBox(
+            width: videoWidth,
+            height: videoHeight,
+            child: FittedBox(
+              fit: BoxFit.cover,
+              alignment: Alignment.center,
+              child: SizedBox(
+                width: controller.value.size.width,
+                height: controller.value.size.height,
+                child: VideoPlayer(controller),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

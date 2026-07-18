@@ -10,6 +10,7 @@ class AiChatRecordOverlay extends StatefulWidget {
   final bool isDisabled;
   final int recordSeconds;
   final double? amplitude;
+  final String statusText;
   final VoidCallback onRecordStart;
   final VoidCallback onRecordEnd;
 
@@ -19,6 +20,7 @@ class AiChatRecordOverlay extends StatefulWidget {
     required this.isDisabled,
     required this.recordSeconds,
     this.amplitude,
+    this.statusText = '',
     required this.onRecordStart,
     required this.onRecordEnd,
   });
@@ -160,7 +162,7 @@ class _AiChatRecordOverlayState extends State<AiChatRecordOverlay> {
               Positioned(
                 left: 0,
                 right: 0,
-                bottom: 190,
+                bottom: 140,
                 child: Center(
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -185,7 +187,7 @@ class _AiChatRecordOverlayState extends State<AiChatRecordOverlay> {
             Positioned(
               left: 0,
               right: 0,
-              bottom: 86,
+              bottom: 26,
               child: Center(
                 child: Listener(
                   onPointerDown: (_) {
@@ -213,87 +215,58 @@ class _AiChatRecordOverlayState extends State<AiChatRecordOverlay> {
                       widget.onRecordEnd();
                     },
                     child: AnimatedScale(
-                      scale: _isPressed ? 0.92 : 1.0,
+                      scale: _isPressed ? 0.95 : 1.0,
                       duration: const Duration(milliseconds: 100),
                       curve: Curves.easeOutCubic,
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 150),
-                        width: 84,
-                        height: 84,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
-                          color: widget.isDisabled
-                              ? const Color(0xFFCCCCCC)
-                              : (widget.isRecording
-                                    ? const Color(0xFFAA0000)
-                                    : red),
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: yellow,
+                            width: 2,
+                            style: BorderStyle.solid,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.16),
-                              blurRadius: _isPressed ? 12 : 22,
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: _isPressed ? 12 : 18,
                               offset: Offset(0, _isPressed ? 4 : 10),
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.mic_rounded,
-                          size: 44,
-                          color: Colors.white,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              widget.isRecording
+                                  ? Icons.radio_button_checked
+                                  : Icons.lightbulb_outline,
+                              size: 18,
+                              color: widget.isRecording
+                                  ? red
+                                  : const Color(0xFF3D2800),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              widget.statusText.isNotEmpty
+                                  ? widget.statusText
+                                  : (widget.isRecording ? '松开发送' : '长按说话~'),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF3D2800),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 26,
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(
-                      color: yellow,
-                      width: 2,
-                      style: BorderStyle.solid,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 18,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        widget.isRecording
-                            ? Icons.radio_button_checked
-                            : Icons.lightbulb_outline,
-                        size: 18,
-                        color: widget.isRecording
-                            ? red
-                            : const Color(0xFF3D2800),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        widget.isRecording ? '松开发送' : '长按说话~',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF3D2800),
-                        ),
-                      ),
-                    ],
                   ),
                 ),
               ),
