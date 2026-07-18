@@ -12,6 +12,7 @@ import 'package:tsty_app/pages/mine/parent_entry.dart';
 import 'package:tsty_app/pages/settings/index.dart';
 import 'package:tsty_app/pages/settings/privacy_settings.dart';
 import 'package:tsty_app/pages/settings/third_party_share.dart';
+import 'package:tsty_app/pages/splash_video.dart';
 import 'package:tsty_app/routes/app_navigator.dart';
 import 'package:tsty_app/routes/route_observer.dart';
 import 'package:tsty_app/style/app_theme.dart';
@@ -26,7 +27,7 @@ Widget myApp() {
 
   return MaterialApp(
     theme: appTheme.light(),
-    initialRoute: '/',
+    initialRoute: '/splash',
     routes: getRootRoutes(),
     navigatorKey: appNavigatorKey,
     navigatorObservers: [routeObserver],
@@ -35,6 +36,7 @@ Widget myApp() {
 
 Map<String, Widget Function(BuildContext)> getRootRoutes() {
   return {
+    "/splash": (context) => const SplashVideoPage(),
     "/": (context) => MainPage(), // 主页路由
     "/login": (context) => _wrapSafeArea(const LoginPage()),
     "/settings": (context) => _wrapSafeArea(const SettingsPage()),
