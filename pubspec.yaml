@@ -47,7 +47,9 @@ dependencies:
   volc_engine_rtc: ^3.58.5
   model_viewer_plus: ^1.7.2
   video_player: ^2.9.0
-  flutter_tts: ^4.2.5
+  edge_tts_dart:
+    git:
+      url: https://gitee.com/neoxiechina/edgetts-dart.git
 
 dev_dependencies:
   flutter_test:

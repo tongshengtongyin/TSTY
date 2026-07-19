@@ -1,38 +1,19 @@
 import 'dart:async';
+import 'dart:typed_data';
 
+import 'package:audioplayers/audioplayers.dart';
+import 'package:edge_tts_dart/edge_tts_dart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:tsty_app/utils/ToastUtils.dart';
 
 class FlutterTtsService {
-  FlutterTts? _flutterTts;
+  final AudioPlayer _player = AudioPlayer();
   bool _isInitialized = false;
-  Completer<void>? _speakCompleter;
+  Future<void>? _currentPlay;
 
   Future<void> _ensureInit() async {
-    if (_isInitialized && _flutterTts != null) return;
-
-    _flutterTts = FlutterTts();
-
-    await _flutterTts!.setLanguage('zh-CN');
-    await _flutterTts!.setSpeechRate(0.5);
-    await _flutterTts!.setVolume(1.0);
-    await _flutterTts!.setPitch(1.0);
-
-    _flutterTts!.setCompletionHandler(() {
-      _speakCompleter?.complete();
-      _speakCompleter = null;
-    });
-
-    _flutterTts!.setErrorHandler((msg) {
-      if (kDebugMode) {
-        debugPrint('FlutterTts error: $msg');
-      }
-      _speakCompleter?.completeError(Exception(msg));
-      _speakCompleter = null;
-    });
-
+    if (_isInitialized) return;
     _isInitialized = true;
   }
 
@@ -47,16 +28,56 @@ class FlutterTtsService {
     try {
       await _ensureInit();
 
-      await _flutterTts!.stop();
+      if (_currentPlay != null) {
+        try {
+          await _player.stop();
+        } catch (_) {}
+      }
 
-      _speakCompleter = Completer<void>();
-      await _flutterTts!.speak(trimmed);
+      final communicate = Communicate(
+        text: trimmed,
+        voice: 'zh-CN-XiaoxiaoNeural',
+        rate: '+0%',
+        volume: '+0%',
+        pitch: '+0Hz',
+      );
 
-      await _speakCompleter?.future;
-      onComplete?.call();
+      final audioChunks = <int>[];
+
+      _currentPlay = () async {
+        try {
+          await for (final chunk in communicate.stream()) {
+            if (chunk.type == 'audio' && chunk.audioData != null) {
+              audioChunks.addAll(chunk.audioData!);
+            }
+          }
+
+          if (audioChunks.isEmpty) {
+            if (context.mounted) {
+              ToastUtils.showToast(context, '语音合成失败：无音频数据');
+            }
+            onComplete?.call();
+            return;
+          }
+
+          final audioBytes = Uint8List.fromList(audioChunks);
+          await _player.play(BytesSource(audioBytes));
+          onComplete?.call();
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('Edge TTS play failed: $e');
+          }
+          if (context.mounted) {
+            ToastUtils.showToast(context, '语音合成失败');
+          }
+          onComplete?.call();
+        }
+      }();
+
+      await _currentPlay;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('FlutterTts speak failed: $e');
+        debugPrint('Edge TTS speak failed: $e');
       }
       if (context.mounted) {
         ToastUtils.showToast(context, '语音合成失败');
@@ -66,15 +87,17 @@ class FlutterTtsService {
   }
 
   Future<void> stop() async {
-    if (_flutterTts != null) {
-      await _flutterTts!.stop();
-    }
+    try {
+      await _player.stop();
+    } catch (_) {}
   }
 
   void dispose() {
-    _flutterTts?.stop();
-    _flutterTts = null;
+    try {
+      _player.stop();
+      _player.dispose();
+    } catch (_) {}
     _isInitialized = false;
-    _speakCompleter = null;
+    _currentPlay = null;
   }
 }
