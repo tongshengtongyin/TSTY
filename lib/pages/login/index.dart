@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tsty_app/api/auth.dart';
 import 'package:tsty_app/components/common/YiBaseBackground.dart';
 import 'package:tsty_app/components/common/select_character_dialog.dart';
@@ -134,143 +135,153 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final red = Theme.of(context).colorScheme.primary;
 
-    return Scaffold(
-      body: YiBaseBackground(
-        child: Stack(
-          children: [
-            const Positioned.fill(
-              child: YiStripeFrame(
-                inset: EdgeInsets.zero,
-                thickness: 10,
-                blockExtent: 10,
-                radius: 0,
-                opacity: 0.82,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Color(0xFFC00003),
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: Color(0xFFC00003),
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFC00003),
+        body: YiBaseBackground(
+          child: Stack(
+            children: [
+              const Positioned.fill(
+                child: YiStripeFrame(
+                  inset: EdgeInsets.zero,
+                  thickness: 10,
+                  blockExtent: 10,
+                  radius: 0,
+                  opacity: 0.82,
+                ),
               ),
-            ),
-            SafeArea(
-              child: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 22),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 520),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _TeacherHeader(red: red),
-                        const SizedBox(height: 18),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 32,
-                          ),
-                          margin: const EdgeInsets.symmetric(horizontal: 10),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.72),
-                            borderRadius: BorderRadius.circular(22),
-                            border: Border.all(
-                              color: red.withValues(alpha: 0.10),
-                              width: 1.2,
+              SafeArea(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 22),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 520),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _TeacherHeader(red: red),
+                          const SizedBox(height: 18),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 32,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.10),
-                                blurRadius: 20,
-                                offset: const Offset(0, 12),
+                            margin: const EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.72),
+                              borderRadius: BorderRadius.circular(22),
+                              border: Border.all(
+                                color: red.withValues(alpha: 0.10),
+                                width: 1.2,
                               ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const Text(
-                                '账号登录',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w900,
-                                  color: Color(0xFF3D2800),
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              LoginTextField(
-                                controller: _usernameController,
-                                placeholder: '请输入账号',
-                                icon: Icons.person_rounded,
-                                textInputAction: TextInputAction.next,
-                                onSubmitted: (_) {},
-                              ),
-                              const SizedBox(height: 24),
-                              LoginTextField(
-                                controller: _passwordController,
-                                placeholder: '请输入密码',
-                                icon: Icons.lock_rounded,
-                                obscureText: !_showPassword,
-                                textInputAction: TextInputAction.done,
-                                onSubmitted: (_) => _login(),
-                                suffix: IconButton(
-                                  onPressed: () {
-                                    setState(
-                                      () => _showPassword = !_showPassword,
-                                    );
-                                  },
-                                  icon: Icon(
-                                    _showPassword
-                                        ? Icons.visibility_off_rounded
-                                        : Icons.visibility_rounded,
-                                    color: const Color(0xFF666666),
-                                  ),
-                                ),
-                              ),
-                              if (_errorText != null) ...[
-                                const SizedBox(height: 10),
-                                Text(
-                                  _errorText!,
-                                  style: const TextStyle(
-                                    color: Color(0xFFBE0003),
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.10),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 12),
                                 ),
                               ],
-                              const SizedBox(height: 36),
-                              LoginPrimaryButton(
-                                text: '登录',
-                                loading: _loading,
-                                onPressed: _login,
-                              ),
-                              const SizedBox(height: 24),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    '不会登录？',
-                                    style: TextStyle(
-                                      color: Color(0xFF666666),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const Text(
+                                  '账号登录',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF3D2800),
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                                LoginTextField(
+                                  controller: _usernameController,
+                                  placeholder: '请输入账号',
+                                  icon: Icons.person_rounded,
+                                  textInputAction: TextInputAction.next,
+                                  onSubmitted: (_) {},
+                                ),
+                                const SizedBox(height: 24),
+                                LoginTextField(
+                                  controller: _passwordController,
+                                  placeholder: '请输入密码',
+                                  icon: Icons.lock_rounded,
+                                  obscureText: !_showPassword,
+                                  textInputAction: TextInputAction.done,
+                                  onSubmitted: (_) => _login(),
+                                  suffix: IconButton(
+                                    onPressed: () {
+                                      setState(
+                                        () => _showPassword = !_showPassword,
+                                      );
+                                    },
+                                    icon: Icon(
+                                      _showPassword
+                                          ? Icons.visibility_off_rounded
+                                          : Icons.visibility_rounded,
+                                      color: const Color(0xFF666666),
+                                    ),
+                                  ),
+                                ),
+                                if (_errorText != null) ...[
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    _errorText!,
+                                    style: const TextStyle(
+                                      color: Color(0xFFBE0003),
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
-                                  const SizedBox(width: 6),
-                                  GestureDetector(
-                                    onTap: _onHelpTap,
-                                    child: Text(
-                                      '让大人帮忙吧～',
+                                ],
+                                const SizedBox(height: 36),
+                                LoginPrimaryButton(
+                                  text: '登录',
+                                  loading: _loading,
+                                  onPressed: _login,
+                                ),
+                                const SizedBox(height: 24),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      '不会登录？',
                                       style: TextStyle(
-                                        color: red,
-                                        fontWeight: FontWeight.w900,
+                                        color: Color(0xFF666666),
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                    const SizedBox(width: 6),
+                                    GestureDetector(
+                                      onTap: _onHelpTap,
+                                      child: Text(
+                                        '让大人帮忙吧～',
+                                        style: TextStyle(
+                                          color: red,
+                                          fontWeight: FontWeight.w900,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 30),
-                      ],
+                          const SizedBox(height: 30),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

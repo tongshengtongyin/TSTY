@@ -135,7 +135,10 @@ class LearnHeader extends StatelessWidget {
           alignment: Alignment.center,
           //margin: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
             gradient: LinearGradient(
               colors: [
                 Theme.of(context).colorScheme.primary,
@@ -241,7 +244,10 @@ class LearnContentHeaderDelegate extends SliverPersistentHeaderDelegate {
           width: double.infinity,
           alignment: Alignment.topCenter,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
             gradient: LinearGradient(
               colors: [
                 Theme.of(context).colorScheme.primary,

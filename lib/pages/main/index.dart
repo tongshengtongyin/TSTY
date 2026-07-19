@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tsty_app/components/common/YiBaseBackground.dart';
 import 'package:tsty_app/components/main/bottomNavigationBarCustom.dart';
 import 'package:tsty_app/constants/tabList.dart';
@@ -37,22 +38,42 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Builder(
-      builder: (context) {
-        return Scaffold(
-          body: SafeArea(
-            child: YiBaseBackground(
-              child: IndexedStack(index: _currentIndex, children: pages),
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+    
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Color(0xFFC00003),
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: Color(0xFFC00003),
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+      child: Builder(
+        builder: (context) {
+          return Scaffold(
+            backgroundColor: const Color(0xFFfff5e6),
+            body: Column(
+              children: [
+                Container(
+                  height: statusBarHeight,
+                  color: const Color(0xFFC00003),
+                ),
+                Expanded(
+                  child: YiBaseBackground(
+                    child: IndexedStack(index: _currentIndex, children: pages),
+                  ),
+                ),
+              ],
             ),
-          ),
-          bottomNavigationBar: BottomNavigationBarCustom(
-            currentIndex: _currentIndex,
-            onTap: (index) => setState(() {
-              _currentIndex = index;
-            }),
-          ),
-        );
-      },
+            bottomNavigationBar: BottomNavigationBarCustom(
+              currentIndex: _currentIndex,
+              onTap: (index) => setState(() {
+                _currentIndex = index;
+              }),
+            ),
+          );
+        },
+      ),
     );
   }
 }
