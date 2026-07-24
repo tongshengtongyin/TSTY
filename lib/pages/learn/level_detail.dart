@@ -86,7 +86,9 @@ class _LevelDetailPageState extends State<LevelDetailPage>
   StreamSubscription<Duration>? _recordDurationSub;
 
   bool _recording = false;
-  String _recordStatus = '长按录音，学说 "b"';
+  String _recordStatus = '';
+  bool _isPlayingTts = false;
+  bool _isEvaluating = false;
 
   @override
   void initState() {
@@ -113,6 +115,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       onNavigateToNext: _navigateToNext,
     );
     _vm.setContent(widget.levelContent);
+    _recordStatus = '长按录音，学说 "${_vm.character}"';
 
     WidgetsBinding.instance.addObserver(this);
     ParentCenterPrefs.getControlSettings().then((s) {
@@ -177,6 +180,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.levelContent != widget.levelContent) {
       _vm.setContent(widget.levelContent);
+      _recordStatus = '长按录音，学说 "${_vm.character}"';
       _evaluationFlow = LevelEvaluationFlow(
         levelId: widget.levelId ?? '',
         unitId: widget.unitId ?? '',
@@ -192,6 +196,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
   }
 
   void _onEvaluationCompleted() {
+    _isEvaluating = false;
     setState(() {
       _recordStatus = '长按录音，学说 "${_vm.character}"';
     });
@@ -280,6 +285,8 @@ class _LevelDetailPageState extends State<LevelDetailPage>
   }
 
   void _playStandard() {
+    if (_isPlayingTts) return;
+    
     () async {
       final guard = await ParentalControlGuard.checkCanStartAction();
       if (!guard.allowed) {
@@ -305,7 +312,26 @@ class _LevelDetailPageState extends State<LevelDetailPage>
 
       // 2) 其它内容：播放学习内容本身
       if (!mounted) return;
-      await _ttsPlayer.speak(context: context, text: content.contentValue);
+      var text = content.contentValue;
+      final s = content.contentType.trim().toLowerCase();
+      final isHanziOrCiyu = s.contains('hanzi') ||
+          s.contains('ciyu') ||
+          s.contains('word') ||
+          content.contentType.contains('汉字') ||
+          content.contentType.contains('词语');
+      if (isHanziOrCiyu && !text.endsWith('。') && !text.endsWith('！') && !text.endsWith('？')) {
+        text = '$text。';
+      }
+      
+      if (mounted) {
+        setState(() => _isPlayingTts = true);
+      }
+      
+      await _ttsPlayer.speak(context: context, text: text);
+      
+      if (mounted) {
+        setState(() => _isPlayingTts = false);
+      }
     }();
   }
 
@@ -331,6 +357,15 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       }
 
       if (!mounted) return;
+
+      final tipText = [
+        if (exampleWord.isNotEmpty) exampleWord,
+        if (exampleSentence.isNotEmpty) exampleSentence,
+      ].join('。');
+
+      if (tipText.isNotEmpty) {
+        _ttsPlayer.speak(context: context, text: tipText);
+      }
 
       await showModalBottomSheet<void>(
         context: context,
@@ -407,7 +442,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
   }
 
   void _startRecording() {
-    if (_recording) return;
+    if (_recording || _isEvaluating) return;
     () async {
       final guard = await ParentalControlGuard.checkCanStartAction();
       if (!guard.allowed) {
@@ -460,6 +495,14 @@ class _LevelDetailPageState extends State<LevelDetailPage>
 
   Future<void> _stopRecording() async {
     if (!_recording) return;
+    if (_isEvaluating) return;
+
+    _isEvaluating = true;
+    
+    setState(() {
+      _recording = false;
+      _recordStatus = '录音结束，正在测评...';
+    });
 
     _recordDurationSub?.cancel();
     _recordDurationSub = null;
@@ -469,22 +512,18 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       recordResult = await _recorder.stop();
     } catch (_) {
       if (!mounted) return;
+      _isEvaluating = false;
       setState(() {
-        _recording = false;
         _recordStatus = '长按录音，学说 "${_vm.character}"';
       });
       ToastUtils.showToast(context, '录音结束失败');
       return;
     }
 
-    setState(() {
-      _recording = false;
-      _recordStatus = '录音结束，正在测评...';
-    });
-
     if (recordResult == null || _vm.content == null) {
       await Future<void>.delayed(const Duration(milliseconds: 800));
       if (!mounted) return;
+      _isEvaluating = false;
       setState(() {
         _recordStatus = '长按录音，学说 "${_vm.character}"';
       });
@@ -495,6 +534,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       if (!mounted) return;
       ToastUtils.showToast(context, 'Web 暂不支持语音测评');
       if (!mounted) return;
+      _isEvaluating = false;
       setState(() {
         _recordStatus = '长按录音，学说 "${_vm.character}"';
       });
@@ -506,7 +546,11 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       context: context,
       recordResult: recordResult,
     );
-    _onEvaluationCompleted();
+    
+    if (mounted) {
+      _isEvaluating = false;
+      setState(() {});
+    }
   }
 
   @override
@@ -554,6 +598,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
                               hintImageAsset: _vm.hintImage,
                               hintLabel: _vm.hintLabel,
                               exampleText: _vm.exampleText,
+                              isPlayingTts: _isPlayingTts,
                               onPlayStandard: _playStandard,
                               onPlayTip: _playTip,
                             ),
@@ -561,6 +606,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
                             LevelDetailEvaluateCard(
                               recording: _recording,
                               statusText: _recordStatus,
+                              isEvaluating: _isEvaluating,
                               onLongPressStart: _startRecording,
                               onLongPressEnd: _stopRecording,
                             ),

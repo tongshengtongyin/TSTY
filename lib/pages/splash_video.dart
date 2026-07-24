@@ -20,21 +20,23 @@ class _SplashVideoPageState extends State<SplashVideoPage> {
   }
 
   Future<void> _initVideo() async {
-    final controller = VideoPlayerController.asset('lib/assets/video/start.mp4');
+    final controller = VideoPlayerController.asset(
+      'lib/assets/video/start.mp4',
+    );
     _controller = controller;
 
     try {
       await controller.initialize();
       if (!mounted) return;
-      
+
       setState(() {});
-      
+
       controller.setLooping(false);
       controller.play();
-      
+
       controller.addListener(() {
         if (_hasNavigated) return;
-        
+
         if (controller.value.position >= controller.value.duration) {
           _navigateToMain();
         }
@@ -48,7 +50,7 @@ class _SplashVideoPageState extends State<SplashVideoPage> {
   void _navigateToMain() {
     if (_hasNavigated || !mounted) return;
     _hasNavigated = true;
-    
+
     Navigator.of(context).pushReplacementNamed('/');
   }
 
@@ -62,7 +64,7 @@ class _SplashVideoPageState extends State<SplashVideoPage> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -97,13 +99,13 @@ class _SplashVideoPageState extends State<SplashVideoPage> {
               child: GestureDetector(
                 onTap: _navigateToMain,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.transparent,
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2,
-                    ),
+                    border: Border.all(color: Colors.white, width: 2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(

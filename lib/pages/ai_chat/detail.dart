@@ -558,13 +558,15 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
                     onExit: _confirmExitAndClose,
                   ),
                   const ParentalControlSoftBanner(),
-                   AiChatTeacherArea(
-                     teacherAsset: _teacherAsset,
-                     waitingVideoAsset: _teacherWaitingVideo,
-                     answeringVideoAsset: _teacherAnsweringVideo,
-                     statusText: _statusText,
-                     isSpeaking: _teacherState == 'speaking' || _teacherState == 'thinking',
-                   ),
+                  AiChatTeacherArea(
+                    teacherAsset: _teacherAsset,
+                    waitingVideoAsset: _teacherWaitingVideo,
+                    answeringVideoAsset: _teacherAnsweringVideo,
+                    statusText: _statusText,
+                    isSpeaking:
+                        _teacherState == 'speaking' ||
+                        _teacherState == 'thinking',
+                  ),
                 ],
               ),
             ),

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:edge_tts_dart/edge_tts_dart.dart';
@@ -34,47 +33,64 @@ class FlutterTtsService {
         } catch (_) {}
       }
 
-      final communicate = Communicate(
-        text: trimmed,
-        voice: 'zh-CN-XiaoxiaoNeural',
-        rate: '+0%',
-        volume: '+0%',
-        pitch: '+0Hz',
-      );
-
       final audioChunks = <int>[];
+      bool success = false;
 
-      _currentPlay = () async {
+      final voices = [
+        'zh-CN-YunxiaNeural',
+        'zh-CN-XiaoxiaoNeural',
+      ];
+
+      for (final voice in voices) {
+        audioChunks.clear();
         try {
-          await for (final chunk in communicate.stream()) {
-            if (chunk.type == 'audio' && chunk.audioData != null) {
-              audioChunks.addAll(chunk.audioData!);
-            }
-          }
+          final communicate = Communicate(
+            text: trimmed,
+            voice: voice,
+            rate: '-15%',
+            volume: '+10%',
+            pitch: '+5Hz',
+          );
 
-          if (audioChunks.isEmpty) {
-            if (context.mounted) {
-              ToastUtils.showToast(context, '语音合成失败：无音频数据');
+          _currentPlay = () async {
+            try {
+              await for (final chunk in communicate.stream()) {
+                if (chunk.type == 'audio' && chunk.audioData != null) {
+                  audioChunks.addAll(chunk.audioData!);
+                }
+              }
+            } catch (e) {
+              if (kDebugMode) {
+                debugPrint('Edge TTS stream failed for $voice: $e');
+              }
             }
-            onComplete?.call();
-            return;
-          }
+          }();
 
-          final audioBytes = Uint8List.fromList(audioChunks);
-          await _player.play(BytesSource(audioBytes));
-          onComplete?.call();
+          await _currentPlay;
+
+          if (audioChunks.isNotEmpty) {
+            success = true;
+            break;
+          }
         } catch (e) {
           if (kDebugMode) {
-            debugPrint('Edge TTS play failed: $e');
+            debugPrint('Edge TTS failed for $voice: $e');
           }
-          if (context.mounted) {
-            ToastUtils.showToast(context, '语音合成失败');
-          }
-          onComplete?.call();
+          continue;
         }
-      }();
+      }
 
-      await _currentPlay;
+      if (!success || audioChunks.isEmpty) {
+        if (context.mounted) {
+          ToastUtils.showToast(context, '语音合成失败：无音频数据');
+        }
+        onComplete?.call();
+        return;
+      }
+
+      final audioBytes = Uint8List.fromList(audioChunks);
+      await _player.play(BytesSource(audioBytes));
+      onComplete?.call();
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Edge TTS speak failed: $e');

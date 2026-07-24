@@ -169,7 +169,6 @@ class _AiChatTeacherAreaState extends State<AiChatTeacherArea> {
 
   @override
   Widget build(BuildContext context) {
-    final showStatus = widget.statusText.trim().isNotEmpty;
     final showVideo = _waitingInitialized || _answeringInitialized;
     final showAnswering = widget.isSpeaking && _answeringInitialized;
 
@@ -193,8 +192,10 @@ class _AiChatTeacherAreaState extends State<AiChatTeacherArea> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final videoHeight = constraints.maxHeight;
-        final videoWidth = controller.value.size.width * (videoHeight / controller.value.size.height);
-        
+        final videoWidth =
+            controller.value.size.width *
+            (videoHeight / controller.value.size.height);
+
         return Center(
           child: SizedBox(
             width: videoWidth,

@@ -169,10 +169,7 @@ class YiTtsSynthesizer {
     final textBase64 = base64Encode(textBytes);
 
     return <String, dynamic>{
-      'header': {
-        'app_id': config.appId,
-        'status': 2,
-      },
+      'header': {'app_id': config.appId, 'status': 2},
       'parameter': {
         'tts': {
           'vcn': config.vcn,
