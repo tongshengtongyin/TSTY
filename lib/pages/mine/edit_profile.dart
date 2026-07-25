@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:tsty_app/api/child.dart';
-import 'package:tsty_app/components/common/YiBaseBackground.dart';
-import 'package:tsty_app/components/common/YiSideStripe.dart';
-import 'package:tsty_app/components/common/YiTopBar.dart';
+import 'package:tsty_app/components/common/yi_base_background.dart';
+import 'package:tsty_app/components/common/yi_side_stripe.dart';
+import 'package:tsty_app/components/common/yi_top_bar.dart';
 import 'package:tsty_app/components/profile/edit_profile/edit_profile_avatar_selector.dart';
 import 'package:tsty_app/components/profile/edit_profile/edit_profile_form_group.dart';
 import 'package:tsty_app/components/profile/edit_profile/edit_profile_submit_button.dart';
 import 'package:tsty_app/components/profile/edit_profile/edit_profile_text_field.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/toast_utils.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 
 class EditProfilePage extends StatefulWidget {

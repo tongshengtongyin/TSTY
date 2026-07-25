@@ -66,7 +66,7 @@ class _LevelDetailRecordSectionState extends State<LevelDetailRecordSection>
     final ringSize = baseSize + 54.0;
 
     final isDisabled = widget.isEvaluating;
-    
+
     final buttonGradient = isDisabled
         ? const LinearGradient(
             begin: Alignment.topLeft,
@@ -74,22 +74,22 @@ class _LevelDetailRecordSectionState extends State<LevelDetailRecordSection>
             colors: [Color(0xFFBDBDBD), Color(0xFF9E9E9E)],
           )
         : widget.recording
-            ? const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF6AD192), Color(0xFF82E0AA)],
-              )
-            : const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFFCC0000), Color(0xFFFF6666)],
-              );
+        ? const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF6AD192), Color(0xFF82E0AA)],
+          )
+        : const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFFCC0000), Color(0xFFFF6666)],
+          );
 
     final shadowColor = isDisabled
         ? const Color(0xFF9E9E9E)
         : widget.recording
-            ? const Color(0xFF6AD192)
-            : const Color(0xFFCC0000);
+        ? const Color(0xFF6AD192)
+        : const Color(0xFFCC0000);
 
     return Column(
       children: [
@@ -163,7 +163,9 @@ class _LevelDetailRecordSectionState extends State<LevelDetailRecordSection>
                           boxShadow: [
                             BoxShadow(
                               color: shadowColor.withValues(
-                                alpha: widget.recording && !isDisabled ? 0.75 : 0.4,
+                                alpha: widget.recording && !isDisabled
+                                    ? 0.75
+                                    : 0.4,
                               ),
                               blurRadius: _isPressed
                                   ? 10

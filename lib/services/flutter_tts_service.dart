@@ -4,7 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:edge_tts_dart/edge_tts_dart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/toast_utils.dart';
 
 class FlutterTtsService {
   final AudioPlayer _player = AudioPlayer();
@@ -36,10 +36,7 @@ class FlutterTtsService {
       final audioChunks = <int>[];
       bool success = false;
 
-      final voices = [
-        'zh-CN-YunxiaNeural',
-        'zh-CN-XiaoxiaoNeural',
-      ];
+      final voices = ['zh-CN-YunxiaNeural', 'zh-CN-XiaoxiaoNeural'];
 
       for (final voice in voices) {
         audioChunks.clear();

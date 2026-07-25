@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tsty_app/api/learn.dart';
-import 'package:tsty_app/components/common/YiSun.dart';
+import 'package:tsty_app/components/common/yi_sun.dart';
 import 'package:tsty_app/components/learn/level_detail/level_detail_card.dart';
 import 'package:tsty_app/components/learn/level_detail/level_detail_evaluate_card.dart';
 import 'package:tsty_app/components/learn/level_detail/level_detail_header.dart';
@@ -14,7 +14,7 @@ import 'package:tsty_app/services/level_audio_player.dart';
 import 'package:tsty_app/services/level_evaluation_flow.dart';
 import 'package:tsty_app/services/parental_control.dart';
 import 'package:tsty_app/style/app_theme.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/toast_utils.dart';
 import 'package:tsty_app/utils/parent_center_prefs.dart';
 import 'package:tsty_app/utils/yi_recorder.dart';
 import 'package:tsty_app/viewmodels/learn.dart';
@@ -291,7 +291,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
 
   void _playStandard() {
     if (_isPlayingTts) return;
-    
+
     () async {
       final guard = await ParentalControlGuard.checkCanStartAction();
       if (!guard.allowed) {
@@ -319,21 +319,25 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       if (!mounted) return;
       var text = content.contentValue;
       final s = content.contentType.trim().toLowerCase();
-      final isHanziOrCiyu = s.contains('hanzi') ||
+      final isHanziOrCiyu =
+          s.contains('hanzi') ||
           s.contains('ciyu') ||
           s.contains('word') ||
           content.contentType.contains('汉字') ||
           content.contentType.contains('词语');
-      if (isHanziOrCiyu && !text.endsWith('。') && !text.endsWith('！') && !text.endsWith('？')) {
+      if (isHanziOrCiyu &&
+          !text.endsWith('。') &&
+          !text.endsWith('！') &&
+          !text.endsWith('？')) {
         text = '$text。';
       }
-      
+
       if (mounted) {
         setState(() => _isPlayingTts = true);
       }
-      
+
       await _ttsPlayer.speak(context: context, text: text);
-      
+
       if (mounted) {
         setState(() => _isPlayingTts = false);
       }
@@ -503,7 +507,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
     if (_isEvaluating) return;
 
     _isEvaluating = true;
-    
+
     setState(() {
       _recording = false;
       _recordStatus = '录音结束，正在测评...';
@@ -551,7 +555,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       context: context,
       recordResult: recordResult,
     );
-    
+
     if (mounted) {
       _isEvaluating = false;
       setState(() {});

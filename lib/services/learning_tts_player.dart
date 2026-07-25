@@ -59,6 +59,7 @@ class LearningTtsPlayer {
 
     final engine = await UserPrefs.getTtsEngine();
     if (engine == 'flutter_tts') {
+      if (!context.mounted) return;
       await _flutterTts.speak(
         context: context,
         text: trimmed,
@@ -86,6 +87,7 @@ class LearningTtsPlayer {
         if (kDebugMode) {
           debugPrint('TTS auth failed, fallback to flutter_tts');
         }
+        if (!context.mounted) return;
         await _flutterTts.speak(
           context: context,
           text: trimmed,
@@ -120,6 +122,7 @@ class LearningTtsPlayer {
         if (kDebugMode) {
           debugPrint('TTS synthesize failed, fallback to flutter_tts: $e');
         }
+        if (!context.mounted) return;
         await _flutterTts.speak(
           context: context,
           text: trimmed,

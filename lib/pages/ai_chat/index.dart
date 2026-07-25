@@ -7,7 +7,7 @@ import 'package:tsty_app/components/ai_chat/ai_chat_section_header_sliver.dart';
 import 'package:tsty_app/components/ai_chat/ai_chat_teacher_intro_sliver.dart';
 import 'package:tsty_app/components/common/select_character_dialog.dart';
 import 'package:tsty_app/services/parental_control.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/toast_utils.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 
 class AiChatPage extends StatefulWidget {

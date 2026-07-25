@@ -12,7 +12,7 @@ import 'package:tsty_app/services/learning_duration_tracker.dart';
 import 'package:tsty_app/services/parental_control.dart';
 import 'package:tsty_app/services/realtime_ai_voice_chat_session.dart';
 import 'package:tsty_app/services/rtc_audio_call_service.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/toast_utils.dart';
 import 'package:tsty_app/utils/parent_center_prefs.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 import 'package:tsty_app/utils/yi_recorder.dart';

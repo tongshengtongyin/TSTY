@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tsty_app/components/common/YiBaseBackground.dart';
-import 'package:tsty_app/components/main/bottomNavigationBarCustom.dart';
-import 'package:tsty_app/constants/tabList.dart';
+import 'package:tsty_app/components/common/yi_base_background.dart';
+import 'package:tsty_app/components/main/bottom_navigation_bar_custom.dart';
+import 'package:tsty_app/constants/tab_list.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 
 class MainPage extends StatefulWidget {

@@ -1,7 +1,6 @@
 // 路由管理
 import 'package:flutter/material.dart';
 import 'package:tsty_app/pages/ai_chat/detail.dart';
-import 'package:tsty_app/pages/ai_chat/video_test.dart';
 import 'package:tsty_app/pages/learn/level_detail.dart';
 import 'package:tsty_app/pages/login/index.dart';
 import 'package:tsty_app/pages/main/index.dart';
@@ -55,6 +54,5 @@ Map<String, Widget Function(BuildContext)> getRootRoutes() {
     "/ai-chat/detail": (context) => _wrapSafeArea(
       AiChatDetailPage.fromArgs(ModalRoute.of(context)?.settings.arguments),
     ),
-    "/video-test": (context) => _wrapSafeArea(const VideoTestPage()),
   };
 }

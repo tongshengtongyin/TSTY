@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tsty_app/components/common/YiRadialBubble.dart';
+import 'package:tsty_app/components/common/yi_radial_bubble.dart';
 import 'package:tsty_app/components/learn/level_detail/level_detail_record_section.dart';
 import 'package:tsty_app/style/app_theme.dart';
 

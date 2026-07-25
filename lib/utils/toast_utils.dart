@@ -1,5 +1,4 @@
-import 'dart:ui' as ui;
-
+import 'dart:ui' as ui show TextDirection;
 import 'package:flutter/material.dart';
 
 class ToastUtils {

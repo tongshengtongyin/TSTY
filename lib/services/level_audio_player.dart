@@ -22,7 +22,9 @@ class LevelAudioPlayer {
 
   bool _isCiyuContent(LevelContent content) {
     final s = content.contentType.trim().toLowerCase();
-    return s.contains('ciyu') || s.contains('word') || content.contentType.contains('词语');
+    return s.contains('ciyu') ||
+        s.contains('word') ||
+        content.contentType.contains('词语');
   }
 
   String _assetKey(String raw) {

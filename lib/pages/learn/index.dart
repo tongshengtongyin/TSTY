@@ -5,7 +5,7 @@ import 'package:tsty_app/components/learn/learn_header.dart';
 import 'package:tsty_app/components/learn/learn_level_map.dart';
 import 'package:tsty_app/constants/index.dart';
 import 'package:tsty_app/services/parental_control.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/toast_utils.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 import 'package:tsty_app/viewmodels/learn.dart';
 

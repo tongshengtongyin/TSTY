@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tsty_app/api/child.dart';
-import 'package:tsty_app/components/common/YiSideStripe.dart';
+import 'package:tsty_app/components/common/yi_side_stripe.dart';
 import 'package:tsty_app/components/mine/mine_class_stars_card.dart';
 import 'package:tsty_app/components/mine/mine_menu_section.dart';
 import 'package:tsty_app/components/mine/mine_profile_header.dart';

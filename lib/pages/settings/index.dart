@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tsty_app/api/auth.dart';
-import 'package:tsty_app/components/common/YiBaseBackground.dart';
-import 'package:tsty_app/components/common/YiSideStripe.dart';
-import 'package:tsty_app/components/common/YiTopBar.dart';
+import 'package:tsty_app/components/common/yi_base_background.dart';
 import 'package:tsty_app/components/common/yi_dialog.dart';
+import 'package:tsty_app/components/common/yi_side_stripe.dart';
+import 'package:tsty_app/components/common/yi_top_bar.dart';
 import 'package:tsty_app/components/settings/settings_item.dart';
 import 'package:tsty_app/components/settings/settings_logout_button.dart';
 import 'package:tsty_app/components/settings/settings_section.dart';

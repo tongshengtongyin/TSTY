@@ -4,7 +4,7 @@ import 'package:tsty_app/api/ise.dart';
 import 'package:tsty_app/api/learn.dart';
 import 'package:tsty_app/components/learn/level_detail/level_detail_eval_dialog.dart';
 import 'package:tsty_app/constants/index.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/toast_utils.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 import 'package:tsty_app/utils/yi_recorder.dart';
 import 'package:tsty_app/utils/yi_speech_evaluator.dart';
@@ -264,11 +264,11 @@ class LevelEvaluationFlow {
       'score': score,
       'duration': durationSec,
       'deviceId': deviceId,
-      if (fluency != null) 'fluencyScore': fluency,
-      if (tone != null) 'toneScore': tone,
-      if (phone != null) 'phoneScore': phone,
-      if (integrity != null) 'integrityScore': integrity,
-      if (exceptInfo != null) 'exceptInfo': exceptInfo,
+      'fluencyScore': ?fluency,
+      'toneScore': ?tone,
+      'phoneScore': ?phone,
+      'integrityScore': ?integrity,
+      'exceptInfo': ?exceptInfo,
     };
 
     final token = await UserPrefs.getAccessToken();
@@ -290,6 +290,7 @@ class LevelEvaluationFlow {
     final endpoint = Uri.parse(GlobalConstants.xfyunIseEndpoint);
     final authCache = await _ensureIseAuth();
     if (authCache == null) {
+      if (!context.mounted) return;
       ToastUtils.showToast(context, '获取语音测评鉴权失败');
       return;
     }
@@ -410,6 +411,7 @@ class LevelEvaluationFlow {
         },
       );
     } catch (_) {
+      if (!context.mounted) return;
       ToastUtils.showToast(context, '测评失败');
     }
   }

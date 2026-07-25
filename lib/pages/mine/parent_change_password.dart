@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tsty_app/api/auth.dart';
-import 'package:tsty_app/components/common/YiBaseBackground.dart';
-import 'package:tsty_app/components/common/YiTopBar.dart';
+import 'package:tsty_app/components/common/yi_base_background.dart';
+import 'package:tsty_app/components/common/yi_top_bar.dart';
 import 'package:tsty_app/style/app_theme.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/toast_utils.dart';
 
 class ParentChangePasswordPage extends StatefulWidget {
   const ParentChangePasswordPage({super.key});

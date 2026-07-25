@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:tsty_app/api/auth.dart';
-import 'package:tsty_app/components/common/YiBaseBackground.dart';
-import 'package:tsty_app/components/common/YiTopBar.dart';
+import 'package:tsty_app/components/common/yi_base_background.dart';
+import 'package:tsty_app/components/common/yi_top_bar.dart';
 import 'package:tsty_app/components/mine/parent_entry/parent_entry_feature_list.dart';
 import 'package:tsty_app/components/mine/parent_entry/parent_entry_password_card.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/toast_utils.dart';
 import 'package:tsty_app/utils/parent_center_prefs.dart';
 
 class ParentEntryPage extends StatefulWidget {

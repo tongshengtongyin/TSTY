@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tsty_app/components/common/YiTopBar.dart';
+import 'package:tsty_app/components/common/yi_top_bar.dart';
 import 'package:tsty_app/style/app_theme.dart';
 
 class ThirdPartySharePage extends StatelessWidget {
