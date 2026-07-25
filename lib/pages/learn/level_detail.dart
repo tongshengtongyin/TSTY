@@ -276,12 +276,17 @@ class _LevelDetailPageState extends State<LevelDetailPage>
     ToastUtils.showToast(context, msg);
   }
 
-  bool _isShengmuOrYunmu(LevelContent content) {
+  bool _hasLocalAudio(LevelContent content) {
     final s = content.contentType.trim().toLowerCase();
     return s.contains('shengmu') ||
         s.contains('yunmu') ||
+        s.contains('hanzi') ||
+        s.contains('ciyu') ||
+        s.contains('word') ||
         content.contentType.contains('声母') ||
-        content.contentType.contains('韵母');
+        content.contentType.contains('韵母') ||
+        content.contentType.contains('汉字') ||
+        content.contentType.contains('词语');
   }
 
   void _playStandard() {
@@ -299,8 +304,8 @@ class _LevelDetailPageState extends State<LevelDetailPage>
 
       final content = _vm.content ?? LevelContent.empty;
 
-      // 1) 声母：优先本地标准音（声母已有mp3）
-      if (_isShengmuOrYunmu(content)) {
+      // 1) 优先本地标准音（声母、韵母、汉字、词语）
+      if (_hasLocalAudio(content)) {
         var fallbackToTts = false;
         await _audioPlayer.playStandard(
           content: content,
@@ -310,7 +315,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
         if (!fallbackToTts) return;
       }
 
-      // 2) 其它内容：播放学习内容本身
+      // 2) 回退到云端TTS
       if (!mounted) return;
       var text = content.contentValue;
       final s = content.contentType.trim().toLowerCase();
