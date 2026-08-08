@@ -29,10 +29,26 @@ class AiChatSceneCard extends StatelessWidget {
           child: ColorFiltered(
             colorFilter: shouldGrey
                 ? const ColorFilter.matrix(<double>[
-                    0.2126, 0.7152, 0.0722, 0, 0,
-                    0.2126, 0.7152, 0.0722, 0, 0,
-                    0.2126, 0.7152, 0.0722, 0, 0,
-                    0, 0, 0, 1, 0,
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
                   ])
                 : const ColorFilter.mode(Colors.transparent, BlendMode.dst),
             child: Container(
@@ -79,8 +95,10 @@ class AiChatSceneCard extends StatelessWidget {
                   Text(
                     scene.desc,
                     textAlign: TextAlign.center,
-                    style:
-                        const TextStyle(fontSize: 13, color: Color(0xFF666666)),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF666666),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(

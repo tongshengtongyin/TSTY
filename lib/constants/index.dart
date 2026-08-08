@@ -2,7 +2,7 @@
 class GlobalConstants {
   static const String appName = "TSTY App";
 
-  static const String apiBaseUrl = "http://47.120.41.128:8080";
+  static const String apiBaseUrl = "http://123.207.116.44:8081";
   static const Duration timeoutDuration = Duration(seconds: 30);
   static const int successState = 0;
 
@@ -24,6 +24,7 @@ class HttpConstants {
 
   // 获取单元进度接口
   static const String unitProgress = "/api/v1/learning/units/{unitId}/progress";
+
   // 获取关卡详情接口
   static const String levelDetails =
       "/api/v1/learning/levels/{levelId}/content";

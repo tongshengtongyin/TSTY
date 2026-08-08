@@ -47,10 +47,14 @@ class LearnLevelMap extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bottomPadding = bottomPaddingBase + MediaQuery.of(context).padding.bottom;
+        final bottomPadding =
+            bottomPaddingBase + MediaQuery.of(context).padding.bottom;
 
         final contentHeight =
-            topPadding + bottomPadding + (levels.length - 1) * spacingY + nodeSize;
+            topPadding +
+            bottomPadding +
+            (levels.length - 1) * spacingY +
+            nodeSize;
         final canvasHeight = math.max(constraints.maxHeight, contentHeight);
 
         final width = constraints.maxWidth;
@@ -65,7 +69,8 @@ class LearnLevelMap extends StatelessWidget {
         }
 
         final finalStrokeColor =
-            strokeColor ?? Theme.of(context).colorScheme.primary.withValues(alpha: 0.9);
+            strokeColor ??
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.9);
 
         return SingleChildScrollView(
           reverse: true,
@@ -87,7 +92,11 @@ class LearnLevelMap extends StatelessWidget {
                 for (var i = 0; i < levels.length; i++)
                   _LearnLevelNodePositioned(
                     level: levels[i],
-                    top: canvasHeight - bottomPadding - nodeSize - (i * spacingY),
+                    top:
+                        canvasHeight -
+                        bottomPadding -
+                        nodeSize -
+                        (i * spacingY),
                     left: (i % 2 == 0) ? leftX : rightX,
                     size: nodeSize,
                     blocked: blocked,
@@ -155,10 +164,26 @@ class _LearnLevelNodePositioned extends StatelessWidget {
               child: ColorFiltered(
                 colorFilter: shouldGrey
                     ? const ColorFilter.matrix(<double>[
-                        0.2126, 0.7152, 0.0722, 0, 0,
-                        0.2126, 0.7152, 0.0722, 0, 0,
-                        0.2126, 0.7152, 0.0722, 0, 0,
-                        0, 0, 0, 1, 0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
                       ])
                     : const ColorFilter.mode(Colors.transparent, BlendMode.dst),
                 child: SizedBox(
@@ -318,7 +343,11 @@ class _LearnLevelPathPainter extends CustomPainter {
       ..strokeJoin = StrokeJoin.round;
 
     final highlightPaint = Paint()
-      ..color = _lerpColor(strokeColor, const Color(0xFFFFFFFF), 0.35).withValues(alpha: 0.75)
+      ..color = _lerpColor(
+        strokeColor,
+        const Color(0xFFFFFFFF),
+        0.35,
+      ).withValues(alpha: 0.75)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth * 0.42
       ..strokeCap = StrokeCap.round

@@ -121,7 +121,8 @@ class LevelContent {
       contentValue: json["contentValue"] ?? "",
       pinyinText: json["pinyinText"] ?? "",
       exampleWord: json["exampleWord"] ?? "",
-      exampleSentence: json["exampleSentence"] ?? json["example_sentence"] ?? "",
+      exampleSentence:
+          json["exampleSentence"] ?? json["example_sentence"] ?? "",
       tips: _parseTips(json["tips"]),
     );
   }

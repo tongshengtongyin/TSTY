@@ -19,9 +19,7 @@ class ParentEntryTopBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: yellow, width: 3),
-        ),
+        border: Border(bottom: BorderSide(color: yellow, width: 3)),
       ),
       child: Row(
         children: [
@@ -55,10 +53,7 @@ class ParentEntryTopBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(
-            width: 42,
-            height: 42,
-          ),
+          const SizedBox(width: 42, height: 42),
         ],
       ),
     );

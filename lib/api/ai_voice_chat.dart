@@ -18,9 +18,7 @@ Future<Map<String, dynamic>> getAiRtcTokenAPI({
           'Authorization': 'Bearer $token',
         };
 
-  final body = <String, dynamic>{
-    'roomId': roomId,
-  };
+  final body = <String, dynamic>{'roomId': roomId};
 
   if (kDebugMode) {
     debugPrint('AI rtc-token request: roomId=$roomId');
@@ -111,10 +109,7 @@ Future<void> stopAiVoiceChatAPI({
           'Authorization': 'Bearer $token',
         };
 
-  final body = <String, dynamic>{
-    'roomId': roomId,
-    'taskId': taskId,
-  };
+  final body = <String, dynamic>{'roomId': roomId, 'taskId': taskId};
 
   if (kDebugMode) {
     debugPrint('AI voicechat stop request: roomId=$roomId taskId=$taskId');

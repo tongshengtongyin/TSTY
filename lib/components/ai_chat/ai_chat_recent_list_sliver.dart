@@ -5,10 +5,7 @@ import 'package:tsty_app/components/ai_chat/ai_chat_recent_chat_tile.dart';
 class AiChatRecentListSliver extends StatelessWidget {
   final List<AiChatRecentChat> chats;
 
-  const AiChatRecentListSliver({
-    super.key,
-    required this.chats,
-  });
+  const AiChatRecentListSliver({super.key, required this.chats});
 
   @override
   Widget build(BuildContext context) {

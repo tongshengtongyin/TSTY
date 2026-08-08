@@ -15,12 +15,8 @@ class SettingsLogoutButton extends StatelessWidget {
     return FilledButton(
       style: FilledButton.styleFrom(
         backgroundColor: const Color(0xFFCC0000),
-        padding: const EdgeInsets.symmetric(
-          vertical: 14,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       onPressed: loading ? null : onPressed,
       child: SizedBox(
@@ -29,11 +25,7 @@ class SettingsLogoutButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (!loading)
-              const Icon(
-                Icons.logout,
-                size: 30,
-                color: Colors.white,
-              ),
+              const Icon(Icons.logout, size: 30, color: Colors.white),
             const SizedBox(width: 8),
             Text(
               loading ? '退出中...' : '退出登录',

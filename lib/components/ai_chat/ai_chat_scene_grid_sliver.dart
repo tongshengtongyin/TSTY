@@ -19,17 +19,14 @@ class AiChatSceneGridSliver extends StatelessWidget {
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
       sliver: SliverGrid(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final s = scenes[index];
-            return AiChatSceneCard(
-              scene: s,
-              blocked: blocked,
-              onTap: () => onSceneTap(s),
-            );
-          },
-          childCount: scenes.length,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final s = scenes[index];
+          return AiChatSceneCard(
+            scene: s,
+            blocked: blocked,
+            onTap: () => onSceneTap(s),
+          );
+        }, childCount: scenes.length),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 10,

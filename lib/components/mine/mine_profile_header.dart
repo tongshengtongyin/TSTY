@@ -97,10 +97,7 @@ class MineProfileHeader extends StatelessWidget {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(100),
-                          child: Image.asset(
-                            avatarAsset,
-                            fit: BoxFit.cover,
-                          ),
+                          child: Image.asset(avatarAsset, fit: BoxFit.cover),
                         ),
                       ),
                       const SizedBox(width: 16),

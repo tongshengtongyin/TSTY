@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:tsty_app/components/common/YiRadialBubble.dart';
+import 'package:tsty_app/components/common/yi_radial_bubble.dart';
 import 'package:tsty_app/components/learn/level_detail/level_detail_record_section.dart';
 import 'package:tsty_app/style/app_theme.dart';
 
 class LevelDetailEvaluateCard extends StatelessWidget {
   final bool recording;
   final String statusText;
+  final bool isEvaluating;
   final VoidCallback onLongPressStart;
   final VoidCallback onLongPressEnd;
 
@@ -13,6 +14,7 @@ class LevelDetailEvaluateCard extends StatelessWidget {
     super.key,
     required this.recording,
     required this.statusText,
+    this.isEvaluating = false,
     required this.onLongPressStart,
     required this.onLongPressEnd,
   });
@@ -79,6 +81,7 @@ class LevelDetailEvaluateCard extends StatelessWidget {
                     child: LevelDetailRecordSection(
                       recording: recording,
                       statusText: statusText,
+                      isEvaluating: isEvaluating,
                       onLongPressStart: onLongPressStart,
                       onLongPressEnd: onLongPressEnd,
                     ),

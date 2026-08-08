@@ -7,9 +7,7 @@ class AiChatHeaderSliver extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final yellow = AppTheme.yiYellow.value;
-    final deepRed = const Color(0xFF8B0002);
     final warmRed = const Color(0xFFC00003);
-    final warmYellow = const Color(0xFFFFD666);
 
     return SliverToBoxAdapter(
       child: Container(
@@ -19,11 +17,7 @@ class AiChatHeaderSliver extends StatelessWidget {
             bottomLeft: Radius.circular(20),
             bottomRight: Radius.circular(20),
           ),
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [yellow, warmYellow, yellow],
-          ),
+          color: yellow,
         ),
         child: Container(
           width: double.infinity,
@@ -32,11 +26,7 @@ class AiChatHeaderSliver extends StatelessWidget {
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
             ),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [warmRed, deepRed],
-            ),
+            color: warmRed,
           ),
           padding: const EdgeInsets.only(top: 12, bottom: 14),
           child: const Column(

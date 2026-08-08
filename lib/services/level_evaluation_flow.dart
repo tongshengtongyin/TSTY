@@ -4,7 +4,7 @@ import 'package:tsty_app/api/ise.dart';
 import 'package:tsty_app/api/learn.dart';
 import 'package:tsty_app/components/learn/level_detail/level_detail_eval_dialog.dart';
 import 'package:tsty_app/constants/index.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/toast_utils.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 import 'package:tsty_app/utils/yi_recorder.dart';
 import 'package:tsty_app/utils/yi_speech_evaluator.dart';
@@ -60,7 +60,9 @@ class LevelEvaluationFlow {
         return cached;
       }
       if (kDebugMode) {
-        debugPrint('ISE auth cache expired: ageMs=$ageMs ttlMs=$ttlMs, clearing');
+        debugPrint(
+          'ISE auth cache expired: ageMs=$ageMs ttlMs=$ttlMs, clearing',
+        );
       }
       await UserPrefs.clearIseAuthCache();
     }
@@ -108,8 +110,8 @@ class LevelEvaluationFlow {
         text: totalScore >= 90
             ? '整体表现优秀'
             : totalScore >= 75
-                ? '整体不错'
-                : '多练习会更好',
+            ? '整体不错'
+            : '多练习会更好',
       ),
     ];
 
@@ -254,8 +256,8 @@ class LevelEvaluationFlow {
     final lessonIdToUse = (lessonId ?? '').trim().isNotEmpty
         ? (lessonId ?? '').trim()
         : unitId.trim().isNotEmpty
-            ? unitId.trim()
-            : 'lesson-b';
+        ? unitId.trim()
+        : 'lesson-b';
 
     final body = <String, dynamic>{
       'lessonId': lessonIdToUse,
@@ -288,6 +290,7 @@ class LevelEvaluationFlow {
     final endpoint = Uri.parse(GlobalConstants.xfyunIseEndpoint);
     final authCache = await _ensureIseAuth();
     if (authCache == null) {
+      if (!context.mounted) return;
       ToastUtils.showToast(context, '获取语音测评鉴权失败');
       return;
     }
@@ -311,8 +314,8 @@ class LevelEvaluationFlow {
     try {
       final evalText = (_isShengmuContent(content) || _isYunmuContent(content))
           ? (content.pinyinText.trim().isEmpty
-              ? content.contentValue
-              : content.pinyinText)
+                ? content.contentValue
+                : content.pinyinText)
           : content.contentValue;
       final result = await evaluator.evaluateFileToResult(
         filePath: recordResult.path,
@@ -344,18 +347,18 @@ class LevelEvaluationFlow {
       final stars = score >= 95
           ? 3
           : score >= 80
-              ? 2
-              : score >= 60
-                  ? 1
-                  : 0;
+          ? 2
+          : score >= 60
+          ? 1
+          : 0;
       final flowers = stars;
       final accuracyText = score >= 90
           ? '太棒了！'
           : score >= 75
-              ? '不错哦！'
-              : score >= 60
-                  ? '继续加油！'
-                  : '再试一次！';
+          ? '不错哦！'
+          : score >= 60
+          ? '继续加油！'
+          : '再试一次！';
 
       final points = _buildEvalPoints(
         totalScore: score,
@@ -375,7 +378,8 @@ class LevelEvaluationFlow {
       );
 
       final nextPos = currentLevel;
-      final canGoNext = currentLevel < totalLevels &&
+      final canGoNext =
+          currentLevel < totalLevels &&
           levelIds.isNotEmpty &&
           nextPos >= 0 &&
           nextPos < levelIds.length &&
@@ -407,6 +411,7 @@ class LevelEvaluationFlow {
         },
       );
     } catch (_) {
+      if (!context.mounted) return;
       ToastUtils.showToast(context, '测评失败');
     }
   }

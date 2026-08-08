@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tsty_app/components/common/YiRadialBubble.dart';
+import 'package:tsty_app/components/common/yi_radial_bubble.dart';
 import 'package:tsty_app/style/app_theme.dart';
 
 class LevelDetailCard extends StatelessWidget {
@@ -8,6 +8,7 @@ class LevelDetailCard extends StatelessWidget {
   final String hintImageAsset;
   final String hintLabel;
   final String exampleText;
+  final bool isPlayingTts;
   final VoidCallback onPlayStandard;
   final VoidCallback onPlayTip;
 
@@ -18,6 +19,7 @@ class LevelDetailCard extends StatelessWidget {
     required this.hintImageAsset,
     required this.hintLabel,
     required this.exampleText,
+    this.isPlayingTts = false,
     required this.onPlayStandard,
     required this.onPlayTip,
   });
@@ -160,6 +162,7 @@ class LevelDetailCard extends StatelessWidget {
                     ),
                     icon: Icons.play_arrow_rounded,
                     onTap: onPlayStandard,
+                    isDisabled: isPlayingTts,
                   ),
                   const SizedBox(width: 18),
                   _CircleActionButton(
@@ -245,11 +248,13 @@ class _CircleActionButton extends StatelessWidget {
   final LinearGradient gradient;
   final IconData icon;
   final VoidCallback onTap;
+  final bool isDisabled;
 
   const _CircleActionButton({
     required this.gradient,
     required this.icon,
     required this.onTap,
+    this.isDisabled = false,
   });
 
   @override
@@ -258,6 +263,7 @@ class _CircleActionButton extends StatelessWidget {
       gradient: gradient,
       icon: icon,
       onTap: onTap,
+      isDisabled: isDisabled,
     );
   }
 }
@@ -266,11 +272,13 @@ class _AnimatedCircleActionButton extends StatefulWidget {
   final LinearGradient gradient;
   final IconData icon;
   final VoidCallback onTap;
+  final bool isDisabled;
 
   const _AnimatedCircleActionButton({
     required this.gradient,
     required this.icon,
     required this.onTap,
+    this.isDisabled = false,
   });
 
   @override
@@ -295,35 +303,39 @@ class _AnimatedCircleActionButtonState
     final shadowAlpha = _pressed ? 0.06 : 0.10;
     final blur = _pressed ? 5.0 : 8.0;
     final dy = _pressed ? 1.0 : 3.0;
+    final opacity = widget.isDisabled ? 0.5 : 1.0;
 
     return AnimatedScale(
       scale: scale,
       duration: const Duration(milliseconds: 110),
       curve: Curves.easeOut,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(999),
-        onTap: widget.onTap,
-        onTapDown: (_) => _setPressed(true),
-        onTapUp: (_) => _setPressed(false),
-        onTapCancel: () => _setPressed(false),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 110),
-          curve: Curves.easeOut,
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(999),
-            gradient: widget.gradient,
-            border: Border.all(color: yellow, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: shadowAlpha),
-                blurRadius: blur,
-                offset: Offset(0, dy),
-              ),
-            ],
+      child: Opacity(
+        opacity: opacity,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          onTap: widget.isDisabled ? null : widget.onTap,
+          onTapDown: widget.isDisabled ? null : (_) => _setPressed(true),
+          onTapUp: widget.isDisabled ? null : (_) => _setPressed(false),
+          onTapCancel: widget.isDisabled ? null : () => _setPressed(false),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 110),
+            curve: Curves.easeOut,
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(999),
+              gradient: widget.gradient,
+              border: Border.all(color: yellow, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: shadowAlpha),
+                  blurRadius: blur,
+                  offset: Offset(0, dy),
+                ),
+              ],
+            ),
+            child: Icon(widget.icon, color: Colors.white, size: 28),
           ),
-          child: Icon(widget.icon, color: Colors.white, size: 28),
         ),
       ),
     );

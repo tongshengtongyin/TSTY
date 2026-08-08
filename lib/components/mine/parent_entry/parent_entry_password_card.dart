@@ -76,7 +76,10 @@ class ParentEntryPasswordCard extends StatelessWidget {
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(18),
-                borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 2),
+                borderSide: const BorderSide(
+                  color: Color(0xFFE0E0E0),
+                  width: 2,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(18),

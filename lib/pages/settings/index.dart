@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:tsty_app/components/common/YiBaseBackground.dart';
-import 'package:tsty_app/components/common/YiSideStripe.dart';
-import 'package:tsty_app/components/common/YiTopBar.dart';
+import 'package:tsty_app/api/auth.dart';
+import 'package:tsty_app/components/common/yi_base_background.dart';
 import 'package:tsty_app/components/common/yi_dialog.dart';
+import 'package:tsty_app/components/common/yi_side_stripe.dart';
+import 'package:tsty_app/components/common/yi_top_bar.dart';
 import 'package:tsty_app/components/settings/settings_item.dart';
 import 'package:tsty_app/components/settings/settings_logout_button.dart';
 import 'package:tsty_app/components/settings/settings_section.dart';
 import 'package:tsty_app/components/settings/settings_section_title.dart';
-import 'package:tsty_app/api/auth.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -23,15 +23,6 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    _loadPrefs();
-  }
-
-  Future<void> _loadPrefs() async {
-    await UserPrefs.getSoundEnabled();
-    await UserPrefs.getThemeIndex();
-    await UserPrefs.getFontSizeIndex();
-    if (!mounted) return;
-    setState(() {});
   }
 
   Future<void> _showInfoDialog(String title, String message) async {
@@ -83,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _openHelp() async {
     await _showInfoDialog(
       '帮助与反馈',
-      '如果你在使用中遇到问题，可以按以下方式排查并反馈：\n\n常见问题\n- 听不到声音：请检查系统音量与静音状态，并确认已授予麦克风权限\n- 语音功能不可用：请确认网络连接正常，或稍后重试\n- 页面卡顿/闪退：建议先尝试“清除缓存”，再重新进入\n\n反馈方式\n- 邮箱：2629103796@qq.com\n\n为了更快定位问题，建议在邮件中附上：设备型号、系统版本、发生时间、问题描述、复现步骤与截图/录屏（如有）。',
+      '如果你在使用中遇到问题，可以按以下方式排查并反馈：\n\n常见问题\n- 听不到声音：请检查系统音量与静音状态，并确认已授予麦克风权限\n- 语音功能不可用：请确认网络连接正常，或稍后重试\n- 页面卡顿/闪退：建议先尝试"清除缓存"，再重新进入\n\n反馈方式\n- 邮箱：2629103796@qq.com\n\n为了更快定位问题，建议在邮件中附上：设备型号、系统版本、发生时间、问题描述、复现步骤与截图/录屏（如有）。',
     );
   }
 

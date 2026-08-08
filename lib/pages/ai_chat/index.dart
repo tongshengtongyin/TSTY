@@ -7,7 +7,7 @@ import 'package:tsty_app/components/ai_chat/ai_chat_section_header_sliver.dart';
 import 'package:tsty_app/components/ai_chat/ai_chat_teacher_intro_sliver.dart';
 import 'package:tsty_app/components/common/select_character_dialog.dart';
 import 'package:tsty_app/services/parental_control.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/toast_utils.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 
 class AiChatPage extends StatefulWidget {
@@ -24,8 +24,8 @@ class _AiChatPageState extends State<AiChatPage> {
   final List<AiChatSceneItem> _scenes = const [
     AiChatSceneItem(
       id: 'greeting',
-      name: '日常问候',
-      desc: '打招呼、问好',
+      name: '通用对话',
+      desc: '自由交流、畅所欲言',
       icon: Icons.sentiment_satisfied_alt,
       iconColor: Color(0xFF1565C0),
       iconBg: Color(0xFFE3F2FD),
@@ -125,6 +125,7 @@ class _AiChatPageState extends State<AiChatPage> {
     if (!mounted) return;
     setState(() => _parentalBlocked = !result.allowed);
   }
+
   Future<void> _loadRecentChats() async {
     final list = await UserPrefs.getRecentChats();
     if (!mounted) return;

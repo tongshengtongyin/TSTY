@@ -5,17 +5,9 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
-enum YiRecorderFormat {
-  pcm16,
-  wav,
-}
+enum YiRecorderFormat { pcm16, wav }
 
-enum YiRecorderState {
-  idle,
-  recording,
-  stopping,
-  error,
-}
+enum YiRecorderState { idle, recording, stopping, error }
 
 class YiRecorderConfig {
   final YiRecorderFormat format;
@@ -52,8 +44,9 @@ class YiRecorderResult {
 class YiRecorderController {
   final AudioRecorder _recorder = AudioRecorder();
 
-  final ValueNotifier<YiRecorderState> state =
-      ValueNotifier<YiRecorderState>(YiRecorderState.idle);
+  final ValueNotifier<YiRecorderState> state = ValueNotifier<YiRecorderState>(
+    YiRecorderState.idle,
+  );
 
   final StreamController<Duration> _durationController =
       StreamController<Duration>.broadcast();
@@ -61,6 +54,7 @@ class YiRecorderController {
       StreamController<double>.broadcast();
 
   Stream<Duration> get durationStream => _durationController.stream;
+
   Stream<double> get amplitudeStream => _amplitudeController.stream;
 
   YiRecorderConfig _config = const YiRecorderConfig();
@@ -118,12 +112,12 @@ class YiRecorderController {
     _amplitudeSub = _recorder
         .onAmplitudeChanged(_config.amplitudeInterval)
         .listen((amp) {
-      final db = amp.current;
-      final normalized = _normalizeDb(db);
-      if (!_amplitudeController.isClosed) {
-        _amplitudeController.add(normalized);
-      }
-    });
+          final db = amp.current;
+          final normalized = _normalizeDb(db);
+          if (!_amplitudeController.isClosed) {
+            _amplitudeController.add(normalized);
+          }
+        });
 
     final encoder = _config.format == YiRecorderFormat.wav
         ? AudioEncoder.wav

@@ -23,9 +23,7 @@ class AiChatTopBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: yellow, width: 3),
-        ),
+        border: Border(bottom: BorderSide(color: yellow, width: 3)),
       ),
       child: Row(
         children: [
@@ -39,11 +37,18 @@ class AiChatTopBar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(999),
                     onTap: onExit,
                     child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.close_rounded, color: Colors.white, size: 18),
+                          Icon(
+                            Icons.close_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                           SizedBox(width: 6),
                           Text(
                             '结束',

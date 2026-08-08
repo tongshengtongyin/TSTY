@@ -3,15 +3,15 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/status.dart' as ws_status;
-
 import 'package:tsty_app/utils/yi_speech_evaluator.dart';
+import 'package:web_socket_channel/status.dart' as ws_status;
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class YiTtsConfig {
   final Uri endpoint;
   final String appId;
   final String vcn;
+  final String serviceType;
   final int speed;
   final int volume;
   final int pitch;
@@ -20,6 +20,7 @@ class YiTtsConfig {
     required this.endpoint,
     required this.appId,
     required this.vcn,
+    this.serviceType = 'tts',
     this.speed = 50,
     this.volume = 50,
     this.pitch = 50,
@@ -80,12 +81,16 @@ class YiTtsSynthesizer {
       sub = channel.stream.listen(
         (event) {
           try {
-            final msg = event is String ? event : utf8.decode(event as List<int>);
+            final msg = event is String
+                ? event
+                : utf8.decode(event as List<int>);
             final obj = jsonDecode(msg);
             if (obj is! Map) return;
 
             final header = obj['header'];
-            final headerMap = header is Map ? header : const <String, dynamic>{};
+            final headerMap = header is Map
+                ? header
+                : const <String, dynamic>{};
             final code = (headerMap['code'] is int)
                 ? headerMap['code'] as int
                 : int.tryParse('${headerMap['code']}') ?? 0;
@@ -96,7 +101,9 @@ class YiTtsSynthesizer {
             }
 
             if (code != 0) {
-              completeOnce(YiTtsException(code, message.isEmpty ? 'tts_error' : message));
+              completeOnce(
+                YiTtsException(code, message.isEmpty ? 'tts_error' : message),
+              );
               try {
                 channel?.sink.close(ws_status.normalClosure);
               } catch (_) {}
@@ -162,14 +169,8 @@ class YiTtsSynthesizer {
     final textBase64 = base64Encode(textBytes);
 
     return <String, dynamic>{
-      'header': {
-        'app_id': config.appId,
-        'status': 2,
-      },
+      'header': {'app_id': config.appId, 'status': 2},
       'parameter': {
-        'oral': {
-          'oral_level': 'mid',
-        },
         'tts': {
           'vcn': config.vcn,
           'speed': config.speed,

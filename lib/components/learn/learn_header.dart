@@ -80,15 +80,46 @@ class LearnHeader extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: AppTheme.yiYellow.value.withValues(
-                      alpha: isSelected ? 1.0 : 0.88,
+                      alpha: isSelected ? 0.75 : 1.0,
                     ),
                     borderRadius: BorderRadius.circular(15),
-                    border: isSelected
-                        ? Border.all(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            width: 1.5,
-                          )
-                        : null,
+                    border: Border.all(
+                      color: isSelected
+                          ? Colors.black.withValues(alpha: 0.3)
+                          : Colors.white.withValues(alpha: 0.9),
+                      width: isSelected ? 1.5 : 2,
+                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.35),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                              spreadRadius: -2,
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.15),
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ]
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.35),
+                              blurRadius: 12,
+                              offset: const Offset(0, 6),
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                            BoxShadow(
+                              color: Colors.white.withValues(alpha: 1.0),
+                              blurRadius: 3,
+                              offset: const Offset(-2, -2),
+                            ),
+                          ],
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -135,7 +166,10 @@ class LearnHeader extends StatelessWidget {
           alignment: Alignment.center,
           //margin: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
             gradient: LinearGradient(
               colors: [
                 Theme.of(context).colorScheme.primary,
@@ -241,7 +275,10 @@ class LearnContentHeaderDelegate extends SliverPersistentHeaderDelegate {
           width: double.infinity,
           alignment: Alignment.topCenter,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
             gradient: LinearGradient(
               colors: [
                 Theme.of(context).colorScheme.primary,

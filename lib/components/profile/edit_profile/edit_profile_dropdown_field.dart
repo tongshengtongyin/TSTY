@@ -5,10 +5,7 @@ class EditProfileDropdownOption {
   final String label;
   final String value;
 
-  const EditProfileDropdownOption({
-    required this.label,
-    required this.value,
-  });
+  const EditProfileDropdownOption({required this.label, required this.value});
 }
 
 class EditProfileDropdownField extends StatelessWidget {

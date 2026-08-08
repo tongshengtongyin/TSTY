@@ -16,9 +16,7 @@ Future<Map<String, dynamic>> getChildProfileAPI() async {
 
   final result = await dioUtils.get(
     HttpConstants.childProfile,
-    headers: <String, dynamic>{
-      'Authorization': 'Bearer $token',
-    },
+    headers: <String, dynamic>{'Authorization': 'Bearer $token'},
   );
 
   if (kDebugMode) {
@@ -78,9 +76,7 @@ Future<List<Map<String, dynamic>>> getChildClassRankingAPI() async {
 
   final result = await dioUtils.get(
     HttpConstants.childClassRanking,
-    headers: <String, dynamic>{
-      'Authorization': 'Bearer $token',
-    },
+    headers: <String, dynamic>{'Authorization': 'Bearer $token'},
   );
 
   if (kDebugMode) {

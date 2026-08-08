@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 class LevelDetailRecordSection extends StatefulWidget {
   final bool recording;
   final String statusText;
+  final bool isEvaluating;
   final VoidCallback onLongPressStart;
   final VoidCallback onLongPressEnd;
 
@@ -11,6 +12,7 @@ class LevelDetailRecordSection extends StatefulWidget {
     super.key,
     required this.recording,
     required this.statusText,
+    this.isEvaluating = false,
     required this.onLongPressStart,
     required this.onLongPressEnd,
   });
@@ -63,92 +65,124 @@ class _LevelDetailRecordSectionState extends State<LevelDetailRecordSection>
     final baseSize = widget.recording ? 78.0 : 70.0;
     final ringSize = baseSize + 54.0;
 
+    final isDisabled = widget.isEvaluating;
+
+    final buttonGradient = isDisabled
+        ? const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFFBDBDBD), Color(0xFF9E9E9E)],
+          )
+        : widget.recording
+        ? const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF6AD192), Color(0xFF82E0AA)],
+          )
+        : const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFFCC0000), Color(0xFFFF6666)],
+          );
+
+    final shadowColor = isDisabled
+        ? const Color(0xFF9E9E9E)
+        : widget.recording
+        ? const Color(0xFF6AD192)
+        : const Color(0xFFCC0000);
+
     return Column(
       children: [
-        Listener(
-          onPointerDown: (_) {
-            HapticFeedback.mediumImpact();
-            setState(() => _isPressed = true);
-          },
-          onPointerUp: (_) {
-            setState(() => _isPressed = false);
-            widget.onLongPressEnd();
-          },
-          onPointerCancel: (_) {
-            setState(() => _isPressed = false);
-            widget.onLongPressEnd();
-          },
-          child: GestureDetector(
-            onLongPressStart: (_) => widget.onLongPressStart(),
-            onLongPressEnd: (_) => widget.onLongPressEnd(),
-            child: SizedBox(
-              width: ringSize,
-              height: ringSize,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  if (widget.recording)
-                    AnimatedBuilder(
-                      animation: _rippleController,
-                      builder: (context, child) {
-                        final t = _rippleController.value;
-                        return Stack(
-                          alignment: Alignment.center,
-                          children: List.generate(3, (i) {
-                            final p = (t + i / 3) % 1.0;
-                            final scale = (1.0 + p * 0.95) * (_isPressed ? 0.92 : 1.0);
-                            final alpha = (1.0 - p) * 0.22;
-                            final c = const Color(0xFF6AD192)
-                                .withValues(alpha: alpha);
+        AbsorbPointer(
+          absorbing: isDisabled,
+          child: Listener(
+            onPointerDown: (_) {
+              HapticFeedback.mediumImpact();
+              setState(() => _isPressed = true);
+            },
+            onPointerUp: (_) {
+              setState(() => _isPressed = false);
+              widget.onLongPressEnd();
+            },
+            onPointerCancel: (_) {
+              setState(() => _isPressed = false);
+              widget.onLongPressEnd();
+            },
+            child: GestureDetector(
+              onLongPressStart: (_) => widget.onLongPressStart(),
+              onLongPressEnd: (_) => widget.onLongPressEnd(),
+              child: SizedBox(
+                width: ringSize,
+                height: ringSize,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (widget.recording && !isDisabled)
+                      AnimatedBuilder(
+                        animation: _rippleController,
+                        builder: (context, child) {
+                          final t = _rippleController.value;
+                          return Stack(
+                            alignment: Alignment.center,
+                            children: List.generate(3, (i) {
+                              final p = (t + i / 3) % 1.0;
+                              final scale =
+                                  (1.0 + p * 0.95) * (_isPressed ? 0.92 : 1.0);
+                              final alpha = (1.0 - p) * 0.22;
+                              final c = const Color(
+                                0xFF6AD192,
+                              ).withValues(alpha: alpha);
 
-                            return Transform.scale(
-                              scale: scale,
-                              child: Container(
-                                width: baseSize,
-                                height: baseSize,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: c, width: 3),
+                              return Transform.scale(
+                                scale: scale,
+                                child: Container(
+                                  width: baseSize,
+                                  height: baseSize,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: c, width: 3),
+                                  ),
                                 ),
+                              );
+                            }),
+                          );
+                        },
+                      ),
+                    AnimatedScale(
+                      scale: _isPressed ? 0.92 : 1.0,
+                      duration: const Duration(milliseconds: 100),
+                      curve: Curves.easeOutCubic,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        width: baseSize,
+                        height: baseSize,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(999),
+                          gradient: buttonGradient,
+                          border: Border.all(color: Colors.white, width: 3),
+                          boxShadow: [
+                            BoxShadow(
+                              color: shadowColor.withValues(
+                                alpha: widget.recording && !isDisabled
+                                    ? 0.75
+                                    : 0.4,
                               ),
-                            );
-                          }),
-                        );
-                      },
-                    ),
-                  AnimatedScale(
-                    scale: _isPressed ? 0.92 : 1.0,
-                    duration: const Duration(milliseconds: 100),
-                    curve: Curves.easeOutCubic,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      width: baseSize,
-                      height: baseSize,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(999),
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFF6AD192), Color(0xFF82E0AA)],
+                              blurRadius: _isPressed
+                                  ? 10
+                                  : (widget.recording && !isDisabled ? 22 : 15),
+                              offset: Offset(0, _isPressed ? 2 : 5),
+                            ),
+                          ],
                         ),
-                        border: Border.all(color: Colors.white, width: 3),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF6AD192)
-                                .withValues(alpha: widget.recording ? 0.75 : 0.4),
-                            blurRadius: _isPressed ? 10 : (widget.recording ? 22 : 15),
-                            offset: Offset(0, _isPressed ? 2 : 5),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.mic,
-                        size: 34,
-                        color: Colors.white,
+                        child: const Icon(
+                          Icons.mic,
+                          size: 34,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

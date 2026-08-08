@@ -117,18 +117,14 @@ class YiIseResult {
   final String sid;
   final String xml;
 
-  const YiIseResult({
-    required this.sid,
-    required this.xml,
-  });
+  const YiIseResult({required this.sid, required this.xml});
 
   double? get totalScore => YiIseXml.extractTotalScore(xml);
 }
 
 class YiIseXml {
   static double? _extractAttrDouble(String xml, String attr) {
-    final m = RegExp('$attr\\s*=\\s*"([0-9]+(?:\\.[0-9]+)?)"')
-        .firstMatch(xml);
+    final m = RegExp('$attr\\s*=\\s*"([0-9]+(?:\\.[0-9]+)?)"').firstMatch(xml);
     if (m == null) return null;
     return double.tryParse(m.group(1) ?? '');
   }
@@ -196,14 +192,16 @@ class YiIseEvaluator {
     Duration? timeout,
   }) {
     final controller = StreamController<YiIseProgress>.broadcast();
-    unawaited(_evaluateInternal(
-      audioBytes: audioBytes,
-      text: text,
-      authQuery: authQuery,
-      controller: controller,
-      onProgress: onProgress,
-      timeout: timeout,
-    ));
+    unawaited(
+      _evaluateInternal(
+        audioBytes: audioBytes,
+        text: text,
+        authQuery: authQuery,
+        controller: controller,
+        onProgress: onProgress,
+        timeout: timeout,
+      ),
+    );
     return controller.stream;
   }
 
@@ -295,76 +293,84 @@ class YiIseEvaluator {
         });
       }
 
-      sub = channel.stream.listen((event) {
-        try {
-          final msg = event is String ? event : utf8.decode(event as List<int>);
-          final obj = jsonDecode(msg);
-          if (obj is! Map) return;
+      sub = channel.stream.listen(
+        (event) {
+          try {
+            final msg = event is String
+                ? event
+                : utf8.decode(event as List<int>);
+            final obj = jsonDecode(msg);
+            if (obj is! Map) return;
 
-          final code = (obj['code'] is int)
-              ? obj['code'] as int
-              : int.tryParse('${obj['code']}') ?? -1;
-          final message = (obj['message'] ?? '').toString();
-          final sid = obj['sid']?.toString();
+            final code = (obj['code'] is int)
+                ? obj['code'] as int
+                : int.tryParse('${obj['code']}') ?? -1;
+            final message = (obj['message'] ?? '').toString();
+            final sid = obj['sid']?.toString();
 
-          int status = -1;
-          String? xmlChunk;
-          final data = obj['data'];
-          if (data is Map) {
-            status = (data['status'] is int)
-                ? data['status'] as int
-                : int.tryParse('${data['status']}') ?? -1;
-            final payload = data['data'];
-            if (payload is String && payload.isNotEmpty) {
-              try {
-                final decoded = base64Decode(payload);
-                xmlChunk = utf8.decode(decoded, allowMalformed: true);
-              } catch (_) {
-                xmlChunk = null;
+            int status = -1;
+            String? xmlChunk;
+            final data = obj['data'];
+            if (data is Map) {
+              status = (data['status'] is int)
+                  ? data['status'] as int
+                  : int.tryParse('${data['status']}') ?? -1;
+              final payload = data['data'];
+              if (payload is String && payload.isNotEmpty) {
+                try {
+                  final decoded = base64Decode(payload);
+                  xmlChunk = utf8.decode(decoded, allowMalformed: true);
+                } catch (_) {
+                  xmlChunk = null;
+                }
               }
             }
-          }
 
-          if (kDebugMode) {
-            debugPrint(
-              'ISE WS recv: code=$code status=$status sid=${sid ?? ''} message=$message',
+            if (kDebugMode) {
+              debugPrint(
+                'ISE WS recv: code=$code status=$status sid=${sid ?? ''} message=$message',
+              );
+            }
+
+            emit(
+              YiIseProgress(
+                sid: sid,
+                code: code,
+                message: message,
+                status: status,
+                xmlChunk: xmlChunk,
+              ),
             );
-          }
 
-          emit(YiIseProgress(
-            sid: sid,
-            code: code,
-            message: message,
-            status: status,
-            xmlChunk: xmlChunk,
-          ));
-
-          if (code != 0 || status == 2) {
-            try {
-              channel?.sink.close(ws_status.normalClosure);
-            } catch (_) {}
+            if (code != 0 || status == 2) {
+              try {
+                channel?.sink.close(ws_status.normalClosure);
+              } catch (_) {}
+            }
+          } catch (_) {}
+        },
+        onError: (_) {
+          emit(
+            const YiIseProgress(
+              sid: null,
+              code: -1,
+              message: 'ws_error',
+              status: -1,
+              xmlChunk: null,
+            ),
+          );
+        },
+        onDone: () {
+          if (!controller.isClosed) {
+            unawaited(controller.close());
           }
-        } catch (_) {}
-      }, onError: (_) {
-        emit(const YiIseProgress(
-          sid: null,
-          code: -1,
-          message: 'ws_error',
-          status: -1,
-          xmlChunk: null,
-        ));
-      }, onDone: () {
-        if (!controller.isClosed) {
-          unawaited(controller.close());
-        }
-      });
+        },
+      );
 
       final bomText = text.startsWith('\uFEFF') ? text : '\uFEFF$text';
 
       final ssb = {
-        'common': {
-          'app_id': config.appId,
-        },
+        'common': {'app_id': config.appId},
         'business': {
           'aue': config.aue,
           'auf': config.auf,
@@ -376,44 +382,48 @@ class YiIseEvaluator {
           'tte': config.tte,
           'ttp_skip': config.ttpSkip,
         },
-        'data': {
-          'status': 0,
-        },
+        'data': {'status': 0},
       };
 
       if (!_trySinkAdd(channel, jsonEncode(ssb))) {
-        emit(const YiIseProgress(
-          sid: null,
-          code: -1,
-          message: 'ws_closed',
-          status: -1,
-          xmlChunk: null,
-        ));
+        emit(
+          const YiIseProgress(
+            sid: null,
+            code: -1,
+            message: 'ws_closed',
+            status: -1,
+            xmlChunk: null,
+          ),
+        );
         return;
       }
 
       final bytes = _maybeStripWavHeader(audioBytes);
       final ok = await _sendAudioFrames(channel, bytes);
       if (!ok) {
-        emit(const YiIseProgress(
-          sid: null,
-          code: -1,
-          message: 'ws_closed',
-          status: -1,
-          xmlChunk: null,
-        ));
+        emit(
+          const YiIseProgress(
+            sid: null,
+            code: -1,
+            message: 'ws_closed',
+            status: -1,
+            xmlChunk: null,
+          ),
+        );
         return;
       }
 
       await sub.asFuture<void>();
     } catch (_) {
-      emit(const YiIseProgress(
-        sid: null,
-        code: -1,
-        message: 'send_error',
-        status: -1,
-        xmlChunk: null,
-      ));
+      emit(
+        const YiIseProgress(
+          sid: null,
+          code: -1,
+          message: 'send_error',
+          status: -1,
+          xmlChunk: null,
+        ),
+      );
     } finally {
       timeoutTimer?.cancel();
       await sub?.cancel();
@@ -430,11 +440,13 @@ class YiIseEvaluator {
     if (!config.stripWavHeader) return bytes;
     if (bytes.length < 44) return bytes;
 
-    final isRiff = bytes[0] == 0x52 &&
+    final isRiff =
+        bytes[0] == 0x52 &&
         bytes[1] == 0x49 &&
         bytes[2] == 0x46 &&
         bytes[3] == 0x46;
-    final isWave = bytes[8] == 0x57 &&
+    final isWave =
+        bytes[8] == 0x57 &&
         bytes[9] == 0x41 &&
         bytes[10] == 0x56 &&
         bytes[11] == 0x45;
@@ -454,7 +466,8 @@ class YiIseEvaluator {
       final id1 = bytes[i + 1];
       final id2 = bytes[i + 2];
       final id3 = bytes[i + 3];
-      final size = bytes[i + 4] |
+      final size =
+          bytes[i + 4] |
           (bytes[i + 5] << 8) |
           (bytes[i + 6] << 16) |
           (bytes[i + 7] << 24);
@@ -470,17 +483,14 @@ class YiIseEvaluator {
     return null;
   }
 
-  Future<bool> _sendAudioFrames(WebSocketChannel channel, Uint8List bytes) async {
+  Future<bool> _sendAudioFrames(
+    WebSocketChannel channel,
+    Uint8List bytes,
+  ) async {
     if (bytes.isEmpty) {
       final last = {
-        'business': {
-          'cmd': 'auw',
-          'aus': 4,
-        },
-        'data': {
-          'status': 2,
-          'data': '',
-        },
+        'business': {'cmd': 'auw', 'aus': 4},
+        'data': {'status': 2, 'data': ''},
       };
       return _trySinkAdd(channel, jsonEncode(last));
     }
@@ -488,27 +498,15 @@ class YiIseEvaluator {
     final frameSize = config.bytesPerFrame;
     if (bytes.length <= frameSize) {
       final first = {
-        'business': {
-          'cmd': 'auw',
-          'aus': 1,
-        },
-        'data': {
-          'status': 1,
-          'data': base64Encode(bytes),
-        },
+        'business': {'cmd': 'auw', 'aus': 1},
+        'data': {'status': 1, 'data': base64Encode(bytes)},
       };
       if (!_trySinkAdd(channel, jsonEncode(first))) return false;
       await Future<void>.delayed(config.frameInterval);
 
       final last = {
-        'business': {
-          'cmd': 'auw',
-          'aus': 4,
-        },
-        'data': {
-          'status': 2,
-          'data': '',
-        },
+        'business': {'cmd': 'auw', 'aus': 4},
+        'data': {'status': 2, 'data': ''},
       };
       return _trySinkAdd(channel, jsonEncode(last));
     }
@@ -527,20 +525,14 @@ class YiIseEvaluator {
       final aus = isLast
           ? 4
           : isFirst
-              ? 1
-              : 2;
+          ? 1
+          : 2;
 
       final status = isLast ? 2 : 1;
 
       final frame = {
-        'business': {
-          'cmd': 'auw',
-          'aus': aus,
-        },
-        'data': {
-          'status': status,
-          'data': base64Encode(chunk),
-        },
+        'business': {'cmd': 'auw', 'aus': aus},
+        'data': {'status': status, 'data': base64Encode(chunk)},
       };
 
       if (!_trySinkAdd(channel, jsonEncode(frame))) return false;

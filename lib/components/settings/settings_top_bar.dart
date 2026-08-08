@@ -5,11 +5,7 @@ class SettingsTopBar extends StatelessWidget {
   final String title;
   final VoidCallback? onBack;
 
-  const SettingsTopBar({
-    super.key,
-    required this.title,
-    this.onBack,
-  });
+  const SettingsTopBar({super.key, required this.title, this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -19,16 +15,11 @@ class SettingsTopBar extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: yellow, width: 3),
-        ),
+        border: Border(bottom: BorderSide(color: yellow, width: 3)),
       ),
       child: Row(
         children: [
-          _SettingsBackButton(
-            onBack: onBack,
-            brown: const Color(0xFF3D2800),
-          ),
+          _SettingsBackButton(onBack: onBack, brown: const Color(0xFF3D2800)),
           Expanded(
             child: Text(
               title,
@@ -51,10 +42,7 @@ class _SettingsBackButton extends StatelessWidget {
   final Color brown;
   final VoidCallback? onBack;
 
-  const _SettingsBackButton({
-    required this.brown,
-    this.onBack,
-  });
+  const _SettingsBackButton({required this.brown, this.onBack});
 
   @override
   Widget build(BuildContext context) {

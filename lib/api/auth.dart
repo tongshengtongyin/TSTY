@@ -1,7 +1,7 @@
-import 'package:dio/dio.dart';
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:tsty_app/constants/index.dart';
 import 'package:tsty_app/utils/dio_utils.dart';
@@ -26,7 +26,9 @@ Future<Map<String, dynamic>> childLoginPasswordAPI({
   };
 
   if (kDebugMode) {
-    debugPrint('Child login-password request: username=$username deviceId=$deviceId deviceType=$deviceType');
+    debugPrint(
+      'Child login-password request: username=$username deviceId=$deviceId deviceType=$deviceType',
+    );
   }
 
   final result = await dioUtils.post(
@@ -68,12 +70,8 @@ class ParentLoginResponse {
   }
 }
 
-Future<ParentLoginResponse> parentLoginAPI({
-  required String password,
-}) async {
-  final body = <String, dynamic>{
-    'password': password,
-  };
+Future<ParentLoginResponse> parentLoginAPI({required String password}) async {
+  final body = <String, dynamic>{'password': password};
 
   if (kDebugMode) {
     debugPrint('Parent login request');
@@ -82,9 +80,7 @@ Future<ParentLoginResponse> parentLoginAPI({
   final result = await dioUtils.post(
     HttpConstants.parentLogin,
     data: body,
-    options: Options(
-      contentType: 'application/json; charset=utf-8',
-    ),
+    options: Options(contentType: 'application/json; charset=utf-8'),
   );
 
   if (kDebugMode) {
@@ -115,9 +111,7 @@ Future<void> parentChangePasswordAPI({
   await dioUtils.post(
     HttpConstants.parentChangePassword,
     data: body,
-    options: Options(
-      contentType: 'application/json; charset=utf-8',
-    ),
+    options: Options(contentType: 'application/json; charset=utf-8'),
   );
 }
 

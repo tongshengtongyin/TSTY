@@ -3,23 +3,22 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tsty_app/api/learn.dart';
-import 'package:tsty_app/components/common/YiSun.dart';
+import 'package:tsty_app/components/common/yi_sun.dart';
 import 'package:tsty_app/components/learn/level_detail/level_detail_card.dart';
 import 'package:tsty_app/components/learn/level_detail/level_detail_evaluate_card.dart';
 import 'package:tsty_app/components/learn/level_detail/level_detail_header.dart';
 import 'package:tsty_app/routes/route_observer.dart';
-import 'package:tsty_app/style/app_theme.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
 import 'package:tsty_app/services/learning_duration_tracker.dart';
-import 'package:tsty_app/services/level_evaluation_flow.dart';
-import 'package:tsty_app/services/level_audio_player.dart';
 import 'package:tsty_app/services/learning_tts_player.dart';
+import 'package:tsty_app/services/level_audio_player.dart';
+import 'package:tsty_app/services/level_evaluation_flow.dart';
 import 'package:tsty_app/services/parental_control.dart';
+import 'package:tsty_app/style/app_theme.dart';
+import 'package:tsty_app/utils/toast_utils.dart';
 import 'package:tsty_app/utils/parent_center_prefs.dart';
-import 'package:tsty_app/viewmodels/level_detail_view_model.dart';
 import 'package:tsty_app/utils/yi_recorder.dart';
 import 'package:tsty_app/viewmodels/learn.dart';
-
+import 'package:tsty_app/viewmodels/level_detail_view_model.dart';
 
 class LevelDetailPage extends StatefulWidget {
   final int? levelIndex;
@@ -53,9 +52,9 @@ class LevelDetailPage extends StatefulWidget {
 
       final parsedLevelIds = levelIds is List
           ? levelIds
-              .map((e) => e?.toString() ?? '')
-              .where((e) => e.isNotEmpty)
-              .toList(growable: false)
+                .map((e) => e?.toString() ?? '')
+                .where((e) => e.isNotEmpty)
+                .toList(growable: false)
           : null;
       return LevelDetailPage(
         levelIndex: levelIndex is int ? levelIndex : null,
@@ -78,7 +77,8 @@ class _LevelDetailPageState extends State<LevelDetailPage>
     with WidgetsBindingObserver, RouteAware {
   late final LevelDetailViewModel _vm;
   late final LearningDurationTracker _durationTracker;
-  final ParentalControlUsageTracker _usageTracker = ParentalControlUsageTracker();
+  final ParentalControlUsageTracker _usageTracker =
+      ParentalControlUsageTracker();
   late final LevelAudioPlayer _audioPlayer;
   late final LearningTtsPlayer _ttsPlayer;
   late LevelEvaluationFlow _evaluationFlow;
@@ -86,7 +86,9 @@ class _LevelDetailPageState extends State<LevelDetailPage>
   StreamSubscription<Duration>? _recordDurationSub;
 
   bool _recording = false;
-  String _recordStatus = '长按录音，学说 "b"';
+  String _recordStatus = '';
+  bool _isPlayingTts = false;
+  bool _isEvaluating = false;
 
   @override
   void initState() {
@@ -96,7 +98,9 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       totalLevels: widget.totalLevels ?? 23,
       levelIds: widget.levelIds ?? const [],
     );
-    _durationTracker = LearningDurationTracker(activityType: ActivityType.learn);
+    _durationTracker = LearningDurationTracker(
+      activityType: ActivityType.learn,
+    );
     _audioPlayer = LevelAudioPlayer();
     _ttsPlayer = LearningTtsPlayer();
     _evaluationFlow = LevelEvaluationFlow(
@@ -111,6 +115,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       onNavigateToNext: _navigateToNext,
     );
     _vm.setContent(widget.levelContent);
+    _recordStatus = '长按录音，学说 "${_vm.character}"';
 
     WidgetsBinding.instance.addObserver(this);
     ParentCenterPrefs.getControlSettings().then((s) {
@@ -175,6 +180,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.levelContent != widget.levelContent) {
       _vm.setContent(widget.levelContent);
+      _recordStatus = '长按录音，学说 "${_vm.character}"';
       _evaluationFlow = LevelEvaluationFlow(
         levelId: widget.levelId ?? '',
         unitId: widget.unitId ?? '',
@@ -190,6 +196,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
   }
 
   void _onEvaluationCompleted() {
+    _isEvaluating = false;
     setState(() {
       _recordStatus = '长按录音，学说 "${_vm.character}"';
     });
@@ -269,12 +276,22 @@ class _LevelDetailPageState extends State<LevelDetailPage>
     ToastUtils.showToast(context, msg);
   }
 
-  bool _isShengmuOrYunmu(LevelContent content) {
+  bool _hasLocalAudio(LevelContent content) {
     final s = content.contentType.trim().toLowerCase();
-    return s.contains('shengmu') || content.contentType.contains('声母');
+    return s.contains('shengmu') ||
+        s.contains('yunmu') ||
+        s.contains('hanzi') ||
+        s.contains('ciyu') ||
+        s.contains('word') ||
+        content.contentType.contains('声母') ||
+        content.contentType.contains('韵母') ||
+        content.contentType.contains('汉字') ||
+        content.contentType.contains('词语');
   }
 
   void _playStandard() {
+    if (_isPlayingTts) return;
+
     () async {
       final guard = await ParentalControlGuard.checkCanStartAction();
       if (!guard.allowed) {
@@ -287,8 +304,8 @@ class _LevelDetailPageState extends State<LevelDetailPage>
 
       final content = _vm.content ?? LevelContent.empty;
 
-      // 1) 声母：优先本地标准音（声母已有mp3）
-      if (_isShengmuOrYunmu(content)) {
+      // 1) 优先本地标准音（声母、韵母、汉字、词语）
+      if (_hasLocalAudio(content)) {
         var fallbackToTts = false;
         await _audioPlayer.playStandard(
           content: content,
@@ -298,9 +315,32 @@ class _LevelDetailPageState extends State<LevelDetailPage>
         if (!fallbackToTts) return;
       }
 
-      // 2) 其它内容：播放学习内容本身
+      // 2) 回退到云端TTS
       if (!mounted) return;
-      await _ttsPlayer.speak(context: context, text: content.contentValue);
+      var text = content.contentValue;
+      final s = content.contentType.trim().toLowerCase();
+      final isHanziOrCiyu =
+          s.contains('hanzi') ||
+          s.contains('ciyu') ||
+          s.contains('word') ||
+          content.contentType.contains('汉字') ||
+          content.contentType.contains('词语');
+      if (isHanziOrCiyu &&
+          !text.endsWith('。') &&
+          !text.endsWith('！') &&
+          !text.endsWith('？')) {
+        text = '$text。';
+      }
+
+      if (mounted) {
+        setState(() => _isPlayingTts = true);
+      }
+
+      await _ttsPlayer.speak(context: context, text: text);
+
+      if (mounted) {
+        setState(() => _isPlayingTts = false);
+      }
     }();
   }
 
@@ -316,19 +356,102 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       if (!mounted) return;
 
       final content = _vm.content ?? LevelContent.empty;
-      final example =
-          '${content.exampleWord}[p1000]${content.exampleSentence}'.trim();
-      if (example.isEmpty) {
+
+      final exampleWord = content.exampleWord.trim();
+      final exampleSentence = content.exampleSentence.trim();
+
+      if (exampleWord.isEmpty && exampleSentence.isEmpty) {
         ToastUtils.showToast(context, '暂无提示');
         return;
       }
 
-      await _ttsPlayer.speak(context: context, text: example);
+      if (!mounted) return;
+
+      final tipText = [
+        if (exampleWord.isNotEmpty) exampleWord,
+        if (exampleSentence.isNotEmpty) exampleSentence,
+      ].join('。');
+
+      if (tipText.isNotEmpty) {
+        _ttsPlayer.speak(context: context, text: tipText);
+      }
+
+      await showModalBottomSheet<void>(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return Container(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.lightbulb,
+                      color: Color(0xFFF0C000),
+                      size: 24,
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      '学习提示',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF2A1E00),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                if (exampleWord.isNotEmpty)
+                  Text(
+                    exampleWord,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2A1E00),
+                    ),
+                  ),
+                if (exampleWord.isNotEmpty && exampleSentence.isNotEmpty)
+                  const SizedBox(height: 10),
+                if (exampleSentence.isNotEmpty)
+                  Text(
+                    exampleSentence,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF666666),
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                Center(
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text(
+                      '知道了',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFCC0000),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
     }();
   }
 
   void _startRecording() {
-    if (_recording) return;
+    if (_recording || _isEvaluating) return;
     () async {
       final guard = await ParentalControlGuard.checkCanStartAction();
       if (!guard.allowed) {
@@ -381,6 +504,14 @@ class _LevelDetailPageState extends State<LevelDetailPage>
 
   Future<void> _stopRecording() async {
     if (!_recording) return;
+    if (_isEvaluating) return;
+
+    _isEvaluating = true;
+
+    setState(() {
+      _recording = false;
+      _recordStatus = '录音结束，正在测评...';
+    });
 
     _recordDurationSub?.cancel();
     _recordDurationSub = null;
@@ -390,22 +521,18 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       recordResult = await _recorder.stop();
     } catch (_) {
       if (!mounted) return;
+      _isEvaluating = false;
       setState(() {
-        _recording = false;
         _recordStatus = '长按录音，学说 "${_vm.character}"';
       });
       ToastUtils.showToast(context, '录音结束失败');
       return;
     }
 
-    setState(() {
-      _recording = false;
-      _recordStatus = '录音结束，正在测评...';
-    });
-
     if (recordResult == null || _vm.content == null) {
       await Future<void>.delayed(const Duration(milliseconds: 800));
       if (!mounted) return;
+      _isEvaluating = false;
       setState(() {
         _recordStatus = '长按录音，学说 "${_vm.character}"';
       });
@@ -416,6 +543,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       if (!mounted) return;
       ToastUtils.showToast(context, 'Web 暂不支持语音测评');
       if (!mounted) return;
+      _isEvaluating = false;
       setState(() {
         _recordStatus = '长按录音，学说 "${_vm.character}"';
       });
@@ -427,7 +555,11 @@ class _LevelDetailPageState extends State<LevelDetailPage>
       context: context,
       recordResult: recordResult,
     );
-    _onEvaluationCompleted();
+
+    if (mounted) {
+      _isEvaluating = false;
+      setState(() {});
+    }
   }
 
   @override
@@ -475,6 +607,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
                               hintImageAsset: _vm.hintImage,
                               hintLabel: _vm.hintLabel,
                               exampleText: _vm.exampleText,
+                              isPlayingTts: _isPlayingTts,
                               onPlayStandard: _playStandard,
                               onPlayTip: _playTip,
                             ),
@@ -482,6 +615,7 @@ class _LevelDetailPageState extends State<LevelDetailPage>
                             LevelDetailEvaluateCard(
                               recording: _recording,
                               statusText: _recordStatus,
+                              isEvaluating: _isEvaluating,
                               onLongPressStart: _startRecording,
                               onLongPressEnd: _stopRecording,
                             ),

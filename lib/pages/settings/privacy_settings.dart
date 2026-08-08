@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tsty_app/components/common/YiTopBar.dart';
+import 'package:tsty_app/components/common/yi_top_bar.dart';
 import 'package:tsty_app/style/app_theme.dart';
 
 class PrivacySettingsPage extends StatelessWidget {
@@ -123,10 +123,7 @@ class PrivacySettingsPage extends StatelessWidget {
                   Center(
                     child: Text(
                       '童声同音致力于保护您的隐私安全',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -192,10 +189,7 @@ class PrivacySettingsPage extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: content,
-          ),
+          Container(padding: const EdgeInsets.all(16), child: content),
         ],
       ),
     );

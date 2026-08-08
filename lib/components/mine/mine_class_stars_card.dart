@@ -5,10 +5,7 @@ import 'package:tsty_app/style/app_theme.dart';
 class MineClassStarsCard extends StatelessWidget {
   final List<MineStarStudent> stars;
 
-  const MineClassStarsCard({
-    super.key,
-    required this.stars,
-  });
+  const MineClassStarsCard({super.key, required this.stars});
 
   @override
   Widget build(BuildContext context) {
@@ -116,8 +113,9 @@ class MineClassStarsCard extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
-                                  color: const Color(0xFF3D2800)
-                                      .withValues(alpha: 0.6),
+                                  color: const Color(
+                                    0xFF3D2800,
+                                  ).withValues(alpha: 0.6),
                                 ),
                               ),
                             ],
@@ -161,40 +159,40 @@ class MineClassStarsCard extends StatelessWidget {
                     ),
                   )
                 else
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final list = _sortedStars();
-                    final count = list.isEmpty ? 1 : list.length;
-                    final slotWidth = (constraints.maxWidth / count)
-                        .clamp(72.0, 160.0)
-                        .toDouble();
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final list = _sortedStars();
+                      final count = list.isEmpty ? 1 : list.length;
+                      final slotWidth = (constraints.maxWidth / count)
+                          .clamp(72.0, 160.0)
+                          .toDouble();
 
-                    double pickAvatarSize(MineStarStudent s) {
-                      final base = (slotWidth - 26).clamp(52.0, 80.0);
-                      if (s.rank == 1) return base;
-                      if (s.rank == 2) return (base * 0.9).clamp(48.0, base);
-                      return (base * 0.84).clamp(46.0, base);
-                    }
+                      double pickAvatarSize(MineStarStudent s) {
+                        final base = (slotWidth - 26).clamp(52.0, 80.0);
+                        if (s.rank == 1) return base;
+                        if (s.rank == 2) return (base * 0.9).clamp(48.0, base);
+                        return (base * 0.84).clamp(46.0, base);
+                      }
 
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        for (final s in list)
-                          SizedBox(
-                            width: slotWidth,
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: _StarProfile(
-                                student: s,
-                                avatarSize: pickAvatarSize(s),
-                                slotWidth: slotWidth,
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          for (final s in list)
+                            SizedBox(
+                              width: slotWidth,
+                              child: Align(
+                                alignment: Alignment.bottomCenter,
+                                child: _StarProfile(
+                                  student: s,
+                                  avatarSize: pickAvatarSize(s),
+                                  slotWidth: slotWidth,
+                                ),
                               ),
                             ),
-                          ),
-                      ],
-                    );
-                  },
-                ),
+                        ],
+                      );
+                    },
+                  ),
               ],
             ),
           ],
@@ -248,11 +246,13 @@ class _StarProfile extends StatelessWidget {
     final medalColor = student.rank == 1
         ? const Color(0xFFFFD700)
         : student.rank == 2
-            ? const Color(0xFFC0C0C0)
-            : const Color(0xFFCD7F32);
+        ? const Color(0xFFC0C0C0)
+        : const Color(0xFFCD7F32);
 
-    final nameFontSize = (isFirst ? size * 0.18 : size * 0.17)
-        .clamp(isFirst ? 14.0 : 13.0, isFirst ? 16.0 : 14.0);
+    final nameFontSize = (isFirst ? size * 0.18 : size * 0.17).clamp(
+      isFirst ? 14.0 : 13.0,
+      isFirst ? 16.0 : 14.0,
+    );
     final heartSize = (size * 0.17).clamp(12.0, 14.0);
     final medalSize = (size * 0.27).clamp(18.0, 24.0);
     final medalOffset = -(medalSize * 0.33);

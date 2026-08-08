@@ -1,21 +1,21 @@
-import 'package:tsty_app/components/ai_chat/ai_chat_models.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:tsty_app/components/ai_chat/ai_chat_models.dart';
 import 'package:tsty_app/components/ai_chat/ai_chat_record_overlay.dart';
 import 'package:tsty_app/components/ai_chat/ai_chat_teacher_area.dart';
 import 'package:tsty_app/components/ai_chat/ai_chat_top_bar.dart';
 import 'package:tsty_app/components/common/yi_dialog.dart';
-import 'package:tsty_app/services/parental_control.dart';
+import 'package:tsty_app/routes/route_observer.dart';
 import 'package:tsty_app/services/learning_duration_tracker.dart';
+import 'package:tsty_app/services/parental_control.dart';
 import 'package:tsty_app/services/realtime_ai_voice_chat_session.dart';
 import 'package:tsty_app/services/rtc_audio_call_service.dart';
-import 'package:tsty_app/routes/route_observer.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/utils/toast_utils.dart';
+import 'package:tsty_app/utils/parent_center_prefs.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 import 'package:tsty_app/utils/yi_recorder.dart';
-import 'package:tsty_app/utils/parent_center_prefs.dart';
 
 class AiChatDetailPage extends StatefulWidget {
   final String? sceneId;
@@ -59,8 +59,9 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
   late final LearningDurationTracker _durationTracker;
 
   final RtcAudioCallService _rtc = RtcAudioCallService();
-  late final RealtimeAiVoiceChatSession _aiSession =
-      RealtimeAiVoiceChatSession(_rtc);
+  late final RealtimeAiVoiceChatSession _aiSession = RealtimeAiVoiceChatSession(
+    _rtc,
+  );
   StreamSubscription<RtcAudioCallState>? _rtcStateSub;
   StreamSubscription<RtcAudioCallError?>? _rtcErrSub;
 
@@ -84,7 +85,7 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
   }
 
   final Map<String, Map<String, String>> _scenes = const {
-    'greeting': {'name': '日常问候', 'opening': '你好呀！今天开心吗？'},
+    'greeting': {'name': '通用对话', 'opening': '小朋友，你好呀！我们来用普通话聊天吧~'},
     'toy-sharing': {'name': '玩具分享', 'opening': '你有喜欢的玩具吗？可以和我说说哦~'},
     'food': {'name': '食物认知', 'opening': '你最爱吃什么呀？'},
     'weather': {'name': '天气交流', 'opening': '今天天气怎么样？'},
@@ -106,16 +107,21 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
   String get _teacherAsset =>
       _selectedCharacter == 0 ? 'lib/assets/girl.webp' : 'lib/assets/boy.webp';
 
-  String get _teacherWaitGlbAsset => _selectedCharacter == 0
-      ? 'lib/assets/glb/ayimo_wait.glb'
-      : 'lib/assets/glb/aniure_wait.glb';
+  String get _teacherWaitingVideo => _selectedCharacter == 0
+      ? 'lib/assets/video/AyiMo-waiting.mp4'
+      : 'lib/assets/video/AniuRe-waiting.mp4';
+
+  String get _teacherAnsweringVideo => _selectedCharacter == 0
+      ? 'lib/assets/video/AyiMo-answering.mp4'
+      : 'lib/assets/video/AniuRe-answering.mp4';
 
   @override
   void initState() {
     super.initState();
 
-    _durationTracker =
-        LearningDurationTracker(activityType: ActivityType.aiChat);
+    _durationTracker = LearningDurationTracker(
+      activityType: ActivityType.aiChat,
+    );
     WidgetsBinding.instance.addObserver(this);
 
     () async {
@@ -291,9 +297,9 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
 
       try {
         await _aiSession.stop().timeout(
-              const Duration(seconds: 5),
-              onTimeout: () {},
-            );
+          const Duration(seconds: 5),
+          onTimeout: () {},
+        );
       } catch (_) {}
     }();
 
@@ -554,8 +560,12 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
                   const ParentalControlSoftBanner(),
                   AiChatTeacherArea(
                     teacherAsset: _teacherAsset,
-                    teacherGlbAsset: _teacherWaitGlbAsset,
+                    waitingVideoAsset: _teacherWaitingVideo,
+                    answeringVideoAsset: _teacherAnsweringVideo,
                     statusText: _statusText,
+                    isSpeaking:
+                        _teacherState == 'speaking' ||
+                        _teacherState == 'thinking',
                   ),
                 ],
               ),
@@ -565,6 +575,7 @@ class _AiChatDetailPageState extends State<AiChatDetailPage>
               isDisabled: _isDisabled,
               recordSeconds: _recordSeconds,
               amplitude: _amplitude,
+              statusText: _statusText,
               onRecordStart: _onRecordStart,
               onRecordEnd: _onRecordEnd,
             ),

@@ -29,8 +29,8 @@ class ParentReportSection extends StatelessWidget {
     final trendTitle = period == ParentReportPeriod.week
         ? '本周学习时长'
         : period == ParentReportPeriod.month
-            ? '本月学习时长'
-            : '全部学习时长趋势';
+        ? '本月学习时长'
+        : '全部学习时长趋势';
 
     return Stack(
       children: [
@@ -48,10 +48,7 @@ class ParentReportSection extends StatelessWidget {
                 lastStudyDate: data.summary.lastStudyDate,
               ),
               const SizedBox(height: 14),
-              _PeriodTabs(
-                value: period,
-                onChanged: onPeriodChanged,
-              ),
+              _PeriodTabs(value: period, onChanged: onPeriodChanged),
               const SizedBox(height: 14),
               _StatsGrid(data: data),
               const SizedBox(height: 14),
@@ -194,10 +191,10 @@ class _AllTimeTrendCard extends StatelessWidget {
                 final interval = count <= 14
                     ? 1
                     : count <= 31
-                        ? 2
-                        : count <= 90
-                            ? 7
-                            : 30;
+                    ? 2
+                    : count <= 90
+                    ? 7
+                    : 30;
 
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -211,7 +208,9 @@ class _AllTimeTrendCard extends StatelessWidget {
                         if (box == null) return;
                         final local = box.globalToLocal(e.position);
                         final usable = contentW.clamp(1.0, double.infinity);
-                        final idx = ((local.dx / usable) * (count - 1)).round().clamp(0, count - 1);
+                        final idx = ((local.dx / usable) * (count - 1))
+                            .round()
+                            .clamp(0, count - 1);
                         onPointTap(idx);
                       },
                       child: Column(
@@ -234,13 +233,18 @@ class _AllTimeTrendCard extends StatelessWidget {
                               mainAxisSize: MainAxisSize.max,
                               children: [
                                 ...List.generate(effectiveLabels.length, (i) {
-                                  final show = i == 0 || i == effectiveLabels.length - 1 || (i % interval == 0);
+                                  final show =
+                                      i == 0 ||
+                                      i == effectiveLabels.length - 1 ||
+                                      (i % interval == 0);
                                   return SizedBox(
                                     width: dxStep,
                                     child: Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                        show ? shortLabel(effectiveLabels[i]) : '',
+                                        show
+                                            ? shortLabel(effectiveLabels[i])
+                                            : '',
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
@@ -339,11 +343,7 @@ class _AllTimeTrendPainter extends CustomPainter {
     final dotPaint = Paint()..color = accent;
     for (final p in points) {
       canvas.drawCircle(p, 4, dotPaint);
-      canvas.drawCircle(
-        p,
-        8,
-        Paint()..color = accent.withValues(alpha: 0.12),
-      );
+      canvas.drawCircle(p, 8, Paint()..color = accent.withValues(alpha: 0.12));
     }
   }
 
@@ -407,10 +407,7 @@ class _ChildHeaderCard extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            red,
-            Color.lerp(red, Colors.black, 0.12) ?? red,
-          ],
+          colors: [red, Color.lerp(red, Colors.black, 0.12) ?? red],
         ),
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
@@ -765,7 +762,10 @@ class _ProgressCardState extends State<_ProgressCard> {
                 borderRadius: BorderRadius.circular(999),
                 onTap: () => setState(() => _expanded = !_expanded),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: red.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(999),
@@ -853,8 +853,9 @@ class _ProgressCardState extends State<_ProgressCard> {
                 ),
               ),
             ),
-            crossFadeState:
-                _expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            crossFadeState: _expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
             duration: const Duration(milliseconds: 180),
             firstCurve: Curves.easeOut,
             secondCurve: Curves.easeOut,
@@ -886,10 +887,7 @@ class _UnitProgressRow extends StatelessWidget {
         Container(
           width: 10,
           height: 10,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
         SizedBox(
@@ -1120,8 +1118,8 @@ class _TrendCard extends StatelessWidget {
     final avg = effectiveMinutes.isEmpty
         ? 0
         : (effectiveMinutes.fold<int>(0, (p, e) => p + e) /
-                effectiveMinutes.length)
-            .round();
+                  effectiveMinutes.length)
+              .round();
 
     final denom = (maxMinutes > 60 ? maxMinutes : 60).toDouble();
 
@@ -1155,7 +1153,10 @@ class _TrendCard extends StatelessWidget {
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(999),
@@ -1216,7 +1217,9 @@ class _TrendCard extends StatelessWidget {
                             child: InkWell(
                               onTap: () => onBarTap(i),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 2,
+                                ),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
@@ -1230,7 +1233,9 @@ class _TrendCard extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 4),
                                     AnimatedContainer(
-                                      duration: const Duration(milliseconds: 220),
+                                      duration: const Duration(
+                                        milliseconds: 220,
+                                      ),
                                       curve: Curves.easeOut,
                                       height: h,
                                       width: 22,

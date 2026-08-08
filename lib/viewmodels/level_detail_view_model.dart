@@ -104,13 +104,22 @@ String _ciyuImageAsset(String value) {
   return 'lib/assets/learn/ciyu/$key.webp';
 }
 
-
 String _shengmuAssetKey(String raw) {
   return raw.trim().toLowerCase();
 }
 
 String _shengmuImageAsset(String key) {
   return 'lib/assets/learn/shengmu/image/$key.webp';
+}
+
+String _yunmuAssetKey(String raw) {
+  var s = raw.trim().toLowerCase();
+  s = s.replaceAll('v', 'ü');
+  return s;
+}
+
+String _yunmuImageAsset(String key) {
+  return 'lib/assets/learn/yunmu/image/$key.webp';
 }
 
 class LevelDetailViewModel {
@@ -122,6 +131,7 @@ class LevelDetailViewModel {
   int tipIndex = 0;
 
   String get character => content?.contentValue ?? '';
+
   String get pinyin {
     final c = content;
     if (c == null) return '';
@@ -140,6 +150,12 @@ class LevelDetailViewModel {
         return _shengmuImageAsset(key);
       }
     }
+    if (_isYunmuContent(c)) {
+      final key = _yunmuAssetKey(c.contentValue);
+      if (key.isNotEmpty) {
+        return _yunmuImageAsset(key);
+      }
+    }
     if (_isHanziContent(c)) {
       final key = c.contentValue.trim();
       if (key.isNotEmpty) {
@@ -156,6 +172,7 @@ class LevelDetailViewModel {
   }
 
   String get hintLabel => content?.exampleWord ?? '';
+
   String get exampleText {
     final c = content;
     if (c == null) return '';

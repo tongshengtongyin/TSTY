@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tsty_app/api/tts.dart';
 import 'package:tsty_app/constants/index.dart';
-import 'package:tsty_app/utils/ToastUtils.dart';
+import 'package:tsty_app/services/flutter_tts_service.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 import 'package:tsty_app/utils/yi_speech_evaluator.dart';
 import 'package:tsty_app/utils/yi_tts_synthesizer.dart';
@@ -13,11 +13,13 @@ import 'package:tsty_app/utils/yi_tts_synthesizer.dart';
 class LearningTtsPlayer {
   final AudioPlayer _player = AudioPlayer();
   final Map<String, Uint8List> _memCache = <String, Uint8List>{};
+  final FlutterTtsService _flutterTts = FlutterTtsService();
 
   Future<void>? _current;
 
-  static final Uri _ttsEndpoint =
-      Uri.parse('wss://cbm01.cn-huabei-1.xf-yun.com/v1/private/mcd9m97e6');
+  static final Uri _ttsEndpoint = Uri.parse(
+    'wss://cbm01.cn-huabei-1.xf-yun.com/v1/private/mcd9m97e6',
+  );
   static const String _defaultVcn = 'x6_lingyouyou_pro';
 
   Future<TtsAuthCache?> _ensureAuth() async {
@@ -50,11 +52,22 @@ class LearningTtsPlayer {
   Future<void> speak({
     required BuildContext context,
     required String text,
+    VoidCallback? onComplete,
   }) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
 
-    // Serialize play requests. New request stops previous playback.
+    final engine = await UserPrefs.getTtsEngine();
+    if (engine == 'flutter_tts') {
+      if (!context.mounted) return;
+      await _flutterTts.speak(
+        context: context,
+        text: trimmed,
+        onComplete: onComplete,
+      );
+      return;
+    }
+
     final prev = _current;
     _current = () async {
       try {
@@ -65,14 +78,21 @@ class LearningTtsPlayer {
       final cachedBytes = _memCache[key];
       if (cachedBytes != null && cachedBytes.isNotEmpty) {
         await _player.play(BytesSource(cachedBytes));
+        onComplete?.call();
         return;
       }
 
       final auth = await _ensureAuth();
       if (auth == null) {
-        if (context.mounted) {
-          ToastUtils.showToast(context, '获取语音合成鉴权失败');
+        if (kDebugMode) {
+          debugPrint('TTS auth failed, fallback to flutter_tts');
         }
+        if (!context.mounted) return;
+        await _flutterTts.speak(
+          context: context,
+          text: trimmed,
+          onComplete: onComplete,
+        );
         return;
       }
 
@@ -87,6 +107,7 @@ class LearningTtsPlayer {
           endpoint: _ttsEndpoint,
           appId: auth.appId,
           vcn: _defaultVcn,
+          serviceType: auth.serviceType.isEmpty ? 'tts' : auth.serviceType,
         ),
       );
 
@@ -99,19 +120,22 @@ class LearningTtsPlayer {
         );
       } catch (e) {
         if (kDebugMode) {
-          debugPrint('TTS synthesize failed: $e');
+          debugPrint('TTS synthesize failed, fallback to flutter_tts: $e');
         }
-        if (context.mounted) {
-          ToastUtils.showToast(context, '合成失败');
-        }
+        if (!context.mounted) return;
+        await _flutterTts.speak(
+          context: context,
+          text: trimmed,
+          onComplete: onComplete,
+        );
         return;
       }
 
       _memCache[key] = bytes;
       await _player.play(BytesSource(bytes));
+      onComplete?.call();
     }();
 
-    // Ensure FIFO semantics.
     if (prev != null) {
       try {
         await prev;
@@ -124,6 +148,7 @@ class LearningTtsPlayer {
 
   void dispose() {
     _memCache.clear();
+    _flutterTts.dispose();
     try {
       _player.dispose();
     } catch (_) {}
