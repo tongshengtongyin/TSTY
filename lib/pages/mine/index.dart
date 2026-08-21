@@ -120,6 +120,16 @@ class _MinePageState extends State<MinePage> {
     return s;
   }
 
+  double _getMaxWidth(double screenWidth) {
+    if (screenWidth >= 840) {
+      return 600;
+    } else if (screenWidth >= 600) {
+      return 500;
+    } else {
+      return screenWidth - 32;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const avatars = <String>[
@@ -198,12 +208,19 @@ class _MinePageState extends State<MinePage> {
                       avatarAsset: avatarAsset,
                     ),
                     const SizedBox(height: 24),
-                    MineClassStarsCard(stars: _classStars),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: _getMaxWidth(MediaQuery.of(context).size.width),
+                        ),
+                        child: MineClassStarsCard(stars: _classStars),
+                      ),
+                    ),
                     const SizedBox(height: 24),
                     MineMenuSection(
-                      onTap: (action) {
-                        switch (action) {
-                          case MineMenuAction.editProfile:
+                      onTap: (index) {
+                        switch (index) {
+                          case 0:
                             Navigator.of(
                               context,
                             ).pushNamed('/mine/edit-profile').then((v) {
@@ -212,12 +229,12 @@ class _MinePageState extends State<MinePage> {
                               }
                             });
                             break;
-                          case MineMenuAction.parentEntry:
+                          case 1:
                             Navigator.of(
                               context,
                             ).pushNamed('/mine/parent-entry');
                             break;
-                          case MineMenuAction.settings:
+                          case 2:
                             Navigator.of(context).pushNamed('/settings');
                             break;
                         }

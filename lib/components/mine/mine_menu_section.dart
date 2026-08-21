@@ -1,73 +1,84 @@
 import 'package:flutter/material.dart';
-import 'package:tsty_app/components/mine/models.dart';
 import 'package:tsty_app/style/app_theme.dart';
 
 class MineMenuSection extends StatelessWidget {
-  final ValueChanged<MineMenuAction>? onTap;
+  final ValueChanged<int>? onTap;
 
   const MineMenuSection({super.key, this.onTap});
+
+  double _getMaxWidth(double screenWidth) {
+    if (screenWidth >= 840) {
+      return 600;
+    } else if (screenWidth >= 600) {
+      return 500;
+    } else {
+      return screenWidth - 32;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final red = Theme.of(context).colorScheme.primary;
     final yellow = AppTheme.yiYellow.value;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          _MenuItem(
-            icon: Icons.person,
-            iconBg: yellow,
-            iconColor: red,
-            title: '修改个人信息',
-            borderStyle: _MenuBorderStyle.dashedYellow,
-            right: const Icon(
-              Icons.chevron_right,
-              color: Color(0xFF3D2800),
-              size: 28,
+    return Center(
+      child: SizedBox(
+        width: _getMaxWidth(MediaQuery.of(context).size.width),
+        child: Column(
+          children: [
+            _MenuItem(
+              icon: Icons.person,
+              iconBg: yellow,
+              iconColor: red,
+              title: '修改个人信息',
+              borderStyle: _MenuBorderStyle.dashedYellow,
+              right: const Icon(
+                Icons.chevron_right,
+                color: Color(0xFF3D2800),
+                size: 28,
+              ),
+              onTap: () => onTap?.call(0),
             ),
-            onTap: () => onTap?.call(MineMenuAction.editProfile),
-          ),
-          const SizedBox(height: 8),
-          _MenuItem(
-            icon: Icons.admin_panel_settings,
-            iconBg: red,
-            iconColor: Colors.white,
-            title: '家长入口',
-            borderStyle: _MenuBorderStyle.solidRed,
-            right: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '查看学习报告',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF999999),
-                    fontWeight: FontWeight.w500,
+            const SizedBox(height: 8),
+            _MenuItem(
+              icon: Icons.admin_panel_settings,
+              iconBg: red,
+              iconColor: Colors.white,
+              title: '家长入口',
+              borderStyle: _MenuBorderStyle.solidRed,
+              right: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '查看学习报告',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF999999),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-                SizedBox(width: 4),
-                Icon(Icons.chevron_right, color: Color(0xFF3D2800), size: 28),
-              ],
+                  SizedBox(width: 4),
+                  Icon(Icons.chevron_right, color: Color(0xFF3D2800), size: 28),
+                ],
+              ),
+              onTap: () => onTap?.call(1),
             ),
-            onTap: () => onTap?.call(MineMenuAction.parentEntry),
-          ),
-          const SizedBox(height: 8),
-          _MenuItem(
-            icon: Icons.settings,
-            iconBg: yellow,
-            iconColor: red,
-            title: '设置',
-            borderStyle: _MenuBorderStyle.dashedYellow,
-            right: const Icon(
-              Icons.chevron_right,
-              color: Color(0xFF3D2800),
-              size: 28,
+            const SizedBox(height: 8),
+            _MenuItem(
+              icon: Icons.settings,
+              iconBg: yellow,
+              iconColor: red,
+              title: '设置',
+              borderStyle: _MenuBorderStyle.dashedYellow,
+              right: const Icon(
+                Icons.chevron_right,
+                color: Color(0xFF3D2800),
+                size: 28,
+              ),
+              onTap: () => onTap?.call(2),
             ),
-            onTap: () => onTap?.call(MineMenuAction.settings),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

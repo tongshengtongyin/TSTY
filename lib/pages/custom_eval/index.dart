@@ -80,51 +80,56 @@ class _CustomEvalListPageState extends State<CustomEvalListPage> {
                 onBack: () => Navigator.of(context).maybePop(),
               ),
               Expanded(
-                child: _loading
-                    ? const Center(child: CircularProgressIndicator())
-                    : _items.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.assignment_outlined,
-                              size: 64,
-                              color: Colors.grey.withValues(alpha: 0.4),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: _loading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _items.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.assignment_outlined,
+                                  size: 64,
+                                  color: Colors.grey.withValues(alpha: 0.4),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  '还没有测评内容',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.grey.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  '点击右下角按钮添加测评吧！',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey.withValues(alpha: 0.5),
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 12),
-                            Text(
-                              '还没有测评内容',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey.withValues(alpha: 0.6),
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              '点击右下角按钮添加测评吧！',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.withValues(alpha: 0.5),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.only(top: 12, bottom: 80),
-                        itemCount: _items.length,
-                        itemBuilder: (context, index) {
-                          final item = _items[index];
-                          return EvalItemCard(
-                            item: item,
-                            onTap: () => _openSession(item),
-                            onDeleted: () => _deleteItem(item.id),
-                          );
-                        },
-                      ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.only(top: 12, bottom: 80),
+                            itemCount: _items.length,
+                            itemBuilder: (context, index) {
+                              final item = _items[index];
+                              return EvalItemCard(
+                                item: item,
+                                onTap: () => _openSession(item),
+                                onDeleted: () => _deleteItem(item.id),
+                              );
+                            },
+                          ),
+                  ),
+                ),
               ),
             ],
           ),

@@ -7,32 +7,42 @@ class AiChatRecentListSliver extends StatelessWidget {
 
   const AiChatRecentListSliver({super.key, required this.chats});
 
+  double _getMaxWidth(double screenWidth) {
+    if (screenWidth >= 840) {
+      return 600;
+    } else if (screenWidth >= 600) {
+      return 500;
+    } else {
+      return double.infinity;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
-                blurRadius: 18,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              for (var i = 0; i < chats.length; i++)
-                AiChatRecentChatTile(
-                  chat: chats[i],
-                  showDivider: i != chats.length - 1,
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      sliver: SliverToBoxAdapter(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final maxWidth = _getMaxWidth(constraints.maxWidth);
+            return Center(
+              child: SizedBox(
+                width: maxWidth,
+                child: Column(
+                  children: [
+                    for (var i = 0; i < chats.length; i++)
+                      Padding(
+                        padding: EdgeInsets.only(bottom: i != chats.length - 1 ? 10 : 0),
+                        child: AiChatRecentChatTile(
+                          chat: chats[i],
+                          showDivider: false,
+                        ),
+                      ),
+                  ],
                 ),
-            ],
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

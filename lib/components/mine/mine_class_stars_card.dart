@@ -175,6 +175,7 @@ class MineClassStarsCard extends StatelessWidget {
                       }
 
                       return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           for (final s in list)

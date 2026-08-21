@@ -113,93 +113,99 @@ class _ParentEntryPageState extends State<ParentEntryPage> {
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 92,
-                      height: 92,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [red, red.withValues(alpha: 0.75)],
-                        ),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: red.withValues(alpha: 0.25),
-                            blurRadius: 28,
-                            offset: const Offset(0, 12),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.shield_rounded,
-                        size: 46,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    const Text(
-                      '家长验证',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF3D2800),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      '请输入家长密码以查看学习报告',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF666666),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    ParentEntryPasswordCard(
-                      controller: _passwordController,
-                      obscureText: _obscure,
-                      onToggleObscure: () => setState(() {
-                        _obscure = !_obscure;
-                      }),
-                      errorText: _errorText,
-                      loading: _loading,
-                      onSubmit: _onSubmit,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
-                          '默认密码：123456',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF999999),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        InkWell(
-                          onTap: () {
-                            ToastUtils.showToast(context, '请联系老师重置密码');
-                          },
-                          child: Text(
-                            '忘记密码？',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w900,
-                              color: red,
+                        Container(
+                          width: 92,
+                          height: 92,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [red, red.withValues(alpha: 0.75)],
                             ),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: red.withValues(alpha: 0.25),
+                                blurRadius: 28,
+                                offset: const Offset(0, 12),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.shield_rounded,
+                            size: 46,
+                            color: Colors.white,
                           ),
                         ),
+                        const SizedBox(height: 18),
+                        const Text(
+                          '家长验证',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF3D2800),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          '请输入家长密码以查看学习报告',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF666666),
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        ParentEntryPasswordCard(
+                          controller: _passwordController,
+                          obscureText: _obscure,
+                          onToggleObscure: () => setState(() {
+                            _obscure = !_obscure;
+                          }),
+                          errorText: _errorText,
+                          loading: _loading,
+                          onSubmit: _onSubmit,
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              '默认密码：123456',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF999999),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            InkWell(
+                              onTap: () {
+                                ToastUtils.showToast(context, '请联系老师重置密码');
+                              },
+                              child: Text(
+                                '忘记密码？',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w900,
+                                  color: red,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 18),
+                        const ParentEntryFeatureList(),
                       ],
                     ),
-                    const SizedBox(height: 18),
-                    const ParentEntryFeatureList(),
-                  ],
+                  ),
                 ),
               ),
             ),
