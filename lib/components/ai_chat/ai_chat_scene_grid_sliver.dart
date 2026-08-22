@@ -27,8 +27,8 @@ class AiChatSceneGridSliver extends StatelessWidget {
             onTap: () => onSceneTap(s),
           );
         }, childCount: scenes.length),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 200,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
           childAspectRatio: 1.05,

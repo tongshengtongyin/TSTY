@@ -69,6 +69,7 @@ class _LoginPageState extends State<LoginPage> {
       final deviceId = await UserPrefs.getOrCreateDeviceId();
       final deviceType = switch (defaultTargetPlatform) {
         TargetPlatform.android => 'android',
+        TargetPlatform.ohos => 'android',
         TargetPlatform.iOS => 'ios',
         TargetPlatform.windows => 'windows',
         TargetPlatform.macOS => 'macos',

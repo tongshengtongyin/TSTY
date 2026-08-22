@@ -1,53 +1,27 @@
-// language version: 3.5
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tsty_app/api/ise.dart';
-import 'package:tsty_app/api/learn.dart';
 import 'package:tsty_app/components/learn/level_detail/level_detail_eval_dialog.dart';
 import 'package:tsty_app/constants/index.dart';
+import 'package:tsty_app/services/flutter_tts_service.dart';
 import 'package:tsty_app/utils/toast_utils.dart';
+import 'package:tsty_app/utils/custom_eval_store.dart';
 import 'package:tsty_app/utils/user_prefs.dart';
 import 'package:tsty_app/utils/yi_recorder.dart';
 import 'package:tsty_app/utils/yi_speech_evaluator.dart';
-import 'package:tsty_app/viewmodels/learn.dart';
 
-class LevelEvaluationFlow {
-  final String levelId;
-  final String unitId;
-  final String? lessonId;
-  final LevelContent content;
-  final int currentLevel;
-  final int totalLevels;
-  final List<String> levelIds;
+class CustomEvaluationFlow {
+  final CustomEvalItem item;
   final VoidCallback onEvaluationCompleted;
-  final VoidCallback onNavigateToNext;
+  final VoidCallback onFinish;
+  final FlutterTtsService ttsPlayer;
 
-  LevelEvaluationFlow({
-    required this.levelId,
-    required this.unitId,
-    this.lessonId,
-    required this.content,
-    required this.currentLevel,
-    required this.totalLevels,
-    required this.levelIds,
+  CustomEvaluationFlow({
+    required this.item,
     required this.onEvaluationCompleted,
-    required this.onNavigateToNext,
+    required this.onFinish,
+    required this.ttsPlayer,
   });
-
-  bool _isShengmuContent(LevelContent content) {
-    final s = content.contentType.trim().toLowerCase();
-    return s.contains('shengmu') || content.contentType.contains('声母');
-  }
-
-  bool _isYunmuContent(LevelContent content) {
-    final s = content.contentType.trim().toLowerCase();
-    return s.contains('yunmu') || content.contentType.contains('韵母');
-  }
-
-  bool _isWordContent(LevelContent content) {
-    final s = content.contentType.trim().toLowerCase();
-    return s.contains('word') || content.contentType.contains('词语');
-  }
 
   Future<IseAuthCache?> _ensureIseAuth() async {
     final cached = await UserPrefs.getIseAuthCache();
@@ -61,9 +35,7 @@ class LevelEvaluationFlow {
         return cached;
       }
       if (kDebugMode) {
-        debugPrint(
-          'ISE auth cache expired: ageMs=$ageMs ttlMs=$ttlMs, clearing',
-        );
+        debugPrint('ISE auth cache expired, clearing');
       }
       await UserPrefs.clearIseAuthCache();
     }
@@ -117,63 +89,51 @@ class LevelEvaluationFlow {
     ];
 
     if (tone != null) {
-      points.add(
-        LevelEvalPoint(
-          success: ok(tone),
-          text: dimText(
+      points.add(LevelEvalPoint(
+        success: ok(tone),
+        text: dimText(
             good: '声调很准',
             mid: '声调不错',
             ok: '声调需再稳一点',
             bad: '声调需要加强',
-            v: tone,
-          ),
-        ),
-      );
+            v: tone),
+      ));
     }
 
     if (phone != null) {
-      points.add(
-        LevelEvalPoint(
-          success: ok(phone),
-          text: dimText(
+      points.add(LevelEvalPoint(
+        success: ok(phone),
+        text: dimText(
             good: '发音很清晰',
             mid: '发音不错',
             ok: '发音需更清晰',
             bad: '发音需要加强',
-            v: phone,
-          ),
-        ),
-      );
+            v: phone),
+      ));
     }
 
     if (fluency != null) {
-      points.add(
-        LevelEvalPoint(
-          success: ok(fluency),
-          text: dimText(
+      points.add(LevelEvalPoint(
+        success: ok(fluency),
+        text: dimText(
             good: '表达很流畅',
             mid: '表达比较流畅',
             ok: '流利度需提升',
             bad: '流利度需要加强',
-            v: fluency,
-          ),
-        ),
-      );
+            v: fluency),
+      ));
     }
 
     if (integrity != null) {
-      points.add(
-        LevelEvalPoint(
-          success: ok(integrity),
-          text: dimText(
+      points.add(LevelEvalPoint(
+        success: ok(integrity),
+        text: dimText(
             good: '内容很完整',
             mid: '内容比较完整',
             ok: '注意不要吞音',
             bad: '完整度需要加强',
-            v: integrity,
-          ),
-        ),
-      );
+            v: integrity),
+      ));
     }
 
     if (exceptInfo != null && exceptInfo != 0) {
@@ -235,53 +195,11 @@ class LevelEvaluationFlow {
     return '多听标准发音，慢一点跟读，注意嘴型和声调。';
   }
 
-  Future<void> submitEvaluation({
-    required int score,
-    required YiRecorderResult recordResult,
-    int? fluency,
-    int? tone,
-    int? phone,
-    int? integrity,
-    int? exceptInfo,
-  }) async {
-    final deviceId = await UserPrefs.getOrCreateDeviceId();
-    final ms = recordResult.duration.inMilliseconds;
-    final seconds = (ms / 1000).round();
-    final durationSec = seconds < 1 ? 1 : (seconds > 60 ? 60 : seconds);
-
-    final effectiveLevelId = content.levelId.trim().isNotEmpty
-        ? content.levelId.trim()
-        : levelId.trim();
-    if (effectiveLevelId.isEmpty) return;
-
-    final lessonIdToUse = (lessonId ?? '').trim().isNotEmpty
-        ? (lessonId ?? '').trim()
-        : unitId.trim().isNotEmpty
-            ? unitId.trim()
-            : 'lesson-b';
-
-    final body = <String, dynamic>{
-      'lessonId': lessonIdToUse,
-      'score': score,
-      'duration': durationSec,
-      'deviceId': deviceId,
-      if (fluency != null) 'fluencyScore': fluency,
-      if (tone != null) 'toneScore': tone,
-      if (phone != null) 'phoneScore': phone,
-      if (integrity != null) 'integrityScore': integrity,
-      if (exceptInfo != null) 'exceptInfo': exceptInfo,
-    };
-
-    final token = await UserPrefs.getAccessToken();
-    await submitLevelEvaluationAPI(
-      levelId: effectiveLevelId,
-      data: body,
-      accessToken: token,
-    );
-
-    if (kDebugMode) {
-      debugPrint('submit-evaluation ok: levelId=$effectiveLevelId');
-    }
+  String _buildTtsFeedback(int score, String learningTip) {
+    if (score >= 90) return '小朋友真棒！你读得非常好，$learningTip';
+    if (score >= 75) return '不错呀小朋友！$learningTip';
+    if (score >= 60) return '加油呀小朋友！$learningTip';
+    return '别灰心呀小朋友！$learningTip';
   }
 
   Future<void> evaluateAndShowDialog({
@@ -291,8 +209,9 @@ class LevelEvaluationFlow {
     final endpoint = Uri.parse(GlobalConstants.xfyunIseEndpoint);
     final authCache = await _ensureIseAuth();
     if (authCache == null) {
-      if (!context.mounted) return;
-      ToastUtils.showToast(context, '获取语音测评鉴权失败');
+      if (context.mounted) {
+        ToastUtils.showToast(context, '获取语音测评鉴权失败');
+      }
       return;
     }
 
@@ -302,7 +221,7 @@ class LevelEvaluationFlow {
       date: authCache.date,
     );
     final appId = authCache.appId;
-    final category = _isWordContent(content) ? 'read_word' : 'read_syllable';
+    final category = item.category;
     final evaluator = YiIseEvaluator(
       YiIseConfig(
         endpoint: endpoint,
@@ -313,19 +232,14 @@ class LevelEvaluationFlow {
     );
 
     try {
-      final evalText = (_isShengmuContent(content) || _isYunmuContent(content))
-          ? (content.pinyinText.trim().isEmpty
-              ? content.contentValue
-              : content.pinyinText)
-          : content.contentValue;
       final result = await evaluator.evaluateFileToResult(
         filePath: recordResult.path,
-        text: evalText,
+        text: item.text,
         authQuery: authQuery,
         timeout: const Duration(seconds: 20),
       );
       if (kDebugMode) {
-        debugPrint('ISE result xml: ${result.xml}');
+        debugPrint('Custom ISE result xml: ${result.xml}');
       }
       final score = (result.totalScore ?? 0).round().clamp(0, 100);
 
@@ -334,16 +248,6 @@ class LevelEvaluationFlow {
       final phone = YiIseXml.extractPhoneScore(result.xml)?.round();
       final integrity = YiIseXml.extractIntegrityScore(result.xml)?.round();
       final exceptInfo = YiIseXml.extractExceptInfo(result.xml);
-
-      await submitEvaluation(
-        score: score,
-        recordResult: recordResult,
-        fluency: fluency,
-        tone: tone,
-        phone: phone,
-        integrity: integrity,
-        exceptInfo: exceptInfo,
-      );
 
       final stars = score >= 95
           ? 3
@@ -378,18 +282,19 @@ class LevelEvaluationFlow {
         exceptInfo: exceptInfo,
       );
 
-      final nextPos = currentLevel;
-      final canGoNext = currentLevel < totalLevels &&
-          levelIds.isNotEmpty &&
-          nextPos >= 0 &&
-          nextPos < levelIds.length &&
-          levelIds[nextPos].trim().isNotEmpty;
-
       if (!context.mounted) return;
+
+      final feedbackText = _buildTtsFeedback(score, learningTip);
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (context.mounted) {
+          ttsPlayer.speak(context: context, text: feedbackText);
+        }
+      });
+
       await showDialog<void>(
         context: context,
         barrierDismissible: false,
-        builder: (context) {
+        builder: (dialogContext) {
           return LevelDetailEvalDialog(
             score: score,
             accuracyText: accuracyText,
@@ -398,21 +303,23 @@ class LevelEvaluationFlow {
             points: points,
             learningTip: learningTip,
             onTryAgain: () {
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
               onEvaluationCompleted();
             },
-            onNext: canGoNext
-                ? () {
-                    Navigator.of(context).pop();
-                    onNavigateToNext();
-                  }
-                : null,
+            onNext: () {
+              Navigator.of(dialogContext).pop();
+              onFinish();
+            },
           );
         },
       );
-    } catch (_) {
-      if (!context.mounted) return;
-      ToastUtils.showToast(context, '测评失败');
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Custom evaluation failed: $e');
+      }
+      if (context.mounted) {
+        ToastUtils.showToast(context, '测评失败');
+      }
     }
   }
 }

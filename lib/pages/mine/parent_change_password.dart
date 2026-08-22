@@ -92,82 +92,88 @@ class _ParentChangePasswordPageState extends State<ParentChangePasswordPage> {
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-                child: Column(
-                  children: [
-                    const Icon(
-                      Icons.lock_reset_rounded,
-                      size: 80,
-                      color: Color(0xFF3D2800),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      '为了账号安全',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF3D2800),
-                      ),
-                    ),
-                    const Text(
-                      '请设置新的家长密码',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF666666),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    _buildPasswordField(
-                      controller: _oldPasswordController,
-                      label: '原密码',
-                      hint: '请输入原密码',
-                      obscure: _obscureOld,
-                      onToggle: () =>
-                          setState(() => _obscureOld = !_obscureOld),
-                      yellow: yellow,
-                    ),
-                    const SizedBox(height: 20),
-                    _buildPasswordField(
-                      controller: _newPasswordController,
-                      label: '新密码',
-                      hint: '请输入 6-32 位新密码',
-                      obscure: _obscureNew,
-                      onToggle: () =>
-                          setState(() => _obscureNew = !_obscureNew),
-                      yellow: yellow,
-                    ),
-                    const SizedBox(height: 20),
-                    _buildPasswordField(
-                      controller: _confirmPasswordController,
-                      label: '确认新密码',
-                      hint: '请再次输入新密码',
-                      obscure: _obscureConfirm,
-                      onToggle: () =>
-                          setState(() => _obscureConfirm = !_obscureConfirm),
-                      yellow: yellow,
-                    ),
-                    const SizedBox(height: 40),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: FilledButton(
-                        style: FilledButton.styleFrom(
-                          backgroundColor: red,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
-                          ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.lock_reset_rounded,
+                          size: 80,
+                          color: Color(0xFF3D2800),
                         ),
-                        onPressed: _loading ? null : _onSubmit,
-                        child: Text(
-                          _loading ? '提交中...' : '确认修改并进入',
-                          style: const TextStyle(
-                            fontSize: 18,
+                        const SizedBox(height: 16),
+                        const Text(
+                          '为了账号安全',
+                          style: TextStyle(
+                            fontSize: 24,
                             fontWeight: FontWeight.w900,
+                            color: Color(0xFF3D2800),
                           ),
                         ),
-                      ),
+                        const Text(
+                          '请设置新的家长密码',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF666666),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        _buildPasswordField(
+                          controller: _oldPasswordController,
+                          label: '原密码',
+                          hint: '请输入原密码',
+                          obscure: _obscureOld,
+                          onToggle: () =>
+                              setState(() => _obscureOld = !_obscureOld),
+                          yellow: yellow,
+                        ),
+                        const SizedBox(height: 20),
+                        _buildPasswordField(
+                          controller: _newPasswordController,
+                          label: '新密码',
+                          hint: '请输入 6-32 位新密码',
+                          obscure: _obscureNew,
+                          onToggle: () =>
+                              setState(() => _obscureNew = !_obscureNew),
+                          yellow: yellow,
+                        ),
+                        const SizedBox(height: 20),
+                        _buildPasswordField(
+                          controller: _confirmPasswordController,
+                          label: '确认新密码',
+                          hint: '请再次输入新密码',
+                          obscure: _obscureConfirm,
+                          onToggle: () =>
+                              setState(() => _obscureConfirm = !_obscureConfirm),
+                          yellow: yellow,
+                        ),
+                        const SizedBox(height: 40),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 54,
+                          child: FilledButton(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                            ),
+                            onPressed: _loading ? null : _onSubmit,
+                            child: Text(
+                              _loading ? '提交中...' : '确认修改并进入',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),

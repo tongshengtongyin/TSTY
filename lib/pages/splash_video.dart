@@ -20,9 +20,12 @@ class _SplashVideoPageState extends State<SplashVideoPage> {
   }
 
   Future<void> _initVideo() async {
-    final controller = VideoPlayerController.asset(
-      'lib/assets/video/start.mp4',
-    );
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isLandscape = screenWidth > screenHeight;
+    final videoAsset = isLandscape ? 'lib/assets/video/start_h.mp4' : 'lib/assets/video/start.mp4';
+
+    final controller = VideoPlayerController.asset(videoAsset);
     _controller = controller;
 
     try {

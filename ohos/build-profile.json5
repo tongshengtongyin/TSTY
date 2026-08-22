@@ -1,7 +1,20 @@
-
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\Neo\\.ohos\\config\\default_ohos_sxfg_mkr9WYKgXy469RWcuamq0loTEFrxSWIPG6L-HQ=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001BB3B662C2AC8CEACF4239BEDCFF18BDE14D5AA56A5D8773874DD184C23E9BE1AE7894D92F504B69",
+          "profile": "C:\\Users\\Neo\\.ohos\\config\\default_ohos_sxfg_mkr9WYKgXy469RWcuamq0loTEFrxSWIPG6L-HQ=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\Neo\\.ohos\\config\\default_ohos_sxfg_mkr9WYKgXy469RWcuamq0loTEFrxSWIPG6L-HQ=.p12",
+          "storePassword": "0000001B42A08ACDBF571FD6C857A64B8508CBE6BE169B5403ECEFE12015FE8421714190EDBBCBC65533EE"
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",

@@ -44,11 +44,14 @@ class AiChatRecentChatTile extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [Color(0xFFFFFFFF), Color(0xFFFFFBF2)],
         ),
-        border: showDivider
-            ? const Border(
-                bottom: BorderSide(color: Color(0xFFF0F0F0), width: 1),
-              )
-            : null,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Row(
         children: [

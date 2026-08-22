@@ -416,23 +416,29 @@ class _ParentCenterPageState extends State<ParentCenterPage> {
               ),
               const SizedBox(height: 6),
               Expanded(
-                child: IndexedStack(
-                  index: _tabIndex,
-                  children: [
-                    ParentReportSection(
-                      child: _child,
-                      period: _period,
-                      onPeriodChanged: (p) => _loadReport(period: p),
-                      data: _report,
-                      loading: _reportLoading,
-                      onBarTap: _onBarTap,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: IndexedStack(
+                      index: _tabIndex,
+                      children: [
+                        ParentReportSection(
+                          child: _child,
+                          period: _period,
+                          onPeriodChanged: (p) => _loadReport(period: p),
+                          data: _report,
+                          loading: _reportLoading,
+                          onBarTap: _onBarTap,
+                        ),
+                        ParentControlSection(
+                          settings: _controlSettings,
+                          onChanged: (s) =>
+                              setState(() => _controlSettings = s),
+                          onSave: _onSaveControl,
+                        ),
+                      ],
                     ),
-                    ParentControlSection(
-                      settings: _controlSettings,
-                      onChanged: (s) => setState(() => _controlSettings = s),
-                      onSave: _onSaveControl,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],

@@ -17,117 +17,123 @@ class PrivacySettingsPage extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSection(
-                    context,
-                    title: '系统权限管理',
-                    icon: Icons.security,
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildPermissionItem(
-                          icon: Icons.mic,
-                          title: '麦克风权限',
-                          description: '用于语音练习、测评和语音合成功能',
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 520),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSection(
+                        context,
+                        title: '系统权限管理',
+                        icon: Icons.security,
+                        content: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildPermissionItem(
+                              icon: Icons.mic,
+                              title: '麦克风权限',
+                              description: '用于语音练习、测评和语音合成功能',
+                            ),
+                            const SizedBox(height: 12),
+                            _buildPermissionItem(
+                              icon: Icons.camera_alt,
+                              title: '相机/相册权限',
+                              description: '用于上传头像或反馈截图',
+                            ),
+                            const SizedBox(height: 12),
+                            _buildPermissionItem(
+                              icon: Icons.notifications,
+                              title: '通知权限',
+                              description: '用于学习提醒和进度通知',
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 12),
-                        _buildPermissionItem(
-                          icon: Icons.camera_alt,
-                          title: '相机/相册权限',
-                          description: '用于上传头像或反馈截图',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildPermissionItem(
-                          icon: Icons.notifications,
-                          title: '通知权限',
-                          description: '用于学习提醒和进度通知',
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildSection(
-                    context,
-                    title: '数据使用说明',
-                    icon: Icons.data_usage,
-                    content: const Text(
-                      '我们仅在提供学习服务与改进产品所必需的范围内处理您的信息。您的语音数据仅用于实时评测和合成，不会长期存储。学习进度数据用于生成个性化学习报告。',
-                      style: TextStyle(
-                        fontSize: 14,
-                        height: 1.6,
-                        color: Color(0xFF2A1E00),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildSection(
-                    context,
-                    title: '缓存与记录管理',
-                    icon: Icons.storage,
-                    content: const Text(
-                      '您可以在"清除缓存"中删除本地缓存文件，包括临时音频文件和图片缓存。退出登录后，我们将清除您的登录态和本地存储的学习记录。',
-                      style: TextStyle(
-                        fontSize: 14,
-                        height: 1.6,
-                        color: Color(0xFF2A1E00),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildSection(
-                    context,
-                    title: '账号与安全',
-                    icon: Icons.account_circle,
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          '如需注销账号或删除个人信息，请通过以下方式联系我们：',
+                      const SizedBox(height: 16),
+                      _buildSection(
+                        context,
+                        title: '数据使用说明',
+                        icon: Icons.data_usage,
+                        content: const Text(
+                          '我们仅在提供学习服务与改进产品所必需的范围内处理您的信息。您的语音数据仅用于实时评测和合成，不会长期存储。学习进度数据用于生成个性化学习报告。',
                           style: TextStyle(
                             fontSize: 14,
                             height: 1.6,
                             color: Color(0xFF2A1E00),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: yellow.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: yellow, width: 1),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.email, color: primary, size: 20),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  '2629103796@qq.com',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: primary,
-                                  ),
-                                ),
-                              ),
-                            ],
+                      ),
+                      const SizedBox(height: 16),
+                      _buildSection(
+                        context,
+                        title: '缓存与记录管理',
+                        icon: Icons.storage,
+                        content: const Text(
+                          '您可以在"清除缓存"中删除本地缓存文件，包括临时音频文件和图片缓存。退出登录后，我们将清除您的登录态和本地存储的学习记录。',
+                          style: TextStyle(
+                            fontSize: 14,
+                            height: 1.6,
+                            color: Color(0xFF2A1E00),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildSection(
+                        context,
+                        title: '账号与安全',
+                        icon: Icons.account_circle,
+                        content: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              '如需注销账号或删除个人信息，请通过以下方式联系我们：',
+                              style: TextStyle(
+                                fontSize: 14,
+                                height: 1.6,
+                                color: Color(0xFF2A1E00),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: yellow.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: yellow, width: 1),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.email, color: primary, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      '2629103796@qq.com',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: primary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      Center(
+                        child: Text(
+                          '童声同音致力于保护您的隐私安全',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                   ),
-                  const SizedBox(height: 32),
-                  Center(
-                    child: Text(
-                      '童声同音致力于保护您的隐私安全',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                ),
               ),
             ),
           ),
