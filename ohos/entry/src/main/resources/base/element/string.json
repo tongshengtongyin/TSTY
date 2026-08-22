@@ -11,6 +11,18 @@
     {
       "name": "EntryAbility_label",
       "value": "tsty_app"
+    },
+    {
+      "name": "microphone_reason",
+      "value": "用于语音对话和录音功能"
+    },
+    {
+      "name": "write_audio_reason",
+      "value": "用于保存录音文件"
+    },
+    {
+      "name": "read_audio_reason",
+      "value": "用于播放录音文件"
     }
   ]
 }
